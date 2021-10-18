@@ -1,0 +1,43 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
+# ~~~~
+
+GET /health controllers.HealthController.check()
+
+# create new user (public)
+POST /users controllers.UsersController.create()
+# login user (public)
+POST /users/login controllers.UsersController.login()
+
+# get the current user details
+GET /users/me controllers.UsersController.getCurrentUser()
+# update the current user details
+PUT /users/me controllers.UsersController.update()
+
+# get the current user logs
+GET /users/me/logs controllers.UsersController.getLogs()
+
+# get users
+GET /admin/users controllers.AdminController.getUsers()
+
+# get user logs
+GET /admin/users/:userId/logs controllers.AdminController.getUserLogs(userId)
+
+# get database tables
+GET /admin/tables controllers.AdminController.getTables()
+
+# get database table fields
+GET /admin/tables/:tableName controllers.AdminController.getTableMetadata(tableName, offset: Int ?= 0, limit: Int ?= 10)
+
+# get table resource by id (depends on IDFieldName on AdminConfig)
+GET /admin/tables/:tableName/:ID controllers.AdminController.find(tableName, ID)
+
+# create table resource
+POST /admin/tables/:tableName controllers.AdminController.create(tableName)
+
+# update table resource
+PUT /admin/tables/:tableName/:ID controllers.AdminController.update(tableName, ID)
+
+# delete table resource
+DELETE /admin/tables/:tableName/:ID controllers.AdminController.delete(tableName, ID)
