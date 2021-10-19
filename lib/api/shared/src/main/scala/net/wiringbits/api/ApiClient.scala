@@ -10,17 +10,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 trait ApiClient {
-
-  def createUser(request: CreateUserRequest): Future[CreateUserResponse]
-  def login(request: LoginRequest): Future[LoginResponse]
-
-  def currentUser(jwt: String): Future[GetCurrentUserResponse]
-  def updateUser(jwt: String, request: UpdateUserRequest): Future[UpdateUserResponse]
-  def getUserLogs(jwt: String): Future[GetUserLogsResponse]
-
-  def adminGetUserLogs(userId: UUID): Future[AdminGetUserLogsResponse]
-  def adminGetUsers(): Future[AdminGetUsersResponse]
-
   def adminGetTables(): Future[AdminGetTablesResponse]
   def adminGetTableMetadata(tableName: String, offset: Int, limit: Int): Future[AdminGetTableMetadataResponse]
 
@@ -88,89 +77,6 @@ object ApiClient {
       basicRequest
         .contentType(MediaType.ApplicationJson)
         .response(asJson[R])
-    }
-
-    override def createUser(request: CreateUserRequest): Future[CreateUserResponse] = {
-      val path = ServerAPI.path :+ "users"
-      val uri = ServerAPI.path(path)
-
-      prepareRequest[CreateUserResponse]
-        .post(uri)
-        .body(Json.toJson(request).toString())
-        .send()
-        .map(_.body)
-        .flatMap(Future.fromTry)
-    }
-
-    override def login(request: LoginRequest): Future[LoginResponse] = {
-      val path = ServerAPI.path :+ "users" :+ "login"
-      val uri = ServerAPI.path(path)
-
-      prepareRequest[LoginResponse]
-        .post(uri)
-        .body(Json.toJson(request).toString())
-        .send()
-        .map(_.body)
-        .flatMap(Future.fromTry)
-    }
-
-    override def currentUser(jwt: String): Future[GetCurrentUserResponse] = {
-      val path = ServerAPI.path :+ "users" :+ "me"
-      val uri = ServerAPI.path(path)
-
-      prepareRequest[GetCurrentUserResponse]
-        .get(uri)
-        .header("X-Authorization", s"Bearer $jwt")
-        .send()
-        .map(_.body)
-        .flatMap(Future.fromTry)
-    }
-
-    override def updateUser(jwt: String, request: UpdateUserRequest): Future[UpdateUserResponse] = {
-      val path = ServerAPI.path :+ "users"
-      val uri = ServerAPI.path(path)
-
-      prepareRequest[UpdateUserResponse]
-        .put(uri)
-        .header("X-Authorization", s"Bearer $jwt")
-        .body(Json.toJson(request).toString())
-        .send()
-        .map(_.body)
-        .flatMap(Future.fromTry)
-    }
-
-    override def getUserLogs(jwt: String): Future[GetUserLogsResponse] = {
-      val path = ServerAPI.path :+ "users" :+ "me" :+ "logs"
-      val uri = ServerAPI.path(path)
-
-      prepareRequest[GetUserLogsResponse]
-        .get(uri)
-        .header("X-Authorization", s"Bearer $jwt")
-        .send()
-        .map(_.body)
-        .flatMap(Future.fromTry)
-    }
-
-    override def adminGetUserLogs(userId: UUID): Future[AdminGetUserLogsResponse] = {
-      val path = ServerAPI.path :+ "admin" :+ "users" :+ userId.toString :+ "logs"
-      val uri = ServerAPI.path(path)
-
-      prepareRequest[AdminGetUserLogsResponse]
-        .get(uri)
-        .send()
-        .map(_.body)
-        .flatMap(Future.fromTry)
-    }
-
-    override def adminGetUsers(): Future[AdminGetUsersResponse] = {
-      val path = ServerAPI.path :+ "admin" :+ "users"
-      val uri = ServerAPI.path(path)
-
-      prepareRequest[AdminGetUsersResponse]
-        .get(uri)
-        .send()
-        .map(_.body)
-        .flatMap(Future.fromTry)
     }
 
     override def adminGetTables(): Future[AdminGetTablesResponse] = {

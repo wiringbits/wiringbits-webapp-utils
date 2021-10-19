@@ -62,7 +62,6 @@ import slinky.web.html._
 
     val menu = Fragment(
       NavLinkButton("/", AppStrings.home, onButtonClick),
-      NavLinkButton("/users", AppStrings.users, onButtonClick),
       NavLinkButton("/tables", AppStrings.dataExplorer, onButtonClick)
     )
 

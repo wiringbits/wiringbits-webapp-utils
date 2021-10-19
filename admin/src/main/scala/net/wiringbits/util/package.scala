@@ -3,7 +3,7 @@ package net.wiringbits
 package object util {
 
   private def upperCaseFirstLetter(word: String): String = {
-    // This replace every ocurrence
+    // This replaces every ocurrence
     word.replace(word.head, word.head.toUpper)
   }
 
