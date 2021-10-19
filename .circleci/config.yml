@@ -27,7 +27,6 @@ jobs:
             - cache-v1-
 
       - run: sbt server/test:compile
-      - run: sbt web/test:compile
       - run: sbt admin/test:compile
 
       - save_cache:
@@ -46,12 +45,10 @@ jobs:
       - run: sbt apiJVM/test
       - run: sbt apiJS/test
       - run: sbt ui/test
-      - run: sbt web/test
       - run: sbt admin/test
 
       # package the apps
       - run: sbt server/dist
-      - run: sbt web/build
       - run: sbt admin/build
 
   # server tests require docker to run tests

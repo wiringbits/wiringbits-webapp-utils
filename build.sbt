@@ -4,6 +4,22 @@ import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / organization := "net.wiringbits"
 
+inThisBuild(
+  List(
+    organization := "com.alexitc",
+    homepage := Some(url("https://github.com/wiringbits/wiringbits-webapp-utils")),
+    licenses := List("MIT" -> url("https://www.opensource.org/licenses/mit-license.html")),
+    developers := List(
+      Developer(
+        "AlexITC",
+        "Alexis Hernandez",
+        "alexis22229@gmail.com",
+        url("https://wiringbits.net")
+      )
+    )
+  )
+)
+
 val playJson = "2.9.2"
 val sttp = "2.2.10"
 
@@ -298,57 +314,6 @@ lazy val server = (project in file("server"))
     )
   )
 
-lazy val webBuildInfoSettings: Project => Project = _.enablePlugins(BuildInfoPlugin)
-  .settings(
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoKeys ++= {
-      val apiUrl = sys.env.get("API_URL")
-      val values = Seq(
-        "apiUrl" -> apiUrl
-      )
-      // Logging these values is useful to make sure that the necessary settings
-      // are being overriden when packaging the app.
-      sLog.value.info(s"BuildInfo settings:\n${values.mkString("\n")}")
-      values.map(t => BuildInfoKey(t._1, t._2))
-    },
-    buildInfoPackage := "net.wiringbits",
-    buildInfoUsePackageAsPath := true
-  )
-
-lazy val web = (project in file("web"))
-  .dependsOn(common.js, api.js, ui)
-  .enablePlugins(ScalablyTypedConverterPlugin)
-  .configure(baseWebSettings, browserProject, reactNpmDeps, withCssLoading, bundlerSettings, webBuildInfoSettings)
-  .settings(
-    name := "wiringbits-web",
-    useYarn := true,
-    webpackDevServerPort := 8080,
-    stFlavour := Flavour.Slinky,
-    stReactEnableTreeShaking := Selection.All,
-    stUseScalaJsDom := true,
-    Compile / stMinimize := Selection.All,
-    // material-ui is provided by a pre-packaged library
-    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
-    Compile / npmDependencies ++= Seq(
-      "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
-      "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
-      "@material-ui/icons" -> "3.0.2",
-      "@types/classnames" -> "2.2.10",
-      "react-router" -> "5.1.2",
-      "@types/react-router" -> "5.1.2",
-      "react-router-dom" -> "5.1.2",
-      "@types/react-router-dom" -> "5.1.2"
-    ),
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" %%% "play-json" % playJson,
-      "com.softwaremill.sttp.client" %%% "core" % sttp,
-      "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
-    ),
-    libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.2.10" % Test
-    )
-  )
-
 lazy val adminBuildInfoSettings: Project => Project = _.enablePlugins(BuildInfoPlugin)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
@@ -408,7 +373,6 @@ lazy val root = (project in file("."))
     api.js,
     ui,
     server,
-    web,
     admin
   )
   .settings(
@@ -416,5 +380,4 @@ lazy val root = (project in file("."))
     publishLocal := {}
   )
 
-addCommandAlias("dev-web", ";web/fastOptJS::startWebpackDevServer;~web/fastOptJS")
 addCommandAlias("dev-admin", ";admin/fastOptJS::startWebpackDevServer;~admin/fastOptJS")

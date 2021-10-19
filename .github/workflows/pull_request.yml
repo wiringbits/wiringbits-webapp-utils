@@ -30,8 +30,5 @@ jobs:
       - name: Prepare admin build
         run: sbt admin/build
 
-      - name: Prepare web build
-        run: sbt web/build
-
       - name: Prepare server build
         run: sbt server/dist
