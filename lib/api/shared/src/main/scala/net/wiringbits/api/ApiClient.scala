@@ -5,7 +5,6 @@ import play.api.libs.json._
 import sttp.client._
 import sttp.model._
 
-import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
