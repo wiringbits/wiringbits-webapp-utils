@@ -365,19 +365,4 @@ lazy val admin = (project in file("admin"))
     )
   )
 
-lazy val root = (project in file("."))
-  .aggregate(
-    common.jvm,
-    common.js,
-    api.jvm,
-    api.js,
-    ui,
-    server,
-    admin
-  )
-  .settings(
-    publish := {},
-    publishLocal := {}
-  )
-
 addCommandAlias("dev-admin", ";admin/fastOptJS::startWebpackDevServer;~admin/fastOptJS")
