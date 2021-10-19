@@ -1,5 +1,7 @@
 package net.wiringbits.util.models
 
+import net.wiringbits.common.models.core.WrappedInt
+
 package object pagination {
   case class Count(int: Int) extends AnyVal with WrappedInt
 
