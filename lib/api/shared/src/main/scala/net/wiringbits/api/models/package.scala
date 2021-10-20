@@ -3,7 +3,6 @@ package net.wiringbits.api
 import play.api.libs.json._
 
 import java.time.Instant
-import java.util.UUID
 
 package object models {
 

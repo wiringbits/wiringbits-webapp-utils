@@ -12,9 +12,8 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 }
 import com.alexitc.materialui.facade.std.HTMLTableHeaderCellElement
 import com.alexitc.materialui.facade.materialUiCore.{colorsMod => Colors}
-import net.wiringbits.util.formatField
+import net.wiringbits.webapp.utils.admin.util.formatField
 import org.scalablytyped.runtime.StringDictionary
-import org.scalajs.dom.console
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import slinky.core.facade.{Fragment, Hooks}

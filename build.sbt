@@ -6,7 +6,7 @@ ThisBuild / organization := "net.wiringbits"
 
 inThisBuild(
   List(
-    organization := "com.alexitc",
+    organization := "net.wiringbits",
     homepage := Some(url("https://github.com/wiringbits/wiringbits-webapp-utils")),
     licenses := List("MIT" -> url("https://www.opensource.org/licenses/mit-license.html")),
     developers := List(
@@ -297,7 +297,7 @@ lazy val server = (project in file("server"))
   .dependsOn(common.jvm, api.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
-    name := "wiringbits-server",
+    name := "webapp-utils-admin",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(

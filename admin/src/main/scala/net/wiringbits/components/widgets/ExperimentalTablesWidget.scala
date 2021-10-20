@@ -1,8 +1,8 @@
 package net.wiringbits.components.widgets
 
 import net.wiringbits.api.models.AdminGetTablesResponse
-import net.wiringbits.ui.components.core.RemoteDataLoader
 import net.wiringbits.API
+import net.wiringbits.ui.components.core.RemoteDataLoader
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 

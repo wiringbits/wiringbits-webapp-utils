@@ -1,6 +1,6 @@
 package net.wiringbits
 
-import net.wiringbits.components.pages.{DataExplorerPage, HomePage, ExperimentalTablesPage}
+import net.wiringbits.components.pages.{DataExplorerPage, ExperimentalTablesPage, HomePage}
 import net.wiringbits.components.widgets.{AppBar, Footer}
 import net.wiringbits.ui.components.core.widgets.Scaffold
 import slinky.core.FunctionalComponent
