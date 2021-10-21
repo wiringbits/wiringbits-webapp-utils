@@ -1,4 +1,4 @@
-package net.wiringbits.api
+package net.wiringbits.webapp.utils.api
 
 import play.api.libs.json._
 

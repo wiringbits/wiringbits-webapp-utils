@@ -1,4 +1,4 @@
-package net.wiringbits.common.models.core
+package net.wiringbits.webapp.utils.common.models.core
 
 trait WrappedInt extends Any {
   def int: Int

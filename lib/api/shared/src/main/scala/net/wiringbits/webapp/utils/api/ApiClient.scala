@@ -1,6 +1,6 @@
-package net.wiringbits.api
+package net.wiringbits.webapp.utils.api
 
-import net.wiringbits.api.models._
+import net.wiringbits.webapp.utils.api.models._
 import play.api.libs.json._
 import sttp.client._
 import sttp.model._

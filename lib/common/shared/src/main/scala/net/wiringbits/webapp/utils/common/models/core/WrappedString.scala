@@ -1,4 +1,4 @@
-package net.wiringbits.common.models.core
+package net.wiringbits.webapp.utils.common.models.core
 
 trait WrappedString extends Any {
   def string: String

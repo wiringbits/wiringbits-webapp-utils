@@ -1,9 +1,9 @@
 package net.wiringbits.webapp.utils.admin.services
 
-import net.wiringbits.api.models.*
 import net.wiringbits.webapp.utils.admin.config.models.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
 import net.wiringbits.webapp.utils.admin.utils.models.pagination.PaginatedQuery
+import net.wiringbits.webapp.utils.api.models.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

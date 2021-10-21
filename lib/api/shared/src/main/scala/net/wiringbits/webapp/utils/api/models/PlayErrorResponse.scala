@@ -1,4 +1,4 @@
-package net.wiringbits.api.models
+package net.wiringbits.webapp.utils.api.models
 
 import play.api.libs.json.{Format, Json}
 

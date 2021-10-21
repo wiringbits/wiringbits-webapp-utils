@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.controllers
 
-import net.wiringbits.api.models.*
+import net.wiringbits.webapp.utils.api.models.*
 import net.wiringbits.webapp.utils.admin.services.AdminService
 import net.wiringbits.webapp.utils.admin.utils.models.pagination.{Limit, Offset, PaginatedQuery}
 import org.slf4j.LoggerFactory

@@ -1,6 +1,6 @@
 package net.wiringbits
 
-import net.wiringbits.api.ApiClient
+import net.wiringbits.webapp.utils.api.ApiClient
 
 import scala.concurrent.ExecutionContext
 

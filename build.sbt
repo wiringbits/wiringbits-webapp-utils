@@ -7,6 +7,7 @@ ThisBuild / organization := "net.wiringbits"
 inThisBuild(
   List(
     organization := "net.wiringbits",
+    name := "wiringbits-webapp-utils",
     homepage := Some(url("https://github.com/wiringbits/wiringbits-webapp-utils")),
     licenses := List("MIT" -> url("https://www.opensource.org/licenses/mit-license.html")),
     developers := List(
@@ -223,7 +224,8 @@ lazy val common = (crossProject(JSPlatform, JVMPlatform) in file("lib/common"))
   .configure(baseLibSettings)
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
   .settings(
-    libraryDependencies ++= Seq()
+    libraryDependencies ++= Seq(),
+    name := "wiringbits-common"
   )
   .jvmSettings(
     libraryDependencies ++= Seq(
@@ -244,6 +246,9 @@ lazy val common = (crossProject(JSPlatform, JVMPlatform) in file("lib/common"))
 lazy val api = (crossProject(JSPlatform, JVMPlatform) in file("lib/api"))
   .dependsOn(common)
   .configure(baseLibSettings)
+  .settings(
+    name := "wiringbits-api"
+  )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
   .jvmSettings(
     libraryDependencies ++= Seq(
@@ -297,7 +302,7 @@ lazy val server = (project in file("server"))
   .dependsOn(common.jvm, api.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
-    name := "webapp-utils-admin",
+    name := "wiringbits-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(
@@ -331,6 +336,7 @@ lazy val adminBuildInfoSettings: Project => Project = _.enablePlugins(BuildInfoP
     buildInfoUsePackageAsPath := true
   )
 
+/*
 lazy val admin = (project in file("admin"))
   .dependsOn(common.js, api.js, ui)
   .enablePlugins(ScalablyTypedConverterPlugin)
@@ -364,5 +370,6 @@ lazy val admin = (project in file("admin"))
       "org.scalatest" %%% "scalatest" % "3.2.10" % Test
     )
   )
+ */
 
 addCommandAlias("dev-admin", ";admin/fastOptJS::startWebpackDevServer;~admin/fastOptJS")

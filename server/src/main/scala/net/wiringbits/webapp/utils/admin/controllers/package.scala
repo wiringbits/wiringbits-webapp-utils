@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin
 
-import net.wiringbits.api.models.ErrorResponse
+import net.wiringbits.webapp.utils.api.models.ErrorResponse
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsValue, Json, Reads}
 import play.api.mvc.Results.InternalServerError
