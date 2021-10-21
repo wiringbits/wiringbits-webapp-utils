@@ -1,6 +1,3 @@
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption.REPLACE_EXISTING
-
 ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / organization := "net.wiringbits"
 
@@ -25,11 +22,6 @@ val playJson = "2.9.2"
 val sttp = "2.2.10"
 
 val consoleDisabledOptions = Seq("-Xfatal-warnings", "-Ywarn-unused", "-Ywarn-unused-import")
-
-/**
- * Say just `build` or `sbt build` to make a production bundle in `build`
- */
-lazy val build = TaskKey[File]("build")
 
 // Used only by the server
 // TODO: Reuse it in all projects
@@ -58,32 +50,6 @@ lazy val baseServerSettings: Project => Project = {
   )
 }
 
-// Used only by web projects
-lazy val baseWebSettings: Project => Project =
-  _.enablePlugins(ScalaJSPlugin)
-    .settings(
-      scalacOptions ++= Seq(
-        "-deprecation", // Emit warning and location for usages of deprecated APIs.
-        "-encoding",
-        "utf-8", // Specify character encoding used by source files.
-        "-explaintypes", // Explain type errors in more detail.
-        "-feature", // Emit warning and location for usages of features that should be imported explicitly.
-        "-unchecked" // Enable additional warnings where generated code depends on assumptions.
-      ),
-      scalaJSUseMainModuleInitializer := true,
-      /* disabled because it somehow triggers many warnings */
-      scalaJSLinkerConfig := scalaJSLinkerConfig.value.withSourceMap(false),
-      /* for slinky */
-      libraryDependencies ++= Seq("me.shadaj" %%% "slinky-hot" % "0.6.8"),
-      libraryDependencies ++= Seq(
-        "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
-        "io.github.cquiroz" %%% "scala-java-time-tzdb" % "2.3.0"
-      ),
-      scalacOptions += "-Ymacro-annotations",
-      Test / fork := false, // sjs needs this to run tests
-      Test / requireJsDomEnv := true
-    )
-
 // Used only by the lib projects
 lazy val baseLibSettings: Project => Project =
   _.enablePlugins(ScalaJSPlugin)
@@ -101,58 +67,6 @@ lazy val baseLibSettings: Project => Project =
         "org.scalatest" %%% "scalatest" % "3.2.10" % Test
       )
     )
-
-/**
- * Implement the  `build` task define above.
- * Most of this is really just to copy the index.html file around.
- */
-lazy val browserProject: Project => Project =
-  _.settings(
-    build := {
-      val artifacts = (Compile / fullOptJS / webpack).value
-      val artifactFolder = (Compile / fullOptJS / crossTarget).value
-      val jsFolder = baseDirectory.value / "src" / "main" / "js"
-      val distFolder = baseDirectory.value / "build"
-
-      distFolder.mkdirs()
-      artifacts.foreach { artifact =>
-        val target = artifact.data.relativeTo(artifactFolder) match {
-          case None => distFolder / artifact.data.name
-          case Some(relFile) => distFolder / relFile.toString
-        }
-
-        Files.copy(artifact.data.toPath, target.toPath, REPLACE_EXISTING)
-      }
-
-      // copy public resources
-      Files
-        .walk(jsFolder.toPath)
-        .filter(x => !Files.isDirectory(x))
-        .forEach(source => {
-          source.toFile.relativeTo(jsFolder).foreach { relativeSource =>
-            val dest = distFolder / relativeSource.toString
-            dest.getParentFile.mkdirs()
-            Files.copy(source, dest.toPath, REPLACE_EXISTING)
-          }
-        })
-
-      // link the proper js bundle
-      val indexFrom = baseDirectory.value / "src/main/js/index.html"
-      val indexTo = distFolder / "index.html"
-
-      val indexPatchedContent = {
-        import collection.JavaConverters._
-        Files
-          .readAllLines(indexFrom.toPath, IO.utf8)
-          .asScala
-          .map(_.replaceAllLiterally("-fastopt-", "-opt-"))
-          .mkString("\n")
-      }
-
-      Files.write(indexTo.toPath, indexPatchedContent.getBytes(IO.utf8))
-      distFolder
-    }
-  )
 
 // specify versions for all of reacts dependencies
 lazy val reactNpmDeps: Project => Project =
@@ -194,57 +108,29 @@ lazy val bundlerSettings: Project => Project =
 
 // Used only by play-based projects
 lazy val playSettings: Project => Project = {
-  _.enablePlugins(PlayScala)
-    .disablePlugins(PlayLayoutPlugin)
-    .settings(
-      // docs are huge and unnecessary
-      Compile / doc / sources := Nil,
-      Compile / doc / scalacOptions ++= Seq(
-        "-no-link-warnings"
-      ),
-      // remove play noisy warnings
-      play.sbt.routes.RoutesKeys.routesImport := Seq.empty,
-      libraryDependencies ++= Seq(
-        guice,
-        evolutions,
-        jdbc,
-        ws,
-        "com.google.inject" % "guice" % "5.0.1"
-      ),
-      // test
-      libraryDependencies ++= Seq(
-        "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-        "org.mockito" %% "mockito-scala" % "1.16.42" % Test,
-        "org.mockito" %% "mockito-scala-scalatest" % "1.16.42" % Test
-      )
+  _.settings(
+    // docs are huge and unnecessary
+    Compile / doc / sources := Nil,
+    Compile / doc / scalacOptions ++= Seq(
+      "-no-link-warnings"
+    ),
+    libraryDependencies ++= Seq(
+      // guice,
+      // jdbc,
+      "com.typesafe.play" %% "play-jdbc" % "2.8.8",
+      "com.google.inject" % "guice" % "5.0.1"
+    ),
+    // test
+    libraryDependencies ++= Seq(
+      "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
+      "org.mockito" %% "mockito-scala" % "1.16.42" % Test,
+      "org.mockito" %% "mockito-scala-scalatest" % "1.16.42" % Test
     )
+  )
 }
-
-lazy val common = (crossProject(JSPlatform, JVMPlatform) in file("lib/common"))
-  .configure(baseLibSettings)
-  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
-  .settings(
-    libraryDependencies ++= Seq(),
-    name := "wiringbits-common"
-  )
-  .jvmSettings(
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play-json" % playJson,
-      "com.typesafe.play" %%% "play-json" % playJson // for a weird reason, jvm tests fail without this
-    )
-  )
-  .jsSettings(
-    stUseScalaJsDom := true,
-    Compile / stMinimize := Selection.All,
-    libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
-      "com.typesafe.play" %%% "play-json" % playJson
-    )
-  )
 
 // shared apis
 lazy val api = (crossProject(JSPlatform, JVMPlatform) in file("lib/api"))
-  .dependsOn(common)
   .configure(baseLibSettings)
   .settings(
     name := "wiringbits-api"
@@ -269,9 +155,9 @@ lazy val api = (crossProject(JSPlatform, JVMPlatform) in file("lib/api"))
 lazy val ui = (project in file("lib/ui"))
   .configure(baseLibSettings)
   .configure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
-  .dependsOn(api.js, common.js)
+  .dependsOn(api.js)
   .settings(
-    name := "wiringbits-lib-ui",
+    name := "wiringbits-ui",
     useYarn := true,
     scalacOptions += "-Ymacro-annotations",
     Test / requireJsDomEnv := true,
@@ -299,13 +185,14 @@ lazy val ui = (project in file("lib/ui"))
   )
 
 lazy val server = (project in file("server"))
-  .dependsOn(common.jvm, api.jvm)
+  .dependsOn(api.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
     name := "wiringbits-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(
+      "com.typesafe.play" %% "play" % "2.8.8",
       "org.playframework.anorm" %% "anorm" % "2.6.10",
       "com.typesafe.play" %% "play-json" % "2.9.2",
       "org.postgresql" % "postgresql" % "42.2.24",
@@ -318,58 +205,3 @@ lazy val server = (project in file("server"))
       "com.softwaremill.sttp.client" %% "async-http-client-backend-future" % sttp % "test"
     )
   )
-
-lazy val adminBuildInfoSettings: Project => Project = _.enablePlugins(BuildInfoPlugin)
-  .settings(
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoKeys ++= {
-      val apiUrl = sys.env.get("API_URL")
-      val values = Seq(
-        "apiUrl" -> apiUrl
-      )
-      // Logging these values is useful to make sure that the necessary settings
-      // are being overriden when packaging the app.
-      sLog.value.info(s"BuildInfo settings:\n${values.mkString("\n")}")
-      values.map(t => BuildInfoKey(t._1, t._2))
-    },
-    buildInfoPackage := "net.wiringbits",
-    buildInfoUsePackageAsPath := true
-  )
-
-/*
-lazy val admin = (project in file("admin"))
-  .dependsOn(common.js, api.js, ui)
-  .enablePlugins(ScalablyTypedConverterPlugin)
-  .configure(baseWebSettings, browserProject, reactNpmDeps, withCssLoading, bundlerSettings, adminBuildInfoSettings)
-  .settings(
-    name := "wiringbits-admin",
-    useYarn := true,
-    webpackDevServerPort := 8081,
-    stFlavour := Flavour.Slinky,
-    stReactEnableTreeShaking := Selection.All,
-    stUseScalaJsDom := true,
-    Compile / stMinimize := Selection.All,
-    // material-ui is provided by a pre-packaged library
-    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
-    Compile / npmDependencies ++= Seq(
-      "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
-      "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
-      "@material-ui/icons" -> "3.0.2",
-      "@types/classnames" -> "2.2.10",
-      "react-router" -> "5.1.2",
-      "@types/react-router" -> "5.1.2",
-      "react-router-dom" -> "5.1.2",
-      "@types/react-router-dom" -> "5.1.2"
-    ),
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" %%% "play-json" % playJson,
-      "com.softwaremill.sttp.client" %%% "core" % sttp,
-      "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
-    ),
-    libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.2.10" % Test
-    )
-  )
- */
-
-addCommandAlias("dev-admin", ";admin/fastOptJS::startWebpackDevServer;~admin/fastOptJS")
