@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web.components.widgets
+package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.csstype.mod.{FlexDirectionProperty, TextAlignProperty}
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
@@ -16,7 +16,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 import net.wiringbits.webapp.utils.ui.components.core.widgets.Container._
 import net.wiringbits.webapp.utils.ui.components.core.widgets.{Container, NavLinkButton, Subtitle, Title}
 import net.wiringbits.webapp.utils.ui.core.MediaQueryHooks
-import net.wiringbits.webapp.utils.web.AppStrings
+import net.wiringbits.webapp.utils.ui.web.AppStrings
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react

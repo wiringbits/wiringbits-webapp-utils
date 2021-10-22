@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web.components.pages
+package net.wiringbits.webapp.utils.ui.web.components.pages
 
 import net.wiringbits.webapp.utils.ui.components.core.widgets.{Subtitle, Title}
 import slinky.core.FunctionalComponent

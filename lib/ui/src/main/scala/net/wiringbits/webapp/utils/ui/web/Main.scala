@@ -1,13 +1,12 @@
-package net.wiringbits.webapp.utils.web
+package net.wiringbits.webapp.utils.ui.web
 
 import net.wiringbits.webapp.utils.ui.components.core.{ErrorBoundaryComponent, ErrorBoundaryInfo}
 import org.scalajs.dom
-import slinky.hot
 import slinky.web.ReactDOM
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js.annotation.JSImport
-import scala.scalajs.{LinkingInfo, js}
+import scala.scalajs.js
 
 @JSImport("js/index.css", JSImport.Default)
 @js.native
@@ -17,10 +16,6 @@ object Main {
   val css = IndexCSS
 
   def main(argv: Array[String]): Unit = {
-    if (LinkingInfo.developmentMode) {
-      hot.initialize()
-    }
-
     val app = ErrorBoundaryComponent(
       ErrorBoundaryComponent.Props(
         child = App(API()),

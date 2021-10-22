@@ -1,6 +1,6 @@
-package net.wiringbits.webapp.utils.admin
+package net.wiringbits.webapp.utils.ui.web
 
-package object util {
+package object utils {
 
   private def upperCaseFirstLetter(word: String): String = {
     // This replaces every ocurrence

@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web.components.widgets
+package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.react.mod.ChangeEvent
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse

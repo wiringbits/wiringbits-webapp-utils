@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web.components.widgets
+package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react

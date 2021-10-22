@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web.components.widgets
+package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.csstype.mod.TableLayoutProperty
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
@@ -11,9 +11,9 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
-import net.wiringbits.webapp.utils.admin.util.formatField
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
 import net.wiringbits.webapp.utils.ui.components.core.widgets.{Container, Subtitle}
+import net.wiringbits.webapp.utils.ui.web.utils.formatField
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react

@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web
+package net.wiringbits.webapp.utils.ui.web
 
 import com.alexitc.materialui.facade.materialUiCore.{components => mui}
 import com.alexitc.materialui.facade.materialUiStyles.components.ThemeProvider

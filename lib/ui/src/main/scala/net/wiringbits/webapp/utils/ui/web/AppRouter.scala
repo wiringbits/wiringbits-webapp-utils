@@ -1,8 +1,8 @@
-package net.wiringbits.webapp.utils.web
+package net.wiringbits.webapp.utils.ui.web
 
 import net.wiringbits.webapp.utils.ui.components.core.widgets.Scaffold
-import net.wiringbits.webapp.utils.web.components.pages.{DataExplorerPage, ExperimentalTablesPage, HomePage}
-import net.wiringbits.webapp.utils.web.components.widgets.{AppBar, Footer}
+import net.wiringbits.webapp.utils.ui.web.components.pages.{DataExplorerPage, ExperimentalTablesPage, HomePage}
+import net.wiringbits.webapp.utils.ui.web.components.widgets.{AppBar, Footer}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import slinky.core.facade.ReactElement

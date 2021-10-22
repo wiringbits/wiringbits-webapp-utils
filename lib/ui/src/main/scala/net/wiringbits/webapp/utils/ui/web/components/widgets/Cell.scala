@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web.components.widgets
+package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.materialUiCore.{components => mui, materialUiCoreStrings => muiStrings}
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
@@ -12,7 +12,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 }
 import com.alexitc.materialui.facade.std.HTMLTableHeaderCellElement
 import com.alexitc.materialui.facade.materialUiCore.{colorsMod => Colors}
-import net.wiringbits.webapp.utils.admin.util.formatField
+import net.wiringbits.webapp.utils.ui.web.utils.formatField
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react

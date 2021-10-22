@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.web
+package net.wiringbits.webapp.utils.ui.web
 
 object AppStrings {
   val appName = "Wiringbits"
