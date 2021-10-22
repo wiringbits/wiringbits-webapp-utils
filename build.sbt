@@ -108,25 +108,28 @@ lazy val bundlerSettings: Project => Project =
 
 // Used only by play-based projects
 lazy val playSettings: Project => Project = {
-  _.settings(
-    // docs are huge and unnecessary
-    Compile / doc / sources := Nil,
-    Compile / doc / scalacOptions ++= Seq(
-      "-no-link-warnings"
-    ),
-    libraryDependencies ++= Seq(
-      // guice,
-      // jdbc,
-      "com.typesafe.play" %% "play-jdbc" % "2.8.8",
-      "com.google.inject" % "guice" % "5.0.1"
-    ),
-    // test
-    libraryDependencies ++= Seq(
-      "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-      "org.mockito" %% "mockito-scala" % "1.16.42" % Test,
-      "org.mockito" %% "mockito-scala-scalatest" % "1.16.42" % Test
+  _.enablePlugins(PlayScala)
+    .disablePlugins(PlayLayoutPlugin)
+    .settings(
+      // docs are huge and unnecessary
+      Compile / doc / sources := Nil,
+      Compile / doc / scalacOptions ++= Seq(
+        "-no-link-warnings"
+      ),
+      // remove play noisy warnings
+      play.sbt.routes.RoutesKeys.routesImport := Seq.empty,
+      libraryDependencies ++= Seq(
+        evolutions,
+        "com.typesafe.play" %% "play-jdbc" % "2.8.8",
+        "com.google.inject" % "guice" % "5.0.1"
+      ),
+      // test
+      libraryDependencies ++= Seq(
+        "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
+        "org.mockito" %% "mockito-scala" % "1.16.42" % Test,
+        "org.mockito" %% "mockito-scala-scalatest" % "1.16.42" % Test
+      )
     )
-  )
 }
 
 // shared apis
@@ -192,8 +195,8 @@ lazy val server = (project in file("server"))
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play" % "2.8.8",
       "org.playframework.anorm" %% "anorm" % "2.6.10",
+      "com.typesafe.play" %% "play" % "2.8.8",
       "com.typesafe.play" %% "play-json" % "2.9.2",
       "org.postgresql" % "postgresql" % "42.2.24",
       "com.github.jwt-scala" %% "jwt-core" % "9.0.2",
