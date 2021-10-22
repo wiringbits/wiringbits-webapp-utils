@@ -19,7 +19,7 @@ class AdminController @Inject() (
   def getTables() = handleGET { request =>
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Get tables from database")
+      _ = logger.info(s"Get DB tables")
       response <- adminService.tables()
     } yield Ok(Json.toJson(response))
   }
@@ -28,7 +28,7 @@ class AdminController @Inject() (
     val query = PaginatedQuery(Offset(offset), Limit(limit))
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Get table metadata with $offset offSet and $limit limit from $tableName")
+      _ = logger.info(s"Get $tableName with $offset offSet and $limit limit")
       response <- adminService.tableMetadata(tableName, query)
     } yield Ok(Json.toJson(response))
   }
@@ -36,7 +36,7 @@ class AdminController @Inject() (
   def find(tableName: String, ID: String) = handleGET { request =>
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Find $ID on $tableName")
+      _ = logger.info(s"Get $ID on $tableName")
       response <- adminService.find(tableName, ID)
     } yield Ok(Json.toJson(response))
   }
@@ -45,7 +45,7 @@ class AdminController @Inject() (
     val body = request.body
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Create on $tableName with ${body.data}")
+      _ = logger.info(s"Create $tableName: ${body.data}")
       _ <- adminService.create(tableName, body)
       response = AdminCreateTableResponse()
     } yield Ok(Json.toJson(response))
@@ -55,7 +55,7 @@ class AdminController @Inject() (
     val body = request.body
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Update $ID on $tableName with ${body.data}")
+      _ = logger.info(s"Update $ID on $tableName: ${body.data}")
       _ <- adminService.update(tableName, ID, body)
       response = AdminUpdateTableResponse()
     } yield Ok(Json.toJson(response))
@@ -64,7 +64,7 @@ class AdminController @Inject() (
   def delete(tableName: String, ID: String) = handleGET { request =>
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Delete on $tableName")
+      _ = logger.info(s"Delete $ID on $tableName")
       _ <- adminService.delete(tableName, ID)
       response = AdminDeleteTableResponse()
     } yield Ok(Json.toJson(response))
