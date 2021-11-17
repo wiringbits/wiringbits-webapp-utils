@@ -136,7 +136,7 @@ lazy val playSettings: Project => Project = {
 lazy val api = (crossProject(JSPlatform, JVMPlatform) in file("lib/api"))
   .configure(baseLibSettings)
   .settings(
-    name := "wiringbits-api"
+    name := "webapp-utils-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
   .jvmSettings(
@@ -160,7 +160,7 @@ lazy val ui = (project in file("lib/ui"))
   .configure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
   .dependsOn(api.js)
   .settings(
-    name := "wiringbits-ui",
+    name := "webapp-utils-ui",
     useYarn := true,
     scalacOptions += "-Ymacro-annotations",
     Test / requireJsDomEnv := true,
@@ -191,7 +191,7 @@ lazy val server = (project in file("server"))
   .dependsOn(api.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
-    name := "wiringbits-server",
+    name := "webapp-utils-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(

@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.services
 
-import net.wiringbits.webapp.utils.admin.config.models.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
 import net.wiringbits.webapp.utils.admin.utils.models.pagination.PaginatedQuery
 import net.wiringbits.webapp.utils.api.models.*
@@ -42,10 +42,10 @@ class AdminService @Inject() (
     )
   }
 
-  def find(tableName: String, ID: String): Future[AdminFindTableResponse] = {
+  def find(tableName: String, id: String): Future[AdminFindTableResponse] = {
     for {
       _ <- validateTableName(tableName)
-      row <- databaseTablesRepository.find(tableName, ID)
+      row <- databaseTablesRepository.find(tableName, id)
     } yield AdminFindTableResponse(
       row = AdminGetTableMetadataResponse.TableRow(row.data.map(_.value).map(AdminGetTableMetadataResponse.Cell.apply))
     )
@@ -56,13 +56,13 @@ class AdminService @Inject() (
     val validate = for {
       _ <- validateTableName(tableName)
       _ <- validateTableFields(tableName, body)
-      obligatoryFields <- databaseTablesRepository.getObligatoryFields(tableName)
-      nameOfObligatoryFields = obligatoryFields.map(_.name)
+      mandatoryFields <- databaseTablesRepository.getMandatoryFields(tableName)
+      mandatoryFieldNames = mandatoryFields.map(_.name)
     } yield
-      if (nameOfObligatoryFields.forall(request.data.contains)) ()
+      if (mandatoryFieldNames.forall(request.data.contains)) ()
       else
         throw new RuntimeException(
-          s"Requires: ${nameOfObligatoryFields.filterNot(request.data.contains).mkString(", ")}"
+          s"There are missing fields: ${mandatoryFieldNames.filterNot(request.data.contains).mkString(", ")}"
         )
 
     for {
@@ -122,7 +122,6 @@ class AdminService @Inject() (
   private def validatePagination(pagination: PaginatedQuery): Unit = {
     if (0 > pagination.offset.int || 0 > pagination.limit.int) {
       throw new RuntimeException(s"You can't query a table using negative numbers as a limit or offset")
-    }
-
+    } else ()
   }
 }

@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.repositories
 
-import net.wiringbits.webapp.utils.admin.config.models.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.executors.DatabaseExecutionContext
 import net.wiringbits.webapp.utils.admin.repositories.daos.DatabaseTablesDAO
 import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, TableField, TableMetadata, TableRow}
@@ -31,9 +31,9 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     }
   }
 
-  def getObligatoryFields(tableName: String): Future[List[TableField]] = Future {
+  def getMandatoryFields(tableName: String): Future[List[TableField]] = Future {
     database.withConnection { implicit conn =>
-      DatabaseTablesDAO.getObligatoryFields(tableName, tableSettings)
+      DatabaseTablesDAO.getMandatoryFields(tableName, tableSettings)
     }
   }
 
@@ -44,9 +44,9 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     }
   }
 
-  def find(tableName: String, ID: String): Future[TableRow] = Future {
+  def find(tableName: String, id: String): Future[TableRow] = Future {
     database.withConnection { implicit conn =>
-      DatabaseTablesDAO.find(tableName, ID, tableSettings);
+      DatabaseTablesDAO.find(tableName, id, tableSettings);
     }
   }
 
@@ -56,17 +56,17 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     }
   }
 
-  def update(tableName: String, ID: String, body: Map[String, String]): Future[Unit] =
+  def update(tableName: String, id: String, body: Map[String, String]): Future[Unit] =
     Future {
       database.withConnection { implicit conn =>
-        DatabaseTablesDAO.update(tableName, ID, tableSettings, body);
+        DatabaseTablesDAO.update(tableName, id, tableSettings, body);
       }
     }
 
-  def delete(tableName: String, ID: String): Future[Unit] =
+  def delete(tableName: String, id: String): Future[Unit] =
     Future {
       database.withConnection { implicit conn =>
-        DatabaseTablesDAO.delete(tableName, ID, tableSettings);
+        DatabaseTablesDAO.delete(tableName, id, tableSettings);
       }
     }
 }

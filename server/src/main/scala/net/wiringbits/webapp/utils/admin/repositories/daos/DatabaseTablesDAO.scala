@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
-import net.wiringbits.webapp.utils.admin.config.models.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTable, TableField, TableMetadata, TableRow}
 import net.wiringbits.webapp.utils.admin.utils.models.pagination.{Count, Limit, Offset, PaginatedQuery, PaginatedResult}
 
@@ -34,21 +34,23 @@ object DatabaseTablesDAO {
     val sql = f"SELECT * FROM $tableName LIMIT 0"
 
     val preparedStatement = conn.prepareStatement(sql)
-    val resultSet = preparedStatement.executeQuery()
-
     try {
-      val metadata = resultSet.getMetaData
-      val numberOfColumns = metadata.getColumnCount
-      val columnNullable = 1
-      val fields = for {
-        columnNumber <- 1 to numberOfColumns
-        columnName = metadata.getColumnName(columnNumber)
-        columnType = metadata.getColumnTypeName(columnNumber)
-        isNullable = metadata.isNullable(columnNumber) == columnNullable
-      } yield TableField(columnName, columnType, isNullable)
-      fields.toList
+      val resultSet = preparedStatement.executeQuery()
+      try {
+        val metadata = resultSet.getMetaData
+        val numberOfColumns = metadata.getColumnCount
+        val columnNullable = 1
+        val fields = for {
+          columnNumber <- 1 to numberOfColumns
+          columnName = metadata.getColumnName(columnNumber)
+          columnType = metadata.getColumnTypeName(columnNumber)
+          isNullable = metadata.isNullable(columnNumber) == columnNullable
+        } yield TableField(columnName, columnType, isNullable)
+        fields.toList
+      } finally {
+        resultSet.close()
+      }
     } finally {
-      resultSet.close()
       preparedStatement.close()
     }
   }
@@ -104,12 +106,13 @@ object DatabaseTablesDAO {
     }
   }
 
-  def getObligatoryFields(tableName: String, tableSettings: DataExplorerSettings)(implicit
+  def getMandatoryFields(tableName: String, tableSettings: DataExplorerSettings)(implicit
       conn: Connection
   ): List[TableField] = {
-    val obligatoryFields = new ListBuffer[TableField]()
+    val mandatoryFields = new ListBuffer[TableField]()
 
-    val IDFieldName = tableSettings.tables.find(_.tableName == tableName).get.IDFieldName
+    // TODO: Avoid Option#get
+    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
     val SQL =
       s"""
       SELECT column_name, is_nullable, 
@@ -131,20 +134,21 @@ object DatabaseTablesDAO {
       val defaultValue = Option(resultSet.getString("column_default"))
       val isNullable = resultSet.getString("is_nullable") == "YES"
       val isObligatory = !isNullable && defaultValue.isEmpty
-      if (isObligatory && (columnName != IDFieldName)) {
-        obligatoryFields += TableField(columnName, columnType, isNullable)
+      if (isObligatory && (columnName != idFieldName)) {
+        mandatoryFields += TableField(columnName, columnType, isNullable)
       }
     }
-    obligatoryFields.toList
+    mandatoryFields.toList
   }
 
   def find(tableName: String, ID: String, tableSettings: DataExplorerSettings)(implicit conn: Connection): TableRow = {
-    val IDFieldName = tableSettings.tables.find(_.tableName == tableName).get.IDFieldName
+    // TODO: Avoid Option#get
+    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
     val SQL =
       s"""
       SELECT *
       FROM $tableName
-      WHERE $IDFieldName = ?
+      WHERE $idFieldName = ?
       """
 
     val preparedStatement = conn.prepareStatement(SQL)
@@ -165,21 +169,21 @@ object DatabaseTablesDAO {
   def create(tableName: String, body: Map[String, String], tableSettings: DataExplorerSettings)(implicit
       conn: Connection
   ): Unit = {
-    val IDFieldName = tableSettings.tables.find(_.tableName == tableName).get.IDFieldName
+    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
 
-    val SQLFields = new StringBuilder(IDFieldName)
-    val SQLValues = new StringBuilder("?")
+    val sqlFields = new StringBuilder(idFieldName)
+    val sqlValues = new StringBuilder("?")
     for ((key, _) <- body) {
-      SQLFields.append(s", $key")
-      SQLValues.append(s", ?")
+      sqlFields.append(s", $key")
+      sqlValues.append(s", ?")
     }
 
     val SQL =
       s"""
       INSERT INTO $tableName
-        ($SQLFields)
+        ($sqlFields)
       VALUES (
-        ${SQLValues.toString()}
+        ${sqlValues.toString()}
       )
       """
 
@@ -195,11 +199,12 @@ object DatabaseTablesDAO {
 
   def update(
       tableName: String,
-      ID: String,
+      id: String,
       tableSettings: DataExplorerSettings,
       body: Map[String, String]
   )(implicit conn: Connection): Unit = {
-    val IDFieldName = tableSettings.tables.find(_.tableName == tableName).get.IDFieldName
+    // TODO: Avoid Option#get
+    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
 
     val updateStatement = new StringBuilder("SET")
     for ((name, _) <- body) {
@@ -210,7 +215,7 @@ object DatabaseTablesDAO {
     val SQL = s"""
       UPDATE $tableName
       $updateStatement
-      WHERE $IDFieldName = ?
+      WHERE $idFieldName = ?
       """
     val preparedStatement = conn.prepareStatement(SQL)
 
@@ -218,24 +223,25 @@ object DatabaseTablesDAO {
       val value = body(body.keys.toList(i - 1))
       preparedStatement.setObject(i, value)
     }
-    preparedStatement.setObject(body.size + 1, UUID.fromString(ID))
+    preparedStatement.setObject(body.size + 1, UUID.fromString(id))
 
     val _ = preparedStatement.executeUpdate()
   }
 
-  def delete(tableName: String, ID: String, tableSettings: DataExplorerSettings)(implicit
+  def delete(tableName: String, id: String, tableSettings: DataExplorerSettings)(implicit
       conn: Connection
   ): Unit = {
-    val IDFieldName = tableSettings.tables.find(_.tableName == tableName).get.IDFieldName
+    // TODO: Avoid Option#get
+    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
 
     val sql =
       s"""
       DELETE FROM $tableName
-      WHERE $IDFieldName = ?
+      WHERE $idFieldName = ?
       """
 
     val preparedStatement = conn.prepareStatement(sql)
-    preparedStatement.setObject(1, UUID.fromString(ID))
+    preparedStatement.setObject(1, UUID.fromString(id))
 
     val _ = preparedStatement.executeUpdate()
   }

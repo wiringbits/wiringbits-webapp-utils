@@ -65,7 +65,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       response.noData must be(empty)
     }
 
-    "fail when an obligatory field is not sent" in withApiClient { client =>
+    "fail when a mandatory field is not sent" in withApiClient { client =>
       val name = "wiringbits"
       val request = AdminCreateTableRequest(Map("name" -> name))
 
@@ -77,7 +77,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
         }
         .futureValue
 
-      error must be(s"Requires: email, password")
+      error must be(s"There are missing fields: email, password")
     }
   }
 

@@ -1,10 +1,10 @@
 package net.wiringbits.webapp.utils.admin.modules
 
 import com.google.inject.{AbstractModule, Provides}
-import net.wiringbits.webapp.utils.admin.config.models.{DataExplorerSettings, TableSettings}
+import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.utils.models.ordering.OrderingCondition
 
-class DataExplorerModule extends AbstractModule {
+class DataExplorerTestModule extends AbstractModule {
 
   @Provides()
   def dataExplorerSettings: DataExplorerSettings = {

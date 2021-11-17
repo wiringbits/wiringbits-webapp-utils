@@ -1,3 +1,3 @@
-package net.wiringbits.webapp.utils.admin.config.models
+package net.wiringbits.webapp.utils.admin.config
 
 case class DataExplorerSettings(tables: List[TableSettings])
