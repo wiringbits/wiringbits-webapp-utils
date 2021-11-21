@@ -10,6 +10,7 @@ import slinky.core.facade.Hooks
   case class Props(visible: Boolean, title: String, message: String, onClose: () => Unit)
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
+    // TODO: Avoid hardcoding the Close text
     mui
       .Dialog(props.visible)
       .onClose(_ => props.onClose())(

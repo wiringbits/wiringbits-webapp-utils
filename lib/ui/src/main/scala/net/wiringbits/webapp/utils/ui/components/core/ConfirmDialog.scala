@@ -17,6 +17,7 @@ import slinky.web.html._
   )
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
+    // TODO: Avoid hardcoding the Confirm/Cancel texts
     mui
       .Dialog(props.visible)
       .onClose(_ => props.onCancel())(
