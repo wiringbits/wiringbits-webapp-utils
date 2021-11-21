@@ -2,7 +2,7 @@ package controllers.common
 
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import com.dimafeng.testcontainers.scalatest.TestContainerForEach
-import net.wiringbits.webapp.utils.api.ApiClient
+import net.wiringbits.webapp.utils.api.AdminDataExplorerApiClient
 import org.scalatest.TestData
 import org.scalatest.time.SpanSugar.convertIntToGrainOfTime
 import org.scalatestplus.play.guice.GuiceOneServerPerTest
@@ -45,13 +45,13 @@ trait PlayPostgresSpec extends PlayAPISpec with TestContainerForEach with GuiceO
     }
   }
 
-  def withApiClient[A](runTest: ApiClient => A): A = {
+  def withApiClient[A](runTest: AdminDataExplorerApiClient => A): A = {
     import sttp.client.asynchttpclient.future.AsyncHttpClientFutureBackend
 
     implicit val sttpBackend = AsyncHttpClientFutureBackend()
 
-    val config = ApiClient.Config(s"http://localhost:$port")
-    val client = new ApiClient.DefaultImpl(config)
+    val config = AdminDataExplorerApiClient.Config(s"http://localhost:$port")
+    val client = new AdminDataExplorerApiClient.DefaultImpl(config)
     runTest(client)
   }
 }

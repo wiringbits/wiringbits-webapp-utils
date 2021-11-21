@@ -31,7 +31,7 @@ import scala.util.Try
         .Props(
           fetch = () =>
             props.api.client
-              .adminGetTableMetadata(tableName, offset.getOrElse(defaultOffset), limit.getOrElse(defaultPageLength)),
+              .getTableMetadata(tableName, offset.getOrElse(defaultOffset), limit.getOrElse(defaultPageLength)),
           render = response => ExperimentalTable.component(ExperimentalTable.Props(response)),
           progressIndicator = () => Loader()
         )

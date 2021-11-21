@@ -9,14 +9,14 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
   "GET /admin/tables/users" should {
     "return users table" in withApiClient { client =>
-      val response = client.adminGetTableMetadata("users", 0, 10).futureValue
+      val response = client.getTableMetadata("users", 0, 10).futureValue
       response.name must be("users")
       response.fields mustNot be(empty)
     }
 
     "fail when you enter negative offset" in withApiClient { client =>
       val error = client
-        .adminGetTableMetadata("users", -1, 10)
+        .getTableMetadata("users", -1, 10)
         .map(_ => "Success when failure expected")
         .recover { case NonFatal(ex) =>
           ex.getMessage
@@ -28,7 +28,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
     "fail when you enter negative limit" in withApiClient { client =>
       val error = client
-        .adminGetTableMetadata("users", 0, -1)
+        .getTableMetadata("users", 0, -1)
         .map(_ => "Success when failure expected")
         .recover { case NonFatal(ex) =>
           ex.getMessage
@@ -43,7 +43,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
     "fail when table doesn't exists" in withApiClient { client =>
       val invalidTableName = "aaaaaaaaaaa"
       val error = client
-        .adminGetTableMetadata(invalidTableName, 0, 10)
+        .getTableMetadata(invalidTableName, 0, 10)
         .map(_ => "Success when failure expected")
         .recover { case NonFatal(ex) =>
           ex.getMessage
@@ -60,7 +60,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val password = "wiringbits"
       val request = AdminCreateTableRequest(Map("name" -> name, "email" -> email, "password" -> password))
 
-      val response = client.adminCreate("users", request).futureValue
+      val response = client.createItem("users", request).futureValue
 
       response.noData must be(empty)
     }
@@ -70,7 +70,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val request = AdminCreateTableRequest(Map("name" -> name))
 
       val error = client
-        .adminCreate("users", request)
+        .createItem("users", request)
         .map(_ => "Success when failure expected")
         .recover { case NonFatal(ex) =>
           ex.getMessage
@@ -87,7 +87,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
     val request = AdminCreateTableRequest(Map("name" -> name, "nonExistentField" -> nonExistentField))
 
     val error = client
-      .adminCreate("users", request)
+      .createItem("users", request)
       .map(_ => "Success when failure expected")
       .recover { case NonFatal(ex) =>
         ex.getMessage

@@ -13,7 +13,7 @@ import slinky.core.annotations.react
     RemoteDataLoader.component[AdminGetTablesResponse](
       RemoteDataLoader
         .Props(
-          fetch = () => props.api.client.adminGetTables(),
+          fetch = () => props.api.client.getTables(),
           render = response => ExperimentalTableListWidget.component(ExperimentalTableListWidget.Props(response)),
           progressIndicator = () => Loader()
         )
