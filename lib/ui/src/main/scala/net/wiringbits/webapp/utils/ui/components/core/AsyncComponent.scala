@@ -10,13 +10,13 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 /**
- * A reusable component to render some data that's retrieved from a remote source, providing:
+ * A reusable component to renders data  from a asynchronous data source, providing:
  * - A progress indicator when the data is being retrieved.
  * - Invoking the render function when the data is available, to render such data.
  * - Displaying an error message when retrieving the data has failed, as well as displaying a
  *   retry button so that the user is able to try again.
  */
-object RemoteDataLoader {
+object AsyncComponent {
 
   sealed trait DataState[T] extends Product with Serializable {
     def loaded(data: T): DataState.Loaded[T] = DataState.Loaded(data)
