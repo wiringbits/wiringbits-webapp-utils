@@ -3,7 +3,8 @@ ThisBuild / organization := "net.wiringbits"
 
 inThisBuild(
   List(
-    organization := "net.wiringbits",
+    // TODO: Switch to net.wiringbits once the sonatype setup is ready
+    organization := "com.alexitc",
     name := "wiringbits-webapp-utils",
     homepage := Some(url("https://github.com/wiringbits/wiringbits-webapp-utils")),
     licenses := List("MIT" -> url("https://www.opensource.org/licenses/mit-license.html")),
