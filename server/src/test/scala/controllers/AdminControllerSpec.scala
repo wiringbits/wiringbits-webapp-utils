@@ -1,11 +1,25 @@
 package controllers
 
+import com.dimafeng.testcontainers.PostgreSQLContainer
 import controllers.common.PlayPostgresSpec
+import net.wiringbits.webapp.utils.admin.AppRouter
+import net.wiringbits.webapp.utils.admin.controllers.AdminController
 import net.wiringbits.webapp.utils.api.models.AdminCreateTableRequest
+import play.api.inject.guice.GuiceApplicationBuilder
 
 import scala.util.control.NonFatal
 
 class AdminControllerSpec extends PlayPostgresSpec {
+
+  override def guiceApplicationBuilder(container: PostgreSQLContainer): GuiceApplicationBuilder = {
+    val appBuilder = super.guiceApplicationBuilder(container)
+
+    val adminController = appBuilder.injector().instanceOf[AdminController]
+    val appRouter = new AppRouter(adminController)
+    appBuilder.router(
+      appRouter
+    )
+  }
 
   "GET /admin/tables/users" should {
     "return users table" in withApiClient { client =>
