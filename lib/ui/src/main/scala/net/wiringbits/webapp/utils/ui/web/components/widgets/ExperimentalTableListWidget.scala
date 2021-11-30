@@ -13,7 +13,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 import net.wiringbits.webapp.utils.api.models.AdminGetTablesResponse
 import net.wiringbits.webapp.utils.ui.components.core.widgets.{Container, Subtitle}
 import net.wiringbits.webapp.utils.ui.web.AppStrings
-import net.wiringbits.webapp.utils.ui.web.utils.formatField
+import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.facade.Fragment
@@ -46,7 +46,7 @@ object ExperimentalTableListWidget {
       mui
         .ListItem()(
           mui
-            .Typography(className := classes("tableItem"))(formatField(table.name))
+            .Typography(className := classes("tableItem"))(snakeCaseToUpper(table.name))
         )
         .button(true)
         .divider(true)

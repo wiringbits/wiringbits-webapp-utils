@@ -13,7 +13,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 }
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
 import net.wiringbits.webapp.utils.ui.components.core.widgets.{Container, Subtitle}
-import net.wiringbits.webapp.utils.ui.web.utils.formatField
+import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -64,7 +64,7 @@ import slinky.core.facade.Fragment
     Container(
       maxWidth = Some("100%"),
       child = Fragment(
-        Subtitle(formatField(props.response.name)),
+        Subtitle(snakeCaseToUpper(props.response.name)),
         table,
         Pagination(props.response)
       )

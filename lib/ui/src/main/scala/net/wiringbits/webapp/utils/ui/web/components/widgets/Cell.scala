@@ -12,7 +12,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 }
 import com.alexitc.materialui.facade.std.HTMLTableHeaderCellElement
 import com.alexitc.materialui.facade.materialUiCore.{colorsMod => Colors}
-import net.wiringbits.webapp.utils.ui.web.utils.formatField
+import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -90,7 +90,7 @@ import slinky.web.SyntheticMouseEvent
       tableCell = mui
         .TableCell(
           mui
-            .Link(formatField(props.value))
+            .Link(snakeCaseToUpper(props.value))
             .className(classes("updateLink"))
             .href(createHref(props.tableName, props.value))
             .underline(muiStrings.none)
@@ -101,7 +101,7 @@ import slinky.web.SyntheticMouseEvent
     if (props.isField) {
       tableCell = mui
         .TableCell(
-          formatField(props.value)
+          snakeCaseToUpper(props.value)
         )
         .className(classes("tableField"))
     }
