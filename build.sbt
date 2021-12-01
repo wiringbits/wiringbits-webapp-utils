@@ -1,8 +1,7 @@
-ThisBuild / organization := "net.wiringbits"
-
 inThisBuild(
   List(
     organization := "net.wiringbits",
+    scalaVersion := "2.13.7",
     name := "wiringbits-webapp-utils",
     homepage := Some(url("https://github.com/wiringbits/wiringbits-webapp-utils")),
     licenses := List("MIT" -> url("https://www.opensource.org/licenses/mit-license.html")),
