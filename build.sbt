@@ -1,4 +1,5 @@
 ThisBuild / scalaVersion := "2.13.6"
+ThisBuild / versionScheme := Some("early-semver")
 
 inThisBuild(
   List(
@@ -206,4 +207,17 @@ lazy val server = (project in file("server"))
       "com.softwaremill.sttp.client" %% "core" % sttp % "test",
       "com.softwaremill.sttp.client" %% "async-http-client-backend-future" % sttp % "test"
     )
+  )
+
+lazy val root = (project in file("."))
+  .aggregate(
+    api.jvm,
+    api.js,
+    ui,
+    server
+  )
+  .settings(
+    publish := {},
+    publishLocal := {},
+    publish / skip := true
   )
