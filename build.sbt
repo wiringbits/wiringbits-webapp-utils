@@ -1,5 +1,7 @@
 ThisBuild / scalaVersion := "2.13.6"
 ThisBuild / versionScheme := Some("early-semver")
+// For all Sonatype accounts created on or after February 2021
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 inThisBuild(
   List(
