@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.core
+package net.wiringbits.webapp.utils.slinkyUtils.core
 
 import slinky.core.facade.Hooks
 

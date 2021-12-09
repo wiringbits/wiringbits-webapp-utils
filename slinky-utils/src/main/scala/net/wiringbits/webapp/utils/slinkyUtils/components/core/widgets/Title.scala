@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.components.core.widgets
+package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
 import com.alexitc.materialui.facade.materialUiCore.typographyTypographyMod
 import com.alexitc.materialui.facade.materialUiCore.{components => mui}
@@ -6,7 +6,7 @@ import com.alexitc.materialui.facade.materialUiCore.mod.PropTypes.Color
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 
-@react object Subtitle {
+@react object Title {
   case class Props(text: String, color: Option[Color] = None)
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
@@ -15,6 +15,6 @@ import slinky.core.annotations.react
     mui
       .Typography()
       .color(color)
-      .variant(typographyTypographyMod.Style.h6)(props.text)
+      .variant(typographyTypographyMod.Style.h4)(props.text)
   }
 }

@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.components.core.widgets
+package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
 import com.alexitc.materialui.facade.materialUiCore.{components => mui, materialUiCoreStrings => muiStrings}

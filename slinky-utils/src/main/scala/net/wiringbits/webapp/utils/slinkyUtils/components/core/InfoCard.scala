@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.components.core
+package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import com.alexitc.materialui.facade.csstype.mod.{FlexDirectionProperty, FlexWrapProperty}
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme

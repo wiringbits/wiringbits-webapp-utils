@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
-import net.wiringbits.webapp.utils.ui.components.core.AsyncComponent
+import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
 import org.scalajs.dom
 import slinky.core.FunctionalComponent

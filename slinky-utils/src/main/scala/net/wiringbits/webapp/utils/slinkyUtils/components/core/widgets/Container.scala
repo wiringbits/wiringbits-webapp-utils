@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.components.core.widgets
+package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
 import com.alexitc.materialui.facade.csstype.mod.BoxSizingProperty
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme

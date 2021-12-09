@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.components.core
+package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import org.scalablytyped.runtime.StringDictionary
 import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook

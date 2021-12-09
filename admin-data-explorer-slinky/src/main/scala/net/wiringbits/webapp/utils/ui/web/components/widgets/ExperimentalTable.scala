@@ -12,7 +12,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   WithStylesOptions
 }
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
-import net.wiringbits.webapp.utils.ui.components.core.widgets.{Container, Subtitle}
+import net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets.{Container, Subtitle}
 import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent

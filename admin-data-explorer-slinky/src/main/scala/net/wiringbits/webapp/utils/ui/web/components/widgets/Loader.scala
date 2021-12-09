@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.materialUiCore.{components => mui, materialUiCoreStrings => muiStrings}
-import net.wiringbits.webapp.utils.ui.components.core.widgets.{CircularLoader, Container}
+import net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets.{CircularLoader, Container}
 import net.wiringbits.webapp.utils.ui.web.AppStrings
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -20,6 +20,5 @@ import slinky.core.facade.Fragment
         mui.Typography(AppStrings.loading).variant(muiStrings.h6)
       )
     )
-
   }
 }

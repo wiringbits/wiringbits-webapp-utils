@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.core
+package net.wiringbits.webapp.utils.slinkyUtils.core
 
 import com.alexitc.materialui.facade.materialUiCore.useMediaQueryMod.unstableUseMediaQuery
 

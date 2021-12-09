@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.components.core
+package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import slinky.core._
 import slinky.core.facade._
