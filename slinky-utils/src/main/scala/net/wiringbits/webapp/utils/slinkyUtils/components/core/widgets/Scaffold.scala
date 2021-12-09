@@ -14,7 +14,7 @@ import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import slinky.core.facade.{Fragment, ReactElement}
-import slinky.web.html._
+import slinky.web.html.{className, div}
 
 @react object Scaffold {
   case class Props(appbar: Option[ReactElement] = None, body: ReactElement, footer: Option[ReactElement] = None)

@@ -1,9 +1,9 @@
-package net.wiringbits.webapp.utils.slinkyUtils.components.core
+package net.wiringbits.webapp.utils.slinkyUtils.core
 
-import org.scalablytyped.runtime.StringDictionary
 import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
 import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
 import com.alexitc.materialui.facade.materialUiStyles.withStylesMod._
+import org.scalablytyped.runtime.StringDictionary
 
 import scala.scalajs.js
 

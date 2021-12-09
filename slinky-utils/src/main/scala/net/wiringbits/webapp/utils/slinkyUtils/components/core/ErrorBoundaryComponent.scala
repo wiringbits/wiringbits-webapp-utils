@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-import slinky.core._
-import slinky.core.facade._
+import slinky.core.ComponentWrapper
+import slinky.core.facade.{ErrorBoundaryInfo, ReactElement}
 
 import scala.scalajs.js
 

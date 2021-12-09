@@ -14,7 +14,7 @@ import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import slinky.core.facade.ReactElement
-import slinky.web.html._
+import slinky.web.html.{className, div, style}
 
 import scala.scalajs.js
 

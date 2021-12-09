@@ -1,8 +1,7 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.materialUiCore.typographyTypographyMod
-import com.alexitc.materialui.facade.materialUiCore.{components => mui}
 import com.alexitc.materialui.facade.materialUiCore.mod.PropTypes.Color
+import com.alexitc.materialui.facade.materialUiCore.{typographyTypographyMod, components => mui}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 
