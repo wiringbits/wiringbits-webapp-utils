@@ -1,9 +1,9 @@
 package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.react.mod.ChangeEvent
+import net.wiringbits.facades.reactRouterDom.{mod => reactRouterDom}
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
 import org.scalajs.dom.raw.{HTMLInputElement, HTMLTextAreaElement}
-import typings.reactRouterDom.{mod => reactRouterDom}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 

@@ -1,13 +1,13 @@
 package net.wiringbits.webapp.utils.ui.web.components.widgets
 
+import net.wiringbits.facades.reactRouter.mod.useParams
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
 import org.scalajs.dom
+import org.scalajs.dom.experimental.URLSearchParams
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
-import typings.reactRouter.mod.useParams
-import typings.std.global.URLSearchParams
 
 import scala.scalajs.js
 import scala.util.Try

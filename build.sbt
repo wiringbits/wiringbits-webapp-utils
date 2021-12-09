@@ -70,6 +70,17 @@ lazy val baseLibSettings: Project => Project =
       )
     )
 
+// Used only by the lib projects
+lazy val baseWebSettings: Project => Project =
+  _.enablePlugins(ScalaJSPlugin)
+    .settings(
+      scalacOptions += "-Ymacro-annotations",
+      libraryDependencies ++= Seq(
+        "io.github.cquiroz" %%% "scala-java-time" % "2.0.0",
+        "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
+      )
+    )
+
 // specify versions for all of reacts dependencies
 lazy val reactNpmDeps: Project => Project =
   _.settings(
@@ -134,6 +145,36 @@ lazy val playSettings: Project => Project = {
     )
 }
 
+lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
+  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
+  .settings(
+    name := "scalablytyped-facades",
+    useYarn := true,
+    Test / requireJsDomEnv := true,
+    stTypescriptVersion := "3.9.3",
+    stOutputPackage := "net.wiringbits.facades",
+    // material-ui is provided by a pre-packaged library
+    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
+    Compile / npmDependencies ++= Seq(
+      "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
+      "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
+      "@material-ui/icons" -> "3.0.2",
+      "@types/classnames" -> "2.2.10",
+      "react-router" -> "5.1.2",
+      "@types/react-router" -> "5.1.2",
+      "react-router-dom" -> "5.1.2",
+      "@types/react-router-dom" -> "5.1.2"
+    ),
+    stFlavour := Flavour.Slinky,
+    stReactEnableTreeShaking := Selection.All,
+    stUseScalaJsDom := true,
+    stMinimize := Selection.AllExcept("@types/classnames", "@types/react-router", "@types/react-router-dom"),
+    // docs are huge and unnecessary
+    Compile / doc / sources := Nil,
+    // disabled because it somehow triggers many warnings
+    scalaJSLinkerConfig ~= (_.withSourceMap(false))
+  )
+
 /**
  * The common stuff for the server/client modules
  */
@@ -167,7 +208,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .settings(
     name := "admin-data-explorer-api"
   )
-  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
+  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
   .jvmSettings(
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play-json" % playJson,
@@ -187,68 +228,20 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
  * Utils specific to slinky
  */
 lazy val slinkyUtils = (project in file("slinky-utils"))
-  .configure(baseLibSettings)
-  .configure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
-  .dependsOn(adminDataExplorerApi.js, webappCommon.js)
+  .configure(baseLibSettings, baseWebSettings)
+  .configure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .dependsOn(adminDataExplorerApi.js, webappCommon.js, scalablytypedFacades)
   .settings(
-    name := "slinky-utils",
-    useYarn := true,
-    scalacOptions += "-Ymacro-annotations",
-    Test / requireJsDomEnv := true,
-    stTypescriptVersion := "3.9.3",
-    // material-ui is provided by a pre-packaged library
-    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
-    Compile / npmDependencies ++= Seq(
-      "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
-      "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
-      "@material-ui/icons" -> "3.0.2",
-      "@types/classnames" -> "2.2.10",
-      "react-router" -> "5.1.2",
-      "@types/react-router" -> "5.1.2",
-      "react-router-dom" -> "5.1.2",
-      "@types/react-router-dom" -> "5.1.2"
-    ),
-    stFlavour := Flavour.Slinky,
-    stReactEnableTreeShaking := Selection.All,
-    stUseScalaJsDom := true,
-    Compile / stMinimize := Selection.All,
-    libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.0.0",
-      "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
-    )
+    name := "slinky-utils"
   )
 
 // shared on the ui only
 lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"))
-  .configure(baseLibSettings)
-  .configure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
-  .dependsOn(adminDataExplorerApi.js, slinkyUtils)
+  .configure(baseLibSettings, baseWebSettings)
+  .configure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .dependsOn(adminDataExplorerApi.js, slinkyUtils, scalablytypedFacades)
   .settings(
-    name := "admin-data-explorer-slinky",
-    useYarn := true,
-    scalacOptions += "-Ymacro-annotations",
-    Test / requireJsDomEnv := true,
-    stTypescriptVersion := "3.9.3",
-    // material-ui is provided by a pre-packaged library
-    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
-    Compile / npmDependencies ++= Seq(
-      "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
-      "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
-      "@material-ui/icons" -> "3.0.2",
-      "@types/classnames" -> "2.2.10",
-      "react-router" -> "5.1.2",
-      "@types/react-router" -> "5.1.2",
-      "react-router-dom" -> "5.1.2",
-      "@types/react-router-dom" -> "5.1.2"
-    ),
-    stFlavour := Flavour.Slinky,
-    stReactEnableTreeShaking := Selection.All,
-    stUseScalaJsDom := true,
-    Compile / stMinimize := Selection.All,
-    libraryDependencies ++= Seq(
-      "io.github.cquiroz" %%% "scala-java-time" % "2.0.0",
-      "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
-    )
+    name := "admin-data-explorer-slinky"
   )
 
 /**
@@ -278,6 +271,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
 
 lazy val root = (project in file("."))
   .aggregate(
+    scalablytypedFacades,
     webappCommon.jvm,
     webappCommon.js,
     adminDataExplorerApi.jvm,
@@ -287,6 +281,7 @@ lazy val root = (project in file("."))
     adminDataExplorerPlayServer
   )
   .settings(
+    name := "wiringbits-webapp-utils",
     publish := {},
     publishLocal := {},
     publish / skip := true

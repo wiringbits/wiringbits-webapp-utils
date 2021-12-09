@@ -12,10 +12,10 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
+import net.wiringbits.facades.reactRouterDom.{components => router}
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
-import typings.reactRouterDom.{components => router}
 
 @react object NavLinkButton {
   case class Props(path: String, text: String, onClick: () => Unit)

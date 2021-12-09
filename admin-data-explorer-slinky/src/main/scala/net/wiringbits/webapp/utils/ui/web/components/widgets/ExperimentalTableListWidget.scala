@@ -18,7 +18,7 @@ import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.facade.Fragment
 import slinky.web.html.className
-import typings.reactRouterDom.{mod => reactRouterDom}
+import net.wiringbits.facades.reactRouterDom.{mod => reactRouterDom}
 
 object ExperimentalTableListWidget {
   case class Props(response: AdminGetTablesResponse)
