@@ -134,11 +134,13 @@ lazy val playSettings: Project => Project = {
     )
 }
 
-// shared apis
-lazy val api = (crossProject(JSPlatform, JVMPlatform) in file("lib/api"))
+/**
+ * Just the API side for the admin-data-explorer modules
+ */
+lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("admin-data-explorer-api"))
   .configure(baseLibSettings)
   .settings(
-    name := "webapp-utils-api"
+    name := "admin-data-explorer-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
   .jvmSettings(
@@ -156,13 +158,48 @@ lazy val api = (crossProject(JSPlatform, JVMPlatform) in file("lib/api"))
     )
   )
 
-// shared on the ui only
-lazy val ui = (project in file("lib/ui"))
+/**
+ * Utils specific to slinky
+ */
+lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings)
   .configure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
-  .dependsOn(api.js)
+  .dependsOn(adminDataExplorerApi.js)
   .settings(
-    name := "webapp-utils-ui",
+    name := "slinky-utils",
+    useYarn := true,
+    scalacOptions += "-Ymacro-annotations",
+    Test / requireJsDomEnv := true,
+    stTypescriptVersion := "3.9.3",
+    // material-ui is provided by a pre-packaged library
+    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
+    Compile / npmDependencies ++= Seq(
+      "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
+      "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
+      "@material-ui/icons" -> "3.0.2",
+      "@types/classnames" -> "2.2.10",
+      "react-router" -> "5.1.2",
+      "@types/react-router" -> "5.1.2",
+      "react-router-dom" -> "5.1.2",
+      "@types/react-router-dom" -> "5.1.2"
+    ),
+    stFlavour := Flavour.Slinky,
+    stReactEnableTreeShaking := Selection.All,
+    stUseScalaJsDom := true,
+    Compile / stMinimize := Selection.All,
+    libraryDependencies ++= Seq(
+      "io.github.cquiroz" %%% "scala-java-time" % "2.0.0",
+      "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
+    )
+  )
+
+// shared on the ui only
+lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"))
+  .configure(baseLibSettings)
+  .configure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
+  .dependsOn(adminDataExplorerApi.js, slinkyUtils)
+  .settings(
+    name := "admin-data-explorer-slinky",
     useYarn := true,
     scalacOptions += "-Ymacro-annotations",
     Test / requireJsDomEnv := true,
@@ -193,7 +230,7 @@ lazy val ui = (project in file("lib/ui"))
  * Includes the specific stuff to run the data explorer server side (play-specific)
  */
 lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-play-server"))
-  .dependsOn(api.jvm)
+  .dependsOn(adminDataExplorerApi.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
     name := "admin-data-explorer-play-server",
@@ -216,9 +253,10 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
 
 lazy val root = (project in file("."))
   .aggregate(
-    api.jvm,
-    api.js,
-    ui,
+    adminDataExplorerApi.jvm,
+    adminDataExplorerApi.js,
+    slinkyUtils,
+    adminDataExplorerSlinky,
     adminDataExplorerPlayServer
   )
   .settings(
