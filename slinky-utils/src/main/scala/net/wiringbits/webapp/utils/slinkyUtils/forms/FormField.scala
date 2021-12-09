@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.slinkyUtils.forms
 
-import net.wiringbits.webapp.utils.slinkyUtils.validators.ValidationResult
+import net.wiringbits.webapp.common.validators.ValidationResult
 
 class FormField[T](
     val label: String,

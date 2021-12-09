@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.slinkyUtils.validators
+package net.wiringbits.webapp.common.validators
 
 sealed trait ValidationResult[T] extends Product with Serializable {
 

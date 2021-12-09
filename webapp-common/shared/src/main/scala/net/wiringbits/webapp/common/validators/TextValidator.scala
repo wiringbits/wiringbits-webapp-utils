@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.slinkyUtils.validators
+package net.wiringbits.webapp.common.validators
 
 trait TextValidator[T] {
   def apply(input: String): ValidationResult[T]

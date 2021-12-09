@@ -1,6 +1,6 @@
-package net.wiringbits.webapp.utils.api.common.models.core
+package net.wiringbits.webapp.common.models
 
-trait WrappedInt extends Any {
+trait WrappedInt {
   def int: Int
 
   override def toString: String = int.toString

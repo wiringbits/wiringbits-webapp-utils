@@ -1,13 +1,13 @@
 package net.wiringbits.webapp.utils.admin.utils.models
 
-import net.wiringbits.webapp.utils.api.common.models.core.WrappedInt
+import net.wiringbits.webapp.common.models.WrappedInt
 
 package object pagination {
-  case class Count(int: Int) extends AnyVal with WrappedInt
+  case class Count(int: Int) extends WrappedInt
 
-  case class Offset(int: Int) extends AnyVal with WrappedInt
+  case class Offset(int: Int) extends WrappedInt
 
-  case class Limit(int: Int) extends AnyVal with WrappedInt
+  case class Limit(int: Int) extends WrappedInt
 
   case class PaginatedQuery(offset: Offset, limit: Limit)
 

@@ -135,10 +135,35 @@ lazy val playSettings: Project => Project = {
 }
 
 /**
+ * The common stuff for the server/client modules
+ */
+lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-common"))
+  .configure(baseLibSettings)
+  .settings(
+    name := "webapp-common"
+  )
+  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .jvmSettings(
+    libraryDependencies ++= Seq(
+      // TODO: This shouldn't depend in play-json but I'm leaving it for simplicity
+      "com.typesafe.play" %% "play-json" % playJson
+    )
+  )
+  .jsSettings(
+    stUseScalaJsDom := true,
+    Compile / stMinimize := Selection.All,
+    libraryDependencies ++= Seq(
+      // TODO: This shouldn't depend in play-json but I'm leaving it for simplicity
+      "com.typesafe.play" %%% "play-json" % playJson
+    )
+  )
+
+/**
  * Just the API side for the admin-data-explorer modules
  */
 lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("admin-data-explorer-api"))
   .configure(baseLibSettings)
+  .dependsOn(webappCommon)
   .settings(
     name := "admin-data-explorer-api"
   )
@@ -164,7 +189,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
 lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings)
   .configure(_.enablePlugins(ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
-  .dependsOn(adminDataExplorerApi.js)
+  .dependsOn(adminDataExplorerApi.js, webappCommon.js)
   .settings(
     name := "slinky-utils",
     useYarn := true,
@@ -230,7 +255,7 @@ lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"
  * Includes the specific stuff to run the data explorer server side (play-specific)
  */
 lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-play-server"))
-  .dependsOn(adminDataExplorerApi.jvm)
+  .dependsOn(adminDataExplorerApi.jvm, webappCommon.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
     name := "admin-data-explorer-play-server",
@@ -253,6 +278,8 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
 
 lazy val root = (project in file("."))
   .aggregate(
+    webappCommon.jvm,
+    webappCommon.js,
     adminDataExplorerApi.jvm,
     adminDataExplorerApi.js,
     slinkyUtils,
