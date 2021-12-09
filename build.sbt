@@ -189,11 +189,14 @@ lazy val ui = (project in file("lib/ui"))
     )
   )
 
-lazy val server = (project in file("server"))
+/**
+ * Includes the specific stuff to run the data explorer server side (play-specific)
+ */
+lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-play-server"))
   .dependsOn(api.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
-    name := "webapp-utils-server",
+    name := "admin-data-explorer-play-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(
@@ -216,7 +219,7 @@ lazy val root = (project in file("."))
     api.jvm,
     api.js,
     ui,
-    server
+    adminDataExplorerPlayServer
   )
   .settings(
     publish := {},
