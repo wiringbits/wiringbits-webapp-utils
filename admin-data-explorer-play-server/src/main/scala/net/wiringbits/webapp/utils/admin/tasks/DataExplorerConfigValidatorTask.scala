@@ -9,17 +9,15 @@ import play.api.db.Database
 import javax.inject.Inject
 import scala.util.{Failure, Success, Try}
 
-/**
- * Given that the use provides the tables used by the data explorer,
- * it is important to make sure those tables exist in the database.
- *
- * This task loads the available tables from the database and compares
- * those to the ones provided by the user-defined config, failing when
- * there is a mismatch.
- *
- * @param database
- * @param settings
- */
+/** Given that the use provides the tables used by the data explorer, it is important to make sure those tables exist in
+  * the database.
+  *
+  * This task loads the available tables from the database and compares those to the ones provided by the user-defined
+  * config, failing when there is a mismatch.
+  *
+  * @param database
+  * @param settings
+  */
 class DataExplorerConfigValidatorTask @Inject() (
     database: Database,
     settings: DataExplorerSettings

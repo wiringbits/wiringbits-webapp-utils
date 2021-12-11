@@ -14,7 +14,7 @@ class AppRouter @Inject() (adminController: AdminController) extends SimpleRoute
     case GET(p"/admin/tables") =>
       adminController.getTables()
 
-    //get database table fields
+    // get database table fields
     case GET(p"/admin/tables/$tableName" ? q_o"offset=${int(offsetOpt)}" & q_o"limit=${int(limitOpt)}") =>
       val offset = offsetOpt.getOrElse(0)
       val limit = limitOpt.getOrElse(10)
