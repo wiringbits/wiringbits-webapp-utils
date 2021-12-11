@@ -76,7 +76,7 @@ lazy val baseWebSettings: Project => Project =
     .settings(
       scalacOptions += "-Ymacro-annotations",
       libraryDependencies ++= Seq(
-        "io.github.cquiroz" %%% "scala-java-time" % "2.0.0",
+        "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
         "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
       )
     )
