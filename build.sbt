@@ -77,6 +77,7 @@ lazy val baseWebSettings: Project => Project =
       scalacOptions += "-Ymacro-annotations",
       libraryDependencies ++= Seq(
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
+        "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
         "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
       )
     )
@@ -175,9 +176,8 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
     scalaJSLinkerConfig ~= (_.withSourceMap(false))
   )
 
-/**
- * The common stuff for the server/client modules
- */
+/** The common stuff for the server/client modules
+  */
 lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-common"))
   .configure(baseLibSettings)
   .settings(
@@ -199,9 +199,8 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
     )
   )
 
-/**
- * Just the API side for the admin-data-explorer modules
- */
+/** Just the API side for the admin-data-explorer modules
+  */
 lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("admin-data-explorer-api"))
   .configure(baseLibSettings)
   .dependsOn(webappCommon)
@@ -224,9 +223,8 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
     )
   )
 
-/**
- * Utils specific to slinky
- */
+/** Utils specific to slinky
+  */
 lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings, baseWebSettings)
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
@@ -244,9 +242,8 @@ lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"
     name := "admin-data-explorer-slinky"
   )
 
-/**
- * Includes the specific stuff to run the data explorer server side (play-specific)
- */
+/** Includes the specific stuff to run the data explorer server side (play-specific)
+  */
 lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-play-server"))
   .dependsOn(adminDataExplorerApi.jvm, webappCommon.jvm)
   .configure(baseServerSettings, playSettings)
