@@ -20,8 +20,10 @@ inThisBuild(
   )
 )
 
+resolvers += Resolver.sonatypeRepo("releases")
+
 val playJson = "2.9.2"
-val sttp = "2.2.10"
+val sttp = "3.3.18"
 
 val consoleDisabledOptions = Seq("-Xfatal-warnings", "-Ywarn-unused", "-Ywarn-unused-import")
 
@@ -78,7 +80,7 @@ lazy val baseWebSettings: Project => Project =
       libraryDependencies ++= Seq(
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
         "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
-        "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.5"
+        "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.6"
       )
     )
 
@@ -211,7 +213,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .jvmSettings(
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play-json" % playJson,
-      "com.softwaremill.sttp.client" %% "core" % sttp
+      "com.softwaremill.sttp.client3" %% "core" % sttp
     )
   )
   .jsSettings(
@@ -219,7 +221,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
     Compile / stMinimize := Selection.All,
     libraryDependencies ++= Seq(
       "com.typesafe.play" %%% "play-json" % playJson,
-      "com.softwaremill.sttp.client" %%% "core" % sttp
+      "com.softwaremill.sttp.client3" %%% "core" % sttp
     )
   )
 
@@ -261,8 +263,8 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
       "commons-validator" % "commons-validator" % "1.7",
       "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.39.12" % "test",
       "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.39.12" % "test",
-      "com.softwaremill.sttp.client" %% "core" % sttp % "test",
-      "com.softwaremill.sttp.client" %% "async-http-client-backend-future" % sttp % "test"
+      "com.softwaremill.sttp.client3" %% "core" % sttp % "test",
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-future" % sttp % "test"
     )
   )
 
