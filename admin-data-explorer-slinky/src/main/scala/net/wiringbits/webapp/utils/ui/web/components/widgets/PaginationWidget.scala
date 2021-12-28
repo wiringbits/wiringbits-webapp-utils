@@ -4,7 +4,7 @@ import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 import com.alexitc.materialui.facade.materialUiCore.{components => mui}
 import com.alexitc.materialui.facade.react.mod.ChangeEvent
-import org.scalajs.dom.raw.{HTMLButtonElement, HTMLInputElement, HTMLTextAreaElement}
+import org.scalajs.dom.{HTMLButtonElement, HTMLInputElement, HTMLTextAreaElement}
 import slinky.web.SyntheticMouseEvent
 
 import scala.scalajs.js.{Array => JSArray}
