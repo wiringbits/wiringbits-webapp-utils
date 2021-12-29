@@ -4,7 +4,7 @@ import net.wiringbits.facades.reactRouter.mod.useParams
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
-import org.scalajs.dom.URLSearchParams
+import org.scalajs.dom.{URLSearchParams, window}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 
@@ -18,7 +18,7 @@ import scala.util.Try
     val defaultPageLength = 10
     val defaultOffset = 0
 
-    val urlSearchParams = new URLSearchParams()
+    val urlSearchParams = new URLSearchParams(window.location.search)
 
     val limit = Try(urlSearchParams.get("limit").toInt).toOption
     val offset = Try(urlSearchParams.get("offset").toInt).toOption
