@@ -11,5 +11,4 @@ import slinky.core.annotations.react
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     ExperimentalTableWidget(props.api)
   }
-
 }

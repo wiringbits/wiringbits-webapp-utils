@@ -30,7 +30,7 @@ import scala.scalajs.js.|
         page = props.currentPage,
         rowsPerPage = props.pageLimit
       )
-      .onChangeRowsPerPage(event => props.onChangeRowsPerPage(event))
+      .onChangeRowsPerPage(props.onChangeRowsPerPage(_))
       .rowsPerPageOptions(pageOptions)
   }
 }
