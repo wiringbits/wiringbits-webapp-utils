@@ -26,7 +26,7 @@ import slinky.core.annotations.react
           .setColor("black")
           .setOverflow("hidden")
           .setTextOverflow("ellipsis")
-          .setPadding("10px 15px")
+          .setPadding("10px")
           .setBorder("1px solid rgba(0, 0, 0, 0.4)")
           .setBackgroundColor("rgba(0, 0, 0, 0.02)")
       )

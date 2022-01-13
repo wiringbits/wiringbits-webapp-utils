@@ -1,11 +1,7 @@
 package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiCore.{
-  colorsMod => Colors,
-  components => mui,
-  materialUiCoreStrings => muiStrings
-}
+import com.alexitc.materialui.facade.materialUiCore.{components => mui}
 import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
 import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
 import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
@@ -14,7 +10,6 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
-import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -31,7 +26,7 @@ import slinky.core.facade.{Fragment, Hooks}
           .setColor("black")
           .setOverflow("hidden")
           .setTextOverflow("ellipsis")
-          .setPadding("10px 15px")
+          .setPadding("5px 10px")
           .setBorder("1px solid rgba(0, 0, 0, 0.4)")
           .setBackgroundColor("rgba(0, 0, 0, 0.01)")
       )

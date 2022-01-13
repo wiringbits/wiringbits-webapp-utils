@@ -26,7 +26,7 @@ import slinky.core.facade.Fragment
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = _ =>
       StringDictionary(
         "table" -> CSSProperties()
-          .setTableLayout(TableLayoutProperty.fixed)
+          .setTableLayout(TableLayoutProperty.auto)
       )
     makeStyles(stylesCallback, WithStylesOptions())
   }
