@@ -2,7 +2,7 @@ package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.react.mod.ChangeEvent
 import net.wiringbits.facades.reactRouterDom.{mod => reactRouterDom}
-import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
+import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadata
 import org.scalajs.dom.{HTMLInputElement, HTMLTextAreaElement}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -11,7 +11,7 @@ import scala.scalajs.js
 import scala.scalajs.js.|
 
 @react object Pagination {
-  case class Props(response: AdminGetTableMetadataResponse)
+  case class Props(response: AdminGetTableMetadata.Response)
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val history = reactRouterDom.useHistory()

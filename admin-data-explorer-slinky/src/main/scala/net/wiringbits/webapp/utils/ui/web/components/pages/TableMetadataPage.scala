@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.ui.web.components.pages
 
 import net.wiringbits.facades.reactRouter.mod.useParams
-import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
+import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadata
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
 import net.wiringbits.webapp.utils.ui.web.components.widgets.{ExperimentalTable, Loader}
@@ -26,7 +26,7 @@ import scala.util.Try
 
     val tableName = useParams().asInstanceOf[js.Dynamic].tableName.toString
 
-    AsyncComponent.component[AdminGetTableMetadataResponse](
+    AsyncComponent.component[AdminGetTableMetadata.Response](
       AsyncComponent
         .Props(
           fetch = () =>

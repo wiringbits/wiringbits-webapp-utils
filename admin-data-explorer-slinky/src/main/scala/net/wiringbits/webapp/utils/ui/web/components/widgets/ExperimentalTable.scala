@@ -11,7 +11,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
-import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
+import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadata
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets.{Container, Subtitle}
 import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
@@ -20,7 +20,7 @@ import slinky.core.annotations.react
 import slinky.core.facade.Fragment
 
 @react object ExperimentalTable {
-  case class Props(response: AdminGetTableMetadataResponse)
+  case class Props(response: AdminGetTableMetadata.Response)
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = _ =>

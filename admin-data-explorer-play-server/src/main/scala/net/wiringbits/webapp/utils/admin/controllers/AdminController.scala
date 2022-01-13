@@ -42,23 +42,23 @@ class AdminController @Inject() (
     } yield Ok(Json.toJson(response))
   }
 
-  def create(tableName: String) = handleJsonBody[AdminCreateTableRequest] { request =>
+  def create(tableName: String) = handleJsonBody[AdminCreateTable.Request] { request =>
     val body = request.body
     for {
       _ <- adminUser(request)
       _ = logger.info(s"Create row in $tableName: ${body.data}")
       _ <- adminService.create(tableName, body)
-      response = AdminCreateTableResponse()
+      response = AdminCreateTable.Response()
     } yield Ok(Json.toJson(response))
   }
 
-  def update(tableName: String, id: String) = handleJsonBody[AdminUpdateTableRequest] { request =>
+  def update(tableName: String, id: String) = handleJsonBody[AdminUpdateTable.Request] { request =>
     val body = request.body
     for {
       _ <- adminUser(request)
       _ = logger.info(s"Update row from $tableName, id = $id, body = ${body.data}")
       _ <- adminService.update(tableName, id, body)
-      response = AdminUpdateTableResponse()
+      response = AdminUpdateTable.Response()
     } yield Ok(Json.toJson(response))
   }
 
@@ -67,7 +67,7 @@ class AdminController @Inject() (
       _ <- adminUser(request)
       _ = logger.info(s"Delete row from $tableName, id = $id")
       _ <- adminService.delete(tableName, id)
-      response = AdminDeleteTableResponse()
+      response = AdminDeleteTable.Response()
     } yield Ok(Json.toJson(response))
   }
 }
