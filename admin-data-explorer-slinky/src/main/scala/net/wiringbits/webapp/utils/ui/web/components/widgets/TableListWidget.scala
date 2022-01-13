@@ -20,7 +20,7 @@ import slinky.core.facade.Fragment
 import slinky.web.html.className
 import net.wiringbits.facades.reactRouterDom.{mod => reactRouterDom}
 
-object ExperimentalTableListWidget {
+object TableListWidget {
   case class Props(response: AdminGetTablesResponse)
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {

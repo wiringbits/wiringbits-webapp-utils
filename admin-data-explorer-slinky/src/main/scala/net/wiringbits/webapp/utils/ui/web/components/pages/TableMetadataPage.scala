@@ -4,7 +4,7 @@ import net.wiringbits.facades.reactRouter.mod.useParams
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
-import net.wiringbits.webapp.utils.ui.web.components.widgets.{ExperimentalTable, ExperimentalTableWidget, Loader}
+import net.wiringbits.webapp.utils.ui.web.components.widgets.{ExperimentalTable, Loader}
 import org.scalajs.dom.{URLSearchParams, window}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -12,7 +12,7 @@ import slinky.core.annotations.react
 import scala.scalajs.js
 import scala.util.Try
 
-@react object ExperimentalTablesPage {
+@react object TableMetadataPage {
   case class Props(api: API)
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>

@@ -3,7 +3,7 @@ package net.wiringbits.webapp.utils.ui.web.components.pages
 import net.wiringbits.webapp.utils.api.models.AdminGetTablesResponse
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
-import net.wiringbits.webapp.utils.ui.web.components.widgets.{ExperimentalTableListWidget, Loader}
+import net.wiringbits.webapp.utils.ui.web.components.widgets.{Loader, TableListWidget}
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 
@@ -15,7 +15,7 @@ import slinky.core.annotations.react
       AsyncComponent
         .Props(
           fetch = () => props.api.client.getTables(),
-          render = response => ExperimentalTableListWidget.component(ExperimentalTableListWidget.Props(response)),
+          render = response => TableListWidget.component(TableListWidget.Props(response)),
           progressIndicator = () => Loader()
         )
     )
