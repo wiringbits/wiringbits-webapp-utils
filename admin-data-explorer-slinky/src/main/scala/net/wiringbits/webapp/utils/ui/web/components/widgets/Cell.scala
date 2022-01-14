@@ -1,7 +1,11 @@
 package net.wiringbits.webapp.utils.ui.web.components.widgets
 
-import com.alexitc.materialui.facade.materialUiCore.{components => mui, materialUiCoreStrings => muiStrings}
 import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
+import com.alexitc.materialui.facade.materialUiCore.{
+  colorsMod => Colors,
+  components => mui,
+  materialUiCoreStrings => muiStrings
+}
 import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
 import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
 import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
@@ -11,16 +15,18 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   WithStylesOptions
 }
 import com.alexitc.materialui.facade.std.HTMLTableHeaderCellElement
-import com.alexitc.materialui.facade.materialUiCore.{colorsMod => Colors}
 import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.{Fragment, Hooks}
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.SyntheticMouseEvent
 
-@react object Cell {
+object Cell {
   case class Props(value: String, tableName: String, isField: Boolean = false, isNav: Boolean = false)
+
+  def apply(value: String, tableName: String, isField: Boolean = false, isNav: Boolean = false): KeyAddingStage = {
+    component(Props(value = value, tableName = tableName, isField = isField, isNav = isNav))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
@@ -54,11 +60,6 @@ import slinky.web.SyntheticMouseEvent
 
     def removeNull(value: String): String = {
       if (value.equals("null")) "" else value
-    }
-
-    def isOverflown(element: HTMLTableHeaderCellElement): Boolean = {
-      element.scrollHeight > element.clientHeight ||
-      element.scrollWidth > element.clientWidth
     }
 
     def handleMouseOver(event: SyntheticMouseEvent[HTMLTableHeaderCellElement]): Unit = {

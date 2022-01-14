@@ -289,6 +289,8 @@ lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
   .dependsOn(adminDataExplorerApi.js, slinkyUtils, scalablytypedFacades)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-slinky"
   )
 

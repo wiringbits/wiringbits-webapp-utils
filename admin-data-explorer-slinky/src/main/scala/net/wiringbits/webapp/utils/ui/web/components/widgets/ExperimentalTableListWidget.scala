@@ -16,7 +16,7 @@ import net.wiringbits.webapp.utils.ui.web.AppStrings
 import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
-import slinky.core.facade.Fragment
+import slinky.core.facade.{Fragment, ReactElement}
 import slinky.web.html.className
 import net.wiringbits.facades.reactRouterDom.{mod => reactRouterDom}
 
@@ -42,7 +42,7 @@ object ExperimentalTableListWidget {
       history.push(url)
     }
 
-    val items = props.response.data.map { table =>
+    val items: List[ReactElement] = props.response.data.map { table =>
       mui
         .ListItem()(
           mui
