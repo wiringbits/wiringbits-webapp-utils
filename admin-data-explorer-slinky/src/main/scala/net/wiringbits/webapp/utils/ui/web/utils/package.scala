@@ -12,4 +12,18 @@ package object utils {
       .map(upperCaseFirstLetter)
       .mkString(" ")
   }
+
+  def getChangedValues(
+      fieldNames: List[String],
+      initialValues: List[String],
+      values: List[String]
+  ): Map[String, String] = {
+    val initialFieldAndValues = fieldNames.zip(initialValues).toMap
+    val fieldAndvalues = fieldNames.zip(values).toMap
+    fieldAndvalues.filter { x =>
+      val field = x._1
+      val value = x._2
+      initialFieldAndValues(field) != value
+    }
+  }
 }

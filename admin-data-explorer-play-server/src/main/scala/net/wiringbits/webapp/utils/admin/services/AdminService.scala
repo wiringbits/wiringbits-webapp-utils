@@ -45,10 +45,12 @@ class AdminService @Inject() (
   def find(tableName: String, id: String): Future[AdminFindTable.Response] = {
     for {
       _ <- validateTableName(tableName)
-      row <- databaseTablesRepository.find(tableName, id)
+      (row, fields) <- databaseTablesRepository.find(tableName, id)
     } yield AdminFindTable.Response(
-      row =
-        AdminGetTableMetadata.Response.TableRow(row.data.map(_.value).map(AdminGetTableMetadata.Response.Cell.apply))
+      row = AdminGetTableMetadata.Response.TableRow(
+        row.data.map(_.value).map(AdminGetTableMetadata.Response.Cell.apply)
+      ),
+      fields = fields.map(x => AdminGetTableMetadata.Response.TableField(x.name, x.`type`))
     )
   }
 

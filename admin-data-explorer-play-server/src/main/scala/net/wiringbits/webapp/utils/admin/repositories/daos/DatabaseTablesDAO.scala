@@ -141,8 +141,11 @@ object DatabaseTablesDAO {
     mandatoryFields.toList
   }
 
-  def find(tableName: String, ID: String, tableSettings: DataExplorerSettings)(implicit conn: Connection): TableRow = {
+  def find(tableName: String, ID: String, tableSettings: DataExplorerSettings)(implicit
+      conn: Connection
+  ): (TableRow, List[TableField]) = {
     // TODO: Avoid Option#get
+    val fields = getTableFields(tableName)
     val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
     val SQL =
       s"""
@@ -163,7 +166,7 @@ object DatabaseTablesDAO {
       columnNumber <- 1 to numberOfColumns
       cellData = resultSet.getString(columnNumber)
     } yield Cell(Option(cellData).getOrElse("null"))
-    TableRow(row.toList)
+    (TableRow(row.toList), fields)
   }
 
   def create(tableName: String, body: Map[String, String], tableSettings: DataExplorerSettings)(implicit

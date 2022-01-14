@@ -33,7 +33,7 @@ import slinky.core.annotations.react
           .setPadding("5px 10px")
           .setBorder("1px solid rgba(0, 0, 0, 0.4)")
           .setBackgroundColor("rgba(0, 0, 0, 0.01)"),
-        "updateLink" -> CSSProperties()
+        "viewLink" -> CSSProperties()
           .setFontWeight(600)
           .set("&:hover", CSSProperties().setColor(Colors.teal.`600`))
       )
@@ -44,13 +44,13 @@ import slinky.core.annotations.react
     val classes = useStyles(())
 
     def createHref(tableName: String, value: String): String = {
-      s"tables/$tableName/update/$value"
+      s"tables/$tableName/view/$value"
     }
 
     val link =
       mui
         .Link(snakeCaseToUpper(props.value))
-        .className(classes("updateLink"))
+        .className(classes("viewLink"))
         .href(createHref(props.tableName, props.value))
         .underline(muiStrings.none)
 

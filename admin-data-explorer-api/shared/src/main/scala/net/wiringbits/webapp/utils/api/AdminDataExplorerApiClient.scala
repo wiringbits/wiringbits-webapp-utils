@@ -13,7 +13,7 @@ trait AdminDataExplorerApiClient {
 
   def getTableMetadata(tableName: String, offset: Int, limit: Int): Future[AdminGetTableMetadata.Response]
 
-  def findTable(tableName: String, id: String): Future[AdminFindTable.Response]
+  def viewItem(tableName: String, id: String): Future[AdminFindTable.Response]
 
   def createItem(tableName: String, request: AdminCreateTable.Request): Future[AdminCreateTable.Response]
 
@@ -105,7 +105,7 @@ object AdminDataExplorerApiClient {
         .flatMap(Future.fromTry)
     }
 
-    override def findTable(tableName: String, id: String): Future[AdminFindTable.Response] = {
+    override def viewItem(tableName: String, id: String): Future[AdminFindTable.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName :+ id
       val uri = ServerAPI.withPath(path)
 

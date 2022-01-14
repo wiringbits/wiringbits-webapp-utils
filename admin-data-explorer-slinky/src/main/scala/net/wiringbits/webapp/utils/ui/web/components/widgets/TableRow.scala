@@ -14,7 +14,7 @@ import slinky.core.annotations.react
     mui
       .TableRow(
         row.map { cell =>
-          // TODO: This only works because I'm asumming the first column is ID
+          // TODO: Here I'm asumming the first column is ID
           if (row.indexOf(cell) == 0)
             TableNavCell(cell.value, props.tableName)
           else
