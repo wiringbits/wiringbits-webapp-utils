@@ -22,8 +22,8 @@ jobs:
         run: sbt scalafmtCheckAll
 
       - name: Compile
-        run: sbt compile
+        run: sbt +compile
 
       - name: Run tests
-        run: sbt test
+        run: sbt +test
 
