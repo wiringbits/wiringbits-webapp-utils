@@ -22,7 +22,7 @@ inThisBuild(
 
 resolvers += Resolver.sonatypeRepo("releases")
 
-val playJson = "2.9.2"
+val playJson = "2.10.0-RC5"
 val sttp = "3.3.18"
 
 val consoleDisabledOptions = Seq("-Xfatal-warnings", "-Ywarn-unused", "-Ywarn-unused-import")
@@ -59,14 +59,30 @@ lazy val baseLibSettings: Project => Project =
   _.enablePlugins(ScalaJSPlugin)
     .settings(
       Test / fork := false, // sjs needs this to run tests
-      scalacOptions ++= Seq(
-        "-deprecation", // Emit warning and location for usages of deprecated APIs.
-        "-encoding",
-        "utf-8", // Specify character encoding used by source files.
-        "-explaintypes", // Explain type errors in more detail.
-        "-feature", // Emit warning and location for usages of features that should be imported explicitly.
-        "-unchecked" // Enable additional warnings where generated code depends on assumptions.
-      ),
+      scalacOptions ++= {
+        Seq(
+          "-encoding",
+          "UTF-8",
+          "-feature",
+          "-language:implicitConversions"
+          // disabled during the migration
+          // "-Xfatal-warnings"
+        ) ++
+          (CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((3, _)) =>
+              Seq(
+                "-unchecked",
+                "-source:3.0-migration"
+              )
+            case _ =>
+              Seq(
+                "-deprecation",
+                "-Xfatal-warnings",
+                "-Wunused:imports,privates,locals",
+                "-Wvalue-discard"
+              )
+          })
+      },
       libraryDependencies ++= Seq(
         "org.scalatest" %%% "scalatest" % "3.2.10" % Test
       )
@@ -185,6 +201,8 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
 lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-common"))
   .configure(baseLibSettings)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
     name := "webapp-common"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
