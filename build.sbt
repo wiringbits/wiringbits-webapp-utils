@@ -191,7 +191,7 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
     scalaVersion := "3.1.0",
-    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "scalablytyped-facades",
     useYarn := true,
     Test / requireJsDomEnv := true,
@@ -225,7 +225,7 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
   .configure(baseLibSettings)
   .settings(
     scalaVersion := "3.1.0",
-    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "webapp-common"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
@@ -251,7 +251,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .dependsOn(webappCommon)
   .settings(
     scalaVersion := "3.1.0",
-    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
@@ -278,7 +278,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
   .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
     scalaVersion := "3.1.0",
-    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "slinky-utils"
   )
 
@@ -289,7 +289,7 @@ lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"
   .dependsOn(adminDataExplorerApi.js, slinkyUtils, scalablytypedFacades)
   .settings(
     scalaVersion := "3.1.0",
-    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-slinky"
   )
 
@@ -300,6 +300,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
   .configure(baseServerSettings, playSettings)
   .settings(
     scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8"),
     name := "admin-data-explorer-play-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
@@ -326,8 +327,10 @@ lazy val root = (project in file("."))
     adminDataExplorerApi.jvm,
     adminDataExplorerApi.js,
     slinkyUtils,
-    adminDataExplorerSlinky,
-    adminDataExplorerPlayServer
+    adminDataExplorerSlinky
+    // TODO: Enable this module when compiling it works, for now, let's publish the library without it
+    // to unblock a downstream project.
+//    adminDataExplorerPlayServer
   )
   .settings(
     name := "wiringbits-webapp-utils",
