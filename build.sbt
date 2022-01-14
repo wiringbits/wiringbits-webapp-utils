@@ -151,6 +151,8 @@ lazy val playSettings: Project => Project = {
 lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
     name := "scalablytyped-facades",
     useYarn := true,
     Test / requireJsDomEnv := true,
