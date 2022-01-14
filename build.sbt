@@ -227,6 +227,8 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .configure(baseLibSettings)
   .dependsOn(webappCommon)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
