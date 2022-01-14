@@ -10,6 +10,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
+import net.wiringbits.webapp.utils.ui.web.utils.formatCellValue
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
@@ -37,18 +38,11 @@ import slinky.core.facade.{Fragment, Hooks}
     val classes = useStyles(())
     val (open, setOpen) = Hooks.useState(false)
 
-    def formatCellValue(value: String): String = {
-      if (value.equals("null"))
-        ""
-      else
-        value
-    }
-
     val dialog = mui
       .Popover(open)(props.value)
       .onClose(_ => setOpen(false))
 
-    var tableCell = mui
+    val tableCell = mui
       .TableCell(
         formatCellValue(props.value)
       )

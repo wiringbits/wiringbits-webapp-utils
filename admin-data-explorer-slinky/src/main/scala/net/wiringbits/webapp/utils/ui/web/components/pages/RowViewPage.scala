@@ -21,7 +21,7 @@ import scala.scalajs.js
       AsyncComponent
         .Props(
           fetch = () => props.api.client.viewItem(tableName, ID),
-          render = response => RowView.component(RowView.Props(response)),
+          render = response => RowView.component(RowView.Props(props.api, response, tableName, ID)),
           progressIndicator = () => Loader()
         )
     )

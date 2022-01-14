@@ -1,10 +1,8 @@
 package net.wiringbits.webapp.utils.ui.web.components.pages
 
 import net.wiringbits.facades.reactRouter.mod.useParams
-import net.wiringbits.webapp.utils.api.models.AdminFindTable
-import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
-import net.wiringbits.webapp.utils.ui.web.components.widgets.{Loader, UpdateView}
+import net.wiringbits.webapp.utils.ui.web.components.widgets.UpdateView
 import slinky.core.FunctionalComponent
 import slinky.core.annotations.react
 

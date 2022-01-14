@@ -13,6 +13,10 @@ package object utils {
       .mkString(" ")
   }
 
+  def formatCellValue(cellValue: String): String = {
+    if (cellValue.equals("null")) "" else cellValue
+  }
+
   def getChangedValues(
       fieldNames: List[String],
       initialValues: List[String],
