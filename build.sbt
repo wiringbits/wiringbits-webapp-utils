@@ -1,4 +1,3 @@
-ThisBuild / scalaVersion := "2.13.8"
 ThisBuild / versionScheme := Some("early-semver")
 // For all Sonatype accounts created on or after February 2021
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
@@ -300,6 +299,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
   .dependsOn(adminDataExplorerApi.jvm, webappCommon.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
+    scalaVersion := "2.13.8",
     name := "admin-data-explorer-play-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
