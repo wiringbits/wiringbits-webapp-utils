@@ -1,11 +1,20 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import com.alexitc.materialui.facade.materialUiCore.{components => mui, materialUiCoreStrings => muiStrings}
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react object AlertDialog {
+object AlertDialog {
   case class Props(visible: Boolean, title: String, message: String, onClose: () => Unit, closeText: String = "Close")
+
+  def apply(
+      visible: Boolean,
+      title: String,
+      message: String,
+      onClose: () => Unit,
+      closeText: String = "Close"
+  ): KeyAddingStage = {
+    component(Props(visible = visible, title = title, message = message, onClose = onClose, closeText = closeText))
+  }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui

@@ -11,13 +11,20 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   WithStylesOptions
 }
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.{Fragment, ReactElement}
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{className, div}
 
-@react object Scaffold {
+object Scaffold {
   case class Props(appbar: Option[ReactElement] = None, body: ReactElement, footer: Option[ReactElement] = None)
+
+  def apply(
+      appbar: Option[ReactElement] = None,
+      body: ReactElement,
+      footer: Option[ReactElement] = None
+  ): KeyAddingStage = {
+    component(Props(appbar = appbar, body = body, footer = footer))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>

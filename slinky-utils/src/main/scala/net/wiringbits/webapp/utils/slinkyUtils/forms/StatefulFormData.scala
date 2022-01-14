@@ -46,9 +46,9 @@ object StatefulFormData {
   }
 
   object State {
-    final case object Filling extends State
-    final case object Submitting extends State
-    final case object Submitted extends State
-    final case class Failed(error: String) extends State
+    case object Filling extends State
+    case object Submitting extends State
+    case object Submitted extends State
+    case class Failed(error: String) extends State
   }
 }

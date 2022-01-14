@@ -23,9 +23,9 @@ object AsyncComponent {
   }
 
   object DataState {
-    final case class Loading[T]() extends DataState[T]
-    final case class Loaded[T](data: T) extends DataState[T]
-    final case class Failed[T](msg: String) extends DataState[T]
+    case class Loading[T]() extends DataState[T]
+    case class Loaded[T](data: T) extends DataState[T]
+    case class Failed[T](msg: String) extends DataState[T]
 
     def loading[T]: DataState[T] = Loading[T]()
   }

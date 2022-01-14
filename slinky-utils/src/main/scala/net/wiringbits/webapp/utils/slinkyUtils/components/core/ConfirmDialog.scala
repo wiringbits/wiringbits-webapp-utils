@@ -2,10 +2,9 @@ package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import com.alexitc.materialui.facade.materialUiCore.mod.PropTypes
 import com.alexitc.materialui.facade.materialUiCore.{components => mui}
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react object ConfirmDialog {
+object ConfirmDialog {
 
   case class Props(
       visible: Boolean,
@@ -16,6 +15,28 @@ import slinky.core.annotations.react
       confirmText: String = "Confirm",
       cancelText: String = "Cancel"
   )
+
+  def apply(
+      visible: Boolean,
+      title: String,
+      message: String,
+      onConfirm: () => Unit,
+      onCancel: () => Unit,
+      confirmText: String = "Confirm",
+      cancelText: String = "Cancel"
+  ): KeyAddingStage = {
+    component(
+      Props(
+        visible = visible,
+        title = title,
+        message = message,
+        onConfirm = onConfirm,
+        onCancel = onCancel,
+        confirmText = confirmText,
+        cancelText = cancelText
+      )
+    )
+  }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui

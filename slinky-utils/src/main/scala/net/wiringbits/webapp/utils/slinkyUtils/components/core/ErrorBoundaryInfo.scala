@@ -12,12 +12,15 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   WithStylesOptions
 }
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{className, div, h1}
 
-@react object ErrorBoundaryInfo {
+object ErrorBoundaryInfo {
   case class Props(error: scala.scalajs.js.Error)
+
+  def apply(error: scala.scalajs.js.Error): KeyAddingStage = {
+    component(Props(error))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>

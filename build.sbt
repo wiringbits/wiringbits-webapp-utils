@@ -92,11 +92,35 @@ lazy val baseLibSettings: Project => Project =
 lazy val baseWebSettings: Project => Project =
   _.enablePlugins(ScalaJSPlugin)
     .settings(
-      scalacOptions += "-Ymacro-annotations",
+      scalacOptions ++= {
+        Seq(
+          "-encoding",
+          "UTF-8",
+          "-feature",
+          "-language:implicitConversions"
+          // disabled during the migration
+          // "-Xfatal-warnings"
+        ) ++
+          (CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((3, _)) =>
+              Seq(
+                "-unchecked",
+                "-source:3.0-migration"
+              )
+            case _ =>
+              Seq(
+                "-deprecation",
+                "-Xfatal-warnings",
+                "-Wunused:imports,privates,locals",
+                "-Wvalue-discard",
+                "-Ymacro-annotations"
+              )
+          })
+      },
       libraryDependencies ++= Seq(
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
         "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
-        "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.6"
+        "com.alexitc" %%% "sjs-material-ui-facade" % "0.2.0"
       )
     )
 
@@ -252,8 +276,10 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
 lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings, baseWebSettings)
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
-  .dependsOn(adminDataExplorerApi.js, webappCommon.js, scalablytypedFacades)
+  .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions ++= Seq("2.13.8", "3.1.0"),
     name := "slinky-utils"
   )
 
