@@ -18,14 +18,18 @@ import net.wiringbits.webapp.utils.ui.web.API
 import net.wiringbits.webapp.utils.ui.web.utils.{formatCellValue, snakeCaseToUpper}
 import org.scalablytyped.runtime.StringDictionary
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.{Fragment, Hooks}
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{className, div}
 
 import scala.util.{Failure, Success}
-@react object RowView {
+
+object RowView {
   case class Props(api: API, response: AdminFindTable.Response, tableName: String, ID: String)
+
+  def apply(api: API, response: AdminFindTable.Response, tableName: String, ID: String): KeyAddingStage = {
+    component(Props(api = api, response = response, tableName = tableName, ID = ID))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = _ =>

@@ -1,12 +1,15 @@
 package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import net.wiringbits.webapp.utils.api.models.{AdminFindTable, AdminGetTableMetadata}
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.Hooks
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react object EditItemView {
+object EditItemView {
   case class Props(response: AdminFindTable.Response, onChange: AdminFindTable.Response => Unit)
+
+  def apply(response: AdminFindTable.Response, onChange: AdminFindTable.Response => Unit): KeyAddingStage = {
+    component(Props(response = response, onChange = onChange))
+  }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val (formData, setFormData) = Hooks.useState(props.response)

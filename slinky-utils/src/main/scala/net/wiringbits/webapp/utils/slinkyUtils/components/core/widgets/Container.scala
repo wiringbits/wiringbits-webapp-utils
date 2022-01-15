@@ -11,14 +11,13 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   WithStylesOptions
 }
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.ReactElement
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{className, div, style}
 
 import scala.scalajs.js
 
-@react object Container {
+object Container {
 
   case class Props(
       child: ReactElement,
@@ -33,22 +32,50 @@ import scala.scalajs.js
       maxWidth: Option[String] = None
   )
 
+  def apply(
+      child: ReactElement,
+      margin: EdgeInsets = EdgeInsets.all(0),
+      padding: EdgeInsets = EdgeInsets.all(0),
+      borderRadius: Option[String] = None,
+      flex: Option[Int] = None,
+      flexDirection: FlexDirection = FlexDirection.column,
+      alignItems: Alignment = Alignment.flexStart,
+      justifyContent: Alignment = Alignment.flexStart,
+      minWidth: Option[String] = None,
+      maxWidth: Option[String] = None
+  ): KeyAddingStage = {
+    component(
+      Props(
+        child = child,
+        margin = margin,
+        padding = padding,
+        borderRadius = borderRadius,
+        flex = flex,
+        flexDirection = flexDirection,
+        alignItems = alignItems,
+        justifyContent = justifyContent,
+        minWidth = minWidth,
+        maxWidth = maxWidth
+      )
+    )
+  }
+
   sealed trait FlexDirection extends Product with Serializable
 
   object FlexDirection {
-    final case object column extends FlexDirection
-    final case object row extends FlexDirection
+    case object column extends FlexDirection
+    case object row extends FlexDirection
   }
 
   sealed trait Alignment extends Product with Serializable
 
   object Alignment extends Enumeration {
-    final case object center extends Alignment
-    final case object flexStart extends Alignment
-    final case object flexEnd extends Alignment
-    final case object spaceBetween extends Alignment
-    final case object spaceAround extends Alignment
-    final case object spaceEvenly extends Alignment
+    case object center extends Alignment
+    case object flexStart extends Alignment
+    case object flexEnd extends Alignment
+    case object spaceBetween extends Alignment
+    case object spaceAround extends Alignment
+    case object spaceEvenly extends Alignment
   }
 
   case class EdgeInsets(top: Int, right: Int, bottom: Int, left: Int) {

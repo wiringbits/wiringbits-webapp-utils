@@ -11,11 +11,9 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   WithStylesOptions
 }
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.Fragment
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react
 object ErrorLabel {
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
@@ -28,6 +26,10 @@ object ErrorLabel {
     makeStyles(stylesCallback, WithStylesOptions())
   }
   case class Props(text: String)
+
+  def apply(text: String): KeyAddingStage = {
+    component(Props(text))
+  }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val classes = useStyles(())

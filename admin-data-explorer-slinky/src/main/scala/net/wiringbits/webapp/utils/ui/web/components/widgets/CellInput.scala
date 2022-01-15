@@ -2,12 +2,26 @@ package net.wiringbits.webapp.utils.ui.web.components.widgets
 
 import com.alexitc.materialui.facade.materialUiCore.{components => mui, materialUiCoreStrings => muiStrings}
 import org.scalajs.dom
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react object CellInput {
+object CellInput {
   case class Props(label: String, initialValue: String, onChange: String => Unit, disabled: Boolean = false)
 
+  def apply(
+      label: String,
+      initialValue: String,
+      onChange: String => Unit,
+      disabled: Boolean = false
+  ): KeyAddingStage = {
+    component(
+      Props(
+        label = label,
+        initialValue = initialValue,
+        onChange = onChange,
+        disabled = disabled
+      )
+    )
+  }
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui.TextField
       .OutlinedTextFieldProps()

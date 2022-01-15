@@ -1,4 +1,3 @@
-ThisBuild / scalaVersion := "2.13.7"
 ThisBuild / versionScheme := Some("early-semver")
 // For all Sonatype accounts created on or after February 2021
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
@@ -22,7 +21,7 @@ inThisBuild(
 
 resolvers += Resolver.sonatypeRepo("releases")
 
-val playJson = "2.9.2"
+val playJson = "2.10.0-RC5"
 val sttp = "3.3.18"
 
 val consoleDisabledOptions = Seq("-Xfatal-warnings", "-Ywarn-unused", "-Ywarn-unused-import")
@@ -59,14 +58,30 @@ lazy val baseLibSettings: Project => Project =
   _.enablePlugins(ScalaJSPlugin)
     .settings(
       Test / fork := false, // sjs needs this to run tests
-      scalacOptions ++= Seq(
-        "-deprecation", // Emit warning and location for usages of deprecated APIs.
-        "-encoding",
-        "utf-8", // Specify character encoding used by source files.
-        "-explaintypes", // Explain type errors in more detail.
-        "-feature", // Emit warning and location for usages of features that should be imported explicitly.
-        "-unchecked" // Enable additional warnings where generated code depends on assumptions.
-      ),
+      scalacOptions ++= {
+        Seq(
+          "-encoding",
+          "UTF-8",
+          "-feature",
+          "-language:implicitConversions"
+          // disabled during the migration
+          // "-Xfatal-warnings"
+        ) ++
+          (CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((3, _)) =>
+              Seq(
+                "-unchecked",
+                "-source:3.0-migration"
+              )
+            case _ =>
+              Seq(
+                "-deprecation",
+                "-Xfatal-warnings",
+                "-Wunused:imports,privates,locals",
+                "-Wvalue-discard"
+              )
+          })
+      },
       libraryDependencies ++= Seq(
         "org.scalatest" %%% "scalatest" % "3.2.10" % Test
       )
@@ -76,11 +91,35 @@ lazy val baseLibSettings: Project => Project =
 lazy val baseWebSettings: Project => Project =
   _.enablePlugins(ScalaJSPlugin)
     .settings(
-      scalacOptions += "-Ymacro-annotations",
+      scalacOptions ++= {
+        Seq(
+          "-encoding",
+          "UTF-8",
+          "-feature",
+          "-language:implicitConversions"
+          // disabled during the migration
+          // "-Xfatal-warnings"
+        ) ++
+          (CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((3, _)) =>
+              Seq(
+                "-unchecked",
+                "-source:3.0-migration"
+              )
+            case _ =>
+              Seq(
+                "-deprecation",
+                "-Xfatal-warnings",
+                "-Wunused:imports,privates,locals",
+                "-Wvalue-discard",
+                "-Ymacro-annotations"
+              )
+          })
+      },
       libraryDependencies ++= Seq(
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
         "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
-        "com.alexitc" %%% "sjs-material-ui-facade" % "0.1.6"
+        "com.alexitc" %%% "sjs-material-ui-facade" % "0.2.0"
       )
     )
 
@@ -151,6 +190,8 @@ lazy val playSettings: Project => Project = {
 lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "scalablytyped-facades",
     useYarn := true,
     Test / requireJsDomEnv := true,
@@ -183,6 +224,8 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
 lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-common"))
   .configure(baseLibSettings)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "webapp-common"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
@@ -207,6 +250,8 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .configure(baseLibSettings)
   .dependsOn(webappCommon)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
@@ -230,8 +275,10 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
 lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings, baseWebSettings)
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
-  .dependsOn(adminDataExplorerApi.js, webappCommon.js, scalablytypedFacades)
+  .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "slinky-utils"
   )
 
@@ -241,6 +288,8 @@ lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
   .dependsOn(adminDataExplorerApi.js, slinkyUtils, scalablytypedFacades)
   .settings(
+    scalaVersion := "3.1.0",
+    crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-slinky"
   )
 
@@ -250,6 +299,8 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
   .dependsOn(adminDataExplorerApi.jvm, webappCommon.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8"),
     name := "admin-data-explorer-play-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
@@ -276,8 +327,10 @@ lazy val root = (project in file("."))
     adminDataExplorerApi.jvm,
     adminDataExplorerApi.js,
     slinkyUtils,
-    adminDataExplorerSlinky,
-    adminDataExplorerPlayServer
+    adminDataExplorerSlinky
+    // TODO: Enable this module when compiling it works, for now, let's publish the library without it
+    // to unblock a downstream project.
+//    adminDataExplorerPlayServer
   )
   .settings(
     name := "wiringbits-webapp-utils",

@@ -12,11 +12,14 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 }
 import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react object TableField {
+object TableField {
   case class Props(value: String)
+
+  def apply(value: String): KeyAddingStage = {
+    component(Props(value = value))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = _ =>

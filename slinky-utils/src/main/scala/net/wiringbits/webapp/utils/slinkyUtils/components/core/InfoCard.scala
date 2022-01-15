@@ -12,12 +12,15 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   WithStylesOptions
 }
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.annotations.react
-import slinky.core.{FunctionalComponent, TagMod}
+import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
 import slinky.web.html.div
 
-@react object InfoCard {
+object InfoCard {
   case class Props(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None)
+
+  def apply(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None): KeyAddingStage = {
+    component(Props(message = message, icon = icon, child = child))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     /* If you don't need direct access to theme, this could be `StyleRules[Props, String]` */

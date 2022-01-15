@@ -5,13 +5,16 @@ import net.wiringbits.webapp.utils.api.models.AdminFindTable
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.AsyncComponent
 import net.wiringbits.webapp.utils.ui.web.API
 import net.wiringbits.webapp.utils.ui.web.components.widgets.{Loader, RowView}
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 import scala.scalajs.js
 
-@react object RowViewPage {
+object RowViewPage {
   case class Props(api: API)
+
+  def apply(api: API): KeyAddingStage = {
+    component(Props(api = api))
+  }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val tableName = useParams().asInstanceOf[js.Dynamic].tableName.toString

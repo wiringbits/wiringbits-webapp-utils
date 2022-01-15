@@ -14,11 +14,14 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 }
 import net.wiringbits.facades.reactRouterDom.{components => router}
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react object NavLinkButton {
+object NavLinkButton {
   case class Props(path: String, text: String, onClick: () => Unit)
+
+  def apply(path: String, text: String, onClick: () => Unit): KeyAddingStage = {
+    component(Props(path = path, text = text, onClick = onClick))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>

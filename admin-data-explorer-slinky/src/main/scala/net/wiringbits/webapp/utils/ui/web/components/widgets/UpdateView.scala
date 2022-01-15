@@ -8,15 +8,18 @@ import net.wiringbits.webapp.utils.ui.web.API
 import net.wiringbits.webapp.utils.ui.web.utils.{getChangedValues, snakeCaseToUpper}
 import org.scalajs.dom.console
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.{Fragment, Hooks}
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.div
 
 import scala.util.{Failure, Success}
 
-@react object UpdateView {
-  case class Props(api: API, tableName: String, id: String)
+object UpdateView {
+  case class Props(api: API, tableName: String, ID: String)
+
+  def apply(api: API, tableName: String, ID: String): KeyAddingStage = {
+    component(Props(api = api, tableName = tableName, ID = ID))
+  }
 
   private case class State(
       loading: Boolean,
@@ -39,7 +42,7 @@ import scala.util.{Failure, Success}
 
     def fetchItem(): Unit = {
       setState(_.copy(loading = true))
-      props.api.client.viewItem(props.tableName, props.id).onComplete {
+      props.api.client.viewItem(props.tableName, props.ID).onComplete {
         case Success(res) =>
           setState(_.copy(loading = false, value = Some(res), initialValue = Some(res)))
         case Failure(ex) =>
@@ -74,7 +77,7 @@ import scala.util.{Failure, Success}
           // TODO: Remove this console logs
           console.log(changedValues.toString)
           console.log(request.toString)
-          props.api.client.updateItem(props.tableName, props.id, request).onComplete {
+          props.api.client.updateItem(props.tableName, props.ID, request).onComplete {
             case Success(_) =>
               setState(_.copy(loading = false, value = state.value, initialValue = state.value, hasChanges = false))
             case Failure(ex) =>

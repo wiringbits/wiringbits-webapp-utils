@@ -4,14 +4,17 @@ import com.alexitc.materialui.facade.react.mod.ChangeEvent
 import net.wiringbits.facades.reactRouterDom.{mod => reactRouterDom}
 import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadata
 import org.scalajs.dom.{HTMLInputElement, HTMLTextAreaElement}
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 import scala.scalajs.js
 import scala.scalajs.js.|
 
-@react object Pagination {
+object Pagination {
   case class Props(response: AdminGetTableMetadata.Response)
+
+  def apply(response: AdminGetTableMetadata.Response): KeyAddingStage = {
+    component(Props(response = response))
+  }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val history = reactRouterDom.useHistory()

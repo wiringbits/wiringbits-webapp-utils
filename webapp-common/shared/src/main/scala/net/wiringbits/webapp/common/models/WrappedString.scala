@@ -29,7 +29,7 @@ object WrappedString {
       else validate(string).map(Option.apply)
     }
 
-    implicit val validator: TextValidator[T] = validate
+    implicit val validator: TextValidator[T] = validate _
     implicit val format: Format[T] = deriveFormat(validate)
   }
 

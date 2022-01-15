@@ -12,12 +12,15 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
 }
 import net.wiringbits.webapp.utils.ui.web.utils.formatCellValue
 import org.scalablytyped.runtime.StringDictionary
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.{Fragment, Hooks}
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-@react object TableCell {
-  case class Props(value: String, tableName: String, isNav: Boolean = false)
+object TableCell {
+  case class Props(value: String, tableName: String)
+
+  def apply(value: String, tableName: String): KeyAddingStage = {
+    component(Props(value = value, tableName = tableName))
+  }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
