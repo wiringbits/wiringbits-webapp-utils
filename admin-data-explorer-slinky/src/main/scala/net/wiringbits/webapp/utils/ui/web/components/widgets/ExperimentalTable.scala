@@ -11,7 +11,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
-import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadataResponse
+import net.wiringbits.webapp.utils.api.models.AdminGetTableMetadata
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets.{Container, Subtitle}
 import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
 import org.scalablytyped.runtime.StringDictionary
@@ -19,17 +19,17 @@ import slinky.core.facade.{Fragment, ReactElement}
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 object ExperimentalTable {
-  case class Props(response: AdminGetTableMetadataResponse)
+  case class Props(response: AdminGetTableMetadata.Response)
 
-  def apply(response: AdminGetTableMetadataResponse): KeyAddingStage = {
+  def apply(response: AdminGetTableMetadata.Response): KeyAddingStage = {
     component(Props(response = response))
   }
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
+    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = _ =>
       StringDictionary(
         "table" -> CSSProperties()
-          .setTableLayout(TableLayoutProperty.fixed)
+          .setTableLayout(TableLayoutProperty.auto)
       )
     makeStyles(stylesCallback, WithStylesOptions())
   }
@@ -37,20 +37,10 @@ object ExperimentalTable {
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val classes = useStyles(())
 
-    val columns = props.response.fields.map { field =>
-      Cell(field.name, props.response.name, isField = true)
-    }
+    val title = Subtitle(snakeCaseToUpper(props.response.name))
 
-    val rows: List[ReactElement] = props.response.rows.map { row =>
-      mui
-        .TableRow(
-          row.data.map { cell =>
-            // Here I'm supossing that the first column belongs to table ID
-            if (row.data.indexOf(cell) == 0) Cell(cell.value, props.response.name, isNav = true)
-            else Cell(cell.value, props.response.name)
-          }
-        )
-    }
+    val columns = props.response.fields.map(field => TableField(field.name))
+    val rows: List[ReactElement] = props.response.rows.map(row => TableRow(row, props.response.name))
 
     val table: ReactElement = mui
       .Table(
@@ -66,7 +56,7 @@ object ExperimentalTable {
     Container(
       maxWidth = Some("100%"),
       child = Fragment(
-        Subtitle(snakeCaseToUpper(props.response.name)),
+        title,
         table,
         Pagination(props.response)
       )

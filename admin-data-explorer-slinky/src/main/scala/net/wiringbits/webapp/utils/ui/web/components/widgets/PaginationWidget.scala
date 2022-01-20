@@ -46,7 +46,7 @@ object PaginationWidget {
         page = props.currentPage,
         rowsPerPage = props.pageLimit
       )
-      .onChangeRowsPerPage(event => props.onChangeRowsPerPage(event))
+      .onChangeRowsPerPage(props.onChangeRowsPerPage(_))
       .rowsPerPageOptions(pageOptions)
   }
 }

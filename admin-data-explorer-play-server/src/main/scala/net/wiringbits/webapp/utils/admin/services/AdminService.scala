@@ -15,26 +15,26 @@ class AdminService @Inject() (
     ec: ExecutionContext
 ) {
 
-  def tables(): Future[AdminGetTablesResponse] = {
+  def tables(): Future[AdminGetTables.Response] = {
     for {
       tables <- databaseTablesRepository.getTablesInSettings(tableSettings)
       items = tables.map { x =>
-        AdminGetTablesResponse.DatabaseTable(
+        AdminGetTables.Response.DatabaseTable(
           name = x.name
         )
       }
-    } yield AdminGetTablesResponse(items)
+    } yield AdminGetTables.Response(items)
   }
 
-  def tableMetadata(tableName: String, pagination: PaginatedQuery): Future[AdminGetTableMetadataResponse] = {
+  def tableMetadata(tableName: String, pagination: PaginatedQuery): Future[AdminGetTableMetadata.Response] = {
     for {
       _ <- validate(tableName, pagination)
       tableMetadata <- databaseTablesRepository.getTableMetadata(tableName, pagination)
-    } yield AdminGetTableMetadataResponse(
+    } yield AdminGetTableMetadata.Response(
       name = tableMetadata.data.name,
-      fields = tableMetadata.data.fields.map(x => AdminGetTableMetadataResponse.TableField(x.name, x.`type`)),
+      fields = tableMetadata.data.fields.map(x => AdminGetTableMetadata.Response.TableField(x.name, x.`type`)),
       rows = tableMetadata.data.rows.map(x =>
-        AdminGetTableMetadataResponse.TableRow(x.data.map(_.value).map(AdminGetTableMetadataResponse.Cell.apply))
+        AdminGetTableMetadata.Response.TableRow(x.data.map(_.value).map(AdminGetTableMetadata.Response.Cell.apply))
       ),
       offSet = tableMetadata.offset.int,
       limit = tableMetadata.limit.int,
@@ -42,16 +42,19 @@ class AdminService @Inject() (
     )
   }
 
-  def find(tableName: String, id: String): Future[AdminFindTableResponse] = {
+  def find(tableName: String, id: String): Future[AdminFindTable.Response] = {
     for {
       _ <- validateTableName(tableName)
-      row <- databaseTablesRepository.find(tableName, id)
-    } yield AdminFindTableResponse(
-      row = AdminGetTableMetadataResponse.TableRow(row.data.map(_.value).map(AdminGetTableMetadataResponse.Cell.apply))
+      (row, fields) <- databaseTablesRepository.find(tableName, id)
+    } yield AdminFindTable.Response(
+      row = AdminGetTableMetadata.Response.TableRow(
+        row.data.map(_.value).map(AdminGetTableMetadata.Response.Cell.apply)
+      ),
+      fields = fields.map(x => AdminGetTableMetadata.Response.TableField(x.name, x.`type`))
     )
   }
 
-  def create(tableName: String, request: AdminCreateTableRequest): Future[Unit] = {
+  def create(tableName: String, request: AdminCreateTable.Request): Future[Unit] = {
     val body = request.data
     val validate = for {
       _ <- validateTableName(tableName)
@@ -71,7 +74,7 @@ class AdminService @Inject() (
     } yield ()
   }
 
-  def update(tableName: String, ID: String, request: AdminUpdateTableRequest): Future[Unit] = {
+  def update(tableName: String, ID: String, request: AdminUpdateTable.Request): Future[Unit] = {
     val validate = Future {
       if (request.data.isEmpty) throw new RuntimeException(s"You need to send some data")
       else ()

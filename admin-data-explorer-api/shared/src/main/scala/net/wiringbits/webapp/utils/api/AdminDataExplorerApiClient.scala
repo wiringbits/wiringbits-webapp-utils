@@ -9,17 +9,17 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 trait AdminDataExplorerApiClient {
-  def getTables(): Future[AdminGetTablesResponse]
+  def getTables: Future[AdminGetTables.Response]
 
-  def getTableMetadata(tableName: String, offset: Int, limit: Int): Future[AdminGetTableMetadataResponse]
+  def getTableMetadata(tableName: String, offset: Int, limit: Int): Future[AdminGetTableMetadata.Response]
 
-  def findTable(tableName: String, id: String): Future[AdminFindTableResponse]
+  def viewItem(tableName: String, id: String): Future[AdminFindTable.Response]
 
-  def createItem(tableName: String, request: AdminCreateTableRequest): Future[AdminCreateTableResponse]
+  def createItem(tableName: String, request: AdminCreateTable.Request): Future[AdminCreateTable.Response]
 
-  def updateItem(tableName: String, id: String, request: AdminUpdateTableRequest): Future[AdminUpdateTableResponse]
+  def updateItem(tableName: String, id: String, request: AdminUpdateTable.Request): Future[AdminUpdateTable.Response]
 
-  def deleteItem(tableName: String, id: String): Future[AdminDeleteTableResponse]
+  def deleteItem(tableName: String, id: String): Future[AdminDeleteTable.Response]
 }
 
 object AdminDataExplorerApiClient {
@@ -73,11 +73,11 @@ object AdminDataExplorerApiClient {
         .response(asJson[R])
     }
 
-    override def getTables(): Future[AdminGetTablesResponse] = {
+    override def getTables: Future[AdminGetTables.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables"
       val uri = ServerAPI.withPath(path)
 
-      prepareRequest[AdminGetTablesResponse]
+      prepareRequest[AdminGetTables.Response]
         .get(uri)
         .send(backend)
         .map(_.body)
@@ -88,7 +88,7 @@ object AdminDataExplorerApiClient {
         tableName: String,
         offset: Int,
         limit: Int
-    ): Future[AdminGetTableMetadataResponse] = {
+    ): Future[AdminGetTableMetadata.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName
       val parameters = Map(
         "offset" -> offset.toString,
@@ -98,29 +98,29 @@ object AdminDataExplorerApiClient {
         .withPath(path)
         .addParams(parameters)
 
-      prepareRequest[AdminGetTableMetadataResponse]
+      prepareRequest[AdminGetTableMetadata.Response]
         .get(uri)
         .send(backend)
         .map(_.body)
         .flatMap(Future.fromTry)
     }
 
-    override def findTable(tableName: String, id: String): Future[AdminFindTableResponse] = {
+    override def viewItem(tableName: String, id: String): Future[AdminFindTable.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName :+ id
       val uri = ServerAPI.withPath(path)
 
-      prepareRequest[AdminFindTableResponse]
+      prepareRequest[AdminFindTable.Response]
         .get(uri)
         .send(backend)
         .map(_.body)
         .flatMap(Future.fromTry)
     }
 
-    override def createItem(tableName: String, request: AdminCreateTableRequest): Future[AdminCreateTableResponse] = {
+    override def createItem(tableName: String, request: AdminCreateTable.Request): Future[AdminCreateTable.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName
       val uri = ServerAPI.withPath(path)
 
-      prepareRequest[AdminCreateTableResponse]
+      prepareRequest[AdminCreateTable.Response]
         .post(uri)
         .body(Json.toJson(request).toString())
         .send(backend)
@@ -131,12 +131,12 @@ object AdminDataExplorerApiClient {
     override def updateItem(
         tableName: String,
         id: String,
-        request: AdminUpdateTableRequest
-    ): Future[AdminUpdateTableResponse] = {
+        request: AdminUpdateTable.Request
+    ): Future[AdminUpdateTable.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName :+ id
       val uri = ServerAPI.withPath(path)
 
-      prepareRequest[AdminUpdateTableResponse]
+      prepareRequest[AdminUpdateTable.Response]
         .put(uri)
         .body(Json.toJson(request).toString())
         .send(backend)
@@ -144,11 +144,11 @@ object AdminDataExplorerApiClient {
         .flatMap(Future.fromTry)
     }
 
-    override def deleteItem(tableName: String, id: String): Future[AdminDeleteTableResponse] = {
+    override def deleteItem(tableName: String, id: String): Future[AdminDeleteTable.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName :+ id
       val uri = ServerAPI.withPath(path)
 
-      prepareRequest[AdminDeleteTableResponse]
+      prepareRequest[AdminDeleteTable.Response]
         .delete(uri)
         .send(backend)
         .map(_.body)

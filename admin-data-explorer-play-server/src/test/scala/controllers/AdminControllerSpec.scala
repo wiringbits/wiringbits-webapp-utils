@@ -4,7 +4,7 @@ import com.dimafeng.testcontainers.PostgreSQLContainer
 import controllers.common.PlayPostgresSpec
 import net.wiringbits.webapp.utils.admin.AppRouter
 import net.wiringbits.webapp.utils.admin.controllers.AdminController
-import net.wiringbits.webapp.utils.api.models.{AdminCreateTableRequest, AdminUpdateTableRequest}
+import net.wiringbits.webapp.utils.api.models.{AdminCreateTable, AdminUpdateTable}
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import scala.util.control.NonFatal
@@ -72,7 +72,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val name = "wiringbits"
       val email = "test@wiringbits.net"
       val password = "wiringbits"
-      val request = AdminCreateTableRequest(Map("name" -> name, "email" -> email, "password" -> password))
+      val request = AdminCreateTable.Request(Map("name" -> name, "email" -> email, "password" -> password))
 
       val response = client.createItem("users", request).futureValue
 
@@ -81,7 +81,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
     "fail when a mandatory field is not sent" in withApiClient { client =>
       val name = "wiringbits"
-      val request = AdminCreateTableRequest(Map("name" -> name))
+      val request = AdminCreateTable.Request(Map("name" -> name))
 
       val error = client
         .createItem("users", request)
@@ -98,7 +98,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
   "fail when field in request doesn't exists" in withApiClient { client =>
     val name = "wiringbits"
     val nonExistentField = "nonExistentField"
-    val request = AdminCreateTableRequest(Map("name" -> name, "nonExistentField" -> nonExistentField))
+    val request = AdminCreateTable.Request(Map("name" -> name, "nonExistentField" -> nonExistentField))
 
     val error = client
       .createItem("users", request)
@@ -116,13 +116,13 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val name = "wiringbits"
       val email = "test@wiringbits.net"
       val password = "wiringbits"
-      val request = AdminCreateTableRequest(Map("name" -> name, "email" -> email, "password" -> password))
+      val request = AdminCreateTable.Request(Map("name" -> name, "email" -> email, "password" -> password))
       client.createItem("users", request).futureValue
 
       val getResponse = client.getTableMetadata("users", 0, 1).futureValue
       val userId = getResponse.rows.head.data.head.value
 
-      val updateRequest = AdminUpdateTableRequest(data = Map("email" -> "wiringbits@wiringbits.net"))
+      val updateRequest = AdminUpdateTable.Request(data = Map("email" -> "wiringbits@wiringbits.net"))
       client.updateItem("users", userId, updateRequest).futureValue
 
       val newResponse = client.getTableMetadata("users", 0, 1).futureValue
@@ -137,7 +137,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val name = "wiringbits"
       val email = "test@wiringbits.net"
       val password = "wiringbits"
-      val request = AdminCreateTableRequest(Map("name" -> name, "email" -> email, "password" -> password))
+      val request = AdminCreateTable.Request(Map("name" -> name, "email" -> email, "password" -> password))
       client.createItem("users", request).futureValue
 
       val getResponse = client.getTableMetadata("users", 0, 1).futureValue

@@ -44,7 +44,7 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     }
   }
 
-  def find(tableName: String, id: String): Future[TableRow] = Future {
+  def find(tableName: String, id: String): Future[(TableRow, List[TableField])] = Future {
     database.withConnection { implicit conn =>
       DatabaseTablesDAO.find(tableName, id, tableSettings);
     }

@@ -10,7 +10,7 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
-import net.wiringbits.webapp.utils.api.models.AdminGetTablesResponse
+import net.wiringbits.webapp.utils.api.models.AdminGetTables
 import net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets.{Container, Subtitle}
 import net.wiringbits.webapp.utils.ui.web.AppStrings
 import net.wiringbits.webapp.utils.ui.web.utils.snakeCaseToUpper
@@ -20,8 +20,8 @@ import slinky.core.facade.{Fragment, ReactElement}
 import slinky.web.html.className
 import net.wiringbits.facades.reactRouterDom.{mod => reactRouterDom}
 
-object ExperimentalTableListWidget {
-  case class Props(response: AdminGetTablesResponse)
+object TableListWidget {
+  case class Props(response: AdminGetTables.Response)
 
   private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
     val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
