@@ -190,7 +190,7 @@ lazy val playSettings: Project => Project = {
 lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
-    scalaVersion := "3.1.0",
+    scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "scalablytyped-facades",
     useYarn := true,
@@ -224,7 +224,7 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
 lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-common"))
   .configure(baseLibSettings)
   .settings(
-    scalaVersion := "3.1.0",
+    scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "webapp-common"
   )
@@ -250,7 +250,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .configure(baseLibSettings)
   .dependsOn(webappCommon)
   .settings(
-    scalaVersion := "3.1.0",
+    scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-api"
   )
@@ -277,7 +277,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
   .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
-    scalaVersion := "3.1.0",
+    scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "slinky-utils"
   )
@@ -288,7 +288,7 @@ lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
   .dependsOn(adminDataExplorerApi.js, slinkyUtils, scalablytypedFacades)
   .settings(
-    scalaVersion := "3.1.0",
+    scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.0"),
     name := "admin-data-explorer-slinky"
   )
@@ -327,10 +327,10 @@ lazy val root = (project in file("."))
     adminDataExplorerApi.jvm,
     adminDataExplorerApi.js,
     slinkyUtils,
-    adminDataExplorerSlinky
+    adminDataExplorerSlinky,
     // TODO: Enable this module when compiling it works, for now, let's publish the library without it
     // to unblock a downstream project.
-//    adminDataExplorerPlayServer
+    adminDataExplorerPlayServer
   )
   .settings(
     name := "wiringbits-webapp-utils",
