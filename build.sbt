@@ -22,7 +22,7 @@ inThisBuild(
 resolvers += Resolver.sonatypeRepo("releases")
 
 val playJson = "2.10.0-RC5"
-val sttp = "3.4.1"
+val sttp = "3.4.2"
 
 val consoleDisabledOptions = Seq("-Xfatal-warnings", "-Ywarn-unused", "-Ywarn-unused-import")
 
