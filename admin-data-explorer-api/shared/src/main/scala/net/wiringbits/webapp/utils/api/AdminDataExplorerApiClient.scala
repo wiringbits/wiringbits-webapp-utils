@@ -11,13 +11,20 @@ import scala.util.{Failure, Success, Try}
 trait AdminDataExplorerApiClient {
   def getTables: Future[AdminGetTables.Response]
 
-  def getTableMetadata(tableName: String, offset: Int, limit: Int): Future[AdminGetTableMetadata.Response]
+  def getTableMetadata(
+      tableName: String,
+      sort: List[String],
+      range: List[Int],
+      filter: String
+  ): Future[List[Map[String, String]]]
 
-  def viewItem(tableName: String, id: String): Future[AdminFindTable.Response]
+  def viewItem(tableName: String, id: String): Future[Map[String, String]]
+
+  def viewItems(tableName: String, ids: List[String]): Future[List[Map[String, String]]]
 
   def createItem(tableName: String, request: AdminCreateTable.Request): Future[AdminCreateTable.Response]
 
-  def updateItem(tableName: String, id: String, request: AdminUpdateTable.Request): Future[AdminUpdateTable.Response]
+  def updateItem(tableName: String, id: String, request: Map[String, String]): Future[AdminUpdateTable.Response]
 
   def deleteItem(tableName: String, id: String): Future[AdminDeleteTable.Response]
 }
@@ -86,30 +93,46 @@ object AdminDataExplorerApiClient {
 
     override def getTableMetadata(
         tableName: String,
-        offset: Int,
-        limit: Int
-    ): Future[AdminGetTableMetadata.Response] = {
+        sort: List[String],
+        range: List[Int],
+        filter: String
+    ): Future[List[Map[String, String]]] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName
-      val parameters = Map(
-        "offset" -> offset.toString,
-        "limit" -> limit.toString
+      val parameters: Map[String, String] = Map(
+        "sort" -> sort.mkString("[", ",", "]"),
+        "range" -> range.mkString("[", ",", "]"),
+        "filter" -> filter
       )
       val uri = ServerAPI
         .withPath(path)
         .addParams(parameters)
 
-      prepareRequest[AdminGetTableMetadata.Response]
+      prepareRequest[List[Map[String, String]]]
         .get(uri)
         .send(backend)
         .map(_.body)
         .flatMap(Future.fromTry)
     }
 
-    override def viewItem(tableName: String, id: String): Future[AdminFindTable.Response] = {
+    override def viewItem(tableName: String, id: String): Future[Map[String, String]] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName :+ id
       val uri = ServerAPI.withPath(path)
 
-      prepareRequest[AdminFindTable.Response]
+      prepareRequest[Map[String, String]]
+        .get(uri)
+        .send(backend)
+        .map(_.body)
+        .flatMap(Future.fromTry)
+    }
+
+    override def viewItems(tableName: String, id: List[String]): Future[List[Map[String, String]]] = {
+      val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName
+      val parameters = Map(
+        "filter" -> id.mkString
+      )
+      val uri = ServerAPI.withPath(path).withParams(parameters)
+
+      prepareRequest[List[Map[String, String]]]
         .get(uri)
         .send(backend)
         .map(_.body)
@@ -131,7 +154,7 @@ object AdminDataExplorerApiClient {
     override def updateItem(
         tableName: String,
         id: String,
-        request: AdminUpdateTable.Request
+        request: Map[String, String]
     ): Future[AdminUpdateTable.Response] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName :+ id
       val uri = ServerAPI.withPath(path)

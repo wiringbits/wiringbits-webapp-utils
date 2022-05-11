@@ -1,6 +1,7 @@
 ThisBuild / versionScheme := Some("early-semver")
 // For all Sonatype accounts created on or after February 2021
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+ThisBuild / version := "2.0.2"
 
 inThisBuild(
   List(
@@ -284,13 +285,15 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
 
 // shared on the ui only
 lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"))
-  .configure(baseLibSettings, baseWebSettings)
-  .configure(_.enablePlugins(ScalaJSBundlerPlugin))
-  .dependsOn(adminDataExplorerApi.js, slinkyUtils, scalablytypedFacades)
+  .configure(baseLibSettings)
+  .dependsOn(adminDataExplorerApi.js)
   .settings(
     scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.1"),
-    name := "admin-data-explorer-slinky"
+    name := "admin-data-explorer-slinky",
+    libraryDependencies ++= Seq(
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0"
+    )
   )
 
 /** Includes the specific stuff to run the data explorer server side (play-specific)

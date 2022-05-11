@@ -4,10 +4,8 @@ import com.dimafeng.testcontainers.PostgreSQLContainer
 import controllers.common.PlayPostgresSpec
 import net.wiringbits.webapp.utils.admin.AppRouter
 import net.wiringbits.webapp.utils.admin.controllers.AdminController
-import net.wiringbits.webapp.utils.api.models.{AdminCreateTable, AdminUpdateTable}
+import net.wiringbits.webapp.utils.api.models.AdminCreateTable
 import play.api.inject.guice.GuiceApplicationBuilder
-
-import scala.util.control.NonFatal
 
 class AdminControllerSpec extends PlayPostgresSpec {
 
@@ -16,53 +14,20 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
     val adminController = appBuilder.injector().instanceOf[AdminController]
     val appRouter = new AppRouter(adminController)
-    appBuilder.router(
-      appRouter
-    )
+    appBuilder.router(appRouter)
   }
 
   "GET /admin/tables/users" should {
     "return users table" in withApiClient { client =>
-      val response = client.getTableMetadata("users", 0, 10).futureValue
-      response.name must be("users")
-      response.fields mustNot be(empty)
-    }
-
-    "fail when you enter negative offset" in withApiClient { client =>
-      val error = client
-        .getTableMetadata("users", -1, 10)
-        .map(_ => "Success when failure expected")
-        .recover { case NonFatal(ex) =>
-          ex.getMessage
-        }
-        .futureValue
-
-      error must be(s"You can't query a table using negative numbers as a limit or offset")
-    }
-
-    "fail when you enter negative limit" in withApiClient { client =>
-      val error = client
-        .getTableMetadata("users", 0, -1)
-        .map(_ => "Success when failure expected")
-        .recover { case NonFatal(ex) =>
-          ex.getMessage
-        }
-        .futureValue
-
-      error must be(s"You can't query a table using negative numbers as a limit or offset")
+      val response = client.getTableMetadata("users", List("name", "ASC"), List(0, 9), "{}").futureValue
+      response.size must be(0)
     }
   }
 
   "GET /admin/tables/aaaaaaaaaaa" should {
     "fail when table doesn't exists" in withApiClient { client =>
       val invalidTableName = "aaaaaaaaaaa"
-      val error = client
-        .getTableMetadata(invalidTableName, 0, 10)
-        .map(_ => "Success when failure expected")
-        .recover { case NonFatal(ex) =>
-          ex.getMessage
-        }
-        .futureValue
+      val error = client.getTableMetadata(invalidTableName, List("name", "ASC"), List(0, 9), "{}").expectError
       error must be(s"Unexpected error because the DB table wasn't found: $invalidTableName")
     }
   }
@@ -73,9 +38,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val email = "test@wiringbits.net"
       val password = "wiringbits"
       val request = AdminCreateTable.Request(Map("name" -> name, "email" -> email, "password" -> password))
-
       val response = client.createItem("users", request).futureValue
-
       response.noData must be(empty)
     }
 
@@ -83,14 +46,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val name = "wiringbits"
       val request = AdminCreateTable.Request(Map("name" -> name))
 
-      val error = client
-        .createItem("users", request)
-        .map(_ => "Success when failure expected")
-        .recover { case NonFatal(ex) =>
-          ex.getMessage
-        }
-        .futureValue
-
+      val error = client.createItem("users", request).expectError
       error must be(s"There are missing fields: email, password")
     }
   }
@@ -100,35 +56,29 @@ class AdminControllerSpec extends PlayPostgresSpec {
     val nonExistentField = "nonExistentField"
     val request = AdminCreateTable.Request(Map("name" -> name, "nonExistentField" -> nonExistentField))
 
-    val error = client
-      .createItem("users", request)
-      .map(_ => "Success when failure expected")
-      .recover { case NonFatal(ex) =>
-        ex.getMessage
-      }
-      .futureValue
-
+    val error = client.createItem("users", request).expectError
     error must be(s"A field doesn't correspond to this table schema")
   }
 
   "PUT /admin/tables/users" should {
     "update a new user" in withApiClient { client =>
-      val name = "wiringbits"
-      val email = "test@wiringbits.net"
-      val password = "wiringbits"
-      val request = AdminCreateTable.Request(Map("name" -> name, "email" -> email, "password" -> password))
+      val request = AdminCreateTable.Request(
+        Map("name" -> "wiringbits", "email" -> "test@wiringbits.net", "password" -> "wiringbits")
+      )
       client.createItem("users", request).futureValue
 
-      val getResponse = client.getTableMetadata("users", 0, 1).futureValue
-      val userId = getResponse.rows.head.data.head.value
+      val response = client.getTableMetadata("users", List("user_id", "ASC"), List(0, 9), "{}").futureValue
+      val userId = response.headOption.value.find(_._1 == "id").value._2
+      println(response)
+      println(userId)
 
-      val updateRequest = AdminUpdateTable.Request(data = Map("email" -> "wiringbits@wiringbits.net"))
+      val email = "wiringbits@wiringbits.net"
+      val updateRequest = Map("email" -> email)
       client.updateItem("users", userId, updateRequest).futureValue
 
-      val newResponse = client.getTableMetadata("users", 0, 1).futureValue
-      val newEmailOpt = newResponse.rows.head.data.find(_.value == "wiringbits@wiringbits.net")
-
-      newEmailOpt mustNot be(None)
+      val newResponse = client.viewItem("users", userId).futureValue
+      val emailResponse = newResponse.find(_._1 == "email").value._2
+      emailResponse must be(email)
     }
   }
 
@@ -140,15 +90,13 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val request = AdminCreateTable.Request(Map("name" -> name, "email" -> email, "password" -> password))
       client.createItem("users", request).futureValue
 
-      val getResponse = client.getTableMetadata("users", 0, 1).futureValue
-      val userId = getResponse.rows.head.data.head.value
+      val response = client.getTableMetadata("users", List("name", "ASC"), List(0, 9), "{}").futureValue
+      val userId = response.headOption.value.find(_._1 == "id").value._2
 
       client.deleteItem("users", userId).futureValue
 
-      val newResponse = client.getTableMetadata("users", 0, 1).futureValue
-      val usersData = newResponse.rows
-
-      usersData.length must be(0)
+      val newResponse = client.getTableMetadata("users", List("name", "ASC"), List(0, 9), "{}").futureValue
+      newResponse.isEmpty must be(true)
     }
   }
 }

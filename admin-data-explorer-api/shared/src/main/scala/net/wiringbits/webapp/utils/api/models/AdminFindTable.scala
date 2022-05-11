@@ -4,8 +4,7 @@ import play.api.libs.json.{Format, Json}
 
 object AdminFindTable {
   case class Response(
-      row: AdminGetTableMetadata.Response.TableRow,
-      fields: List[AdminGetTableMetadata.Response.TableField]
+      data: Map[String, String]
   )
 
   implicit val adminFindTableResponseFormat: Format[Response] =

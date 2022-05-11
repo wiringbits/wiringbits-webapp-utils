@@ -10,9 +10,9 @@ case class API(client: AdminDataExplorerApiClient)
 
 object API {
 
-  def apply(): API = {
+  def apply(apiUrl: String): API = {
     implicit val sttpBackend: SttpBackend[Future, _] = sttp.client3.FetchBackend()
-    val client = new AdminDataExplorerApiClient.DefaultImpl(AdminDataExplorerApiClient.Config(""))
+    val client = new AdminDataExplorerApiClient.DefaultImpl(AdminDataExplorerApiClient.Config(apiUrl))
     API(client)
   }
 }
