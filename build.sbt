@@ -283,14 +283,26 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
   )
 
 // shared on the ui only
-lazy val adminDataExplorerSlinky = (project in file("admin-data-explorer-slinky"))
-  .configure(baseLibSettings, baseWebSettings)
+lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
+  .dependsOn(adminDataExplorerApi.js)
+  .configure(bundlerSettings, baseLibSettings)
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
-  .dependsOn(adminDataExplorerApi.js, slinkyUtils, scalablytypedFacades)
   .settings(
     scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.1"),
-    name := "admin-data-explorer-slinky"
+    name := "admin-data-explorer-web",
+    libraryDependencies ++= Seq(
+      "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
+      "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.16.0",
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0"
+    ),
+    Compile / npmDependencies ++= Seq(
+      "ra-data-simple-rest" -> "^4.0.0",
+      "react" -> "^17.0.0",
+      "react-admin" -> "^4.0.0",
+      "react-dom" -> "^17.0.0",
+      "react-scripts" -> "^5.0.0"
+    )
   )
 
 /** Includes the specific stuff to run the data explorer server side (play-specific)
@@ -327,7 +339,7 @@ lazy val root = (project in file("."))
     adminDataExplorerApi.jvm,
     adminDataExplorerApi.js,
     slinkyUtils,
-    adminDataExplorerSlinky,
+    adminDataExplorerWeb,
     // TODO: Enable this module when compiling it works, for now, let's publish the library without it
     // to unblock a downstream project.
     adminDataExplorerPlayServer
