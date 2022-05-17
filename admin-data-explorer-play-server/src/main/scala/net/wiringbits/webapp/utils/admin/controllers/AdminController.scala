@@ -72,7 +72,7 @@ class AdminController @Inject() (
       _ <- adminUser(request)
       _ = logger.info(s"Update row from $tableName where primaryKey = $primaryKeyValue, body = $body")
       _ <- adminService.update(tableName, primaryKeyValue, body)
-      response = AdminUpdateTable.Response()
+      response = AdminUpdateTable.Response(id = primaryKeyValue)
     } yield Ok(Json.toJson(response))
   }
 

@@ -88,13 +88,13 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
 
     "fail if the table row doesn't exists" in withApiClient { client =>
-      val userIds = List(UUID.randomUUID().toString, UUID.randomUUID().toString)
+      val userIds = List(UUID.randomUUID().toString)
       val error = client.viewItems("users", userIds).expectError
       error must be(s"Cannot find item in users with id ${userIds.headOption.value}")
     }
   }
 
-  "POST /admin/tables/users" should {
+  "POST /admin/tables/:tableName" should {
     "create a new user" in withApiClient { client =>
       val name = "wiringbits"
       val email = "test@wiringbits.net"
@@ -122,7 +122,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
     error must be(s"A field doesn't correspond to this table schema")
   }
 
-  "PUT /admin/tables/users" should {
+  "PUT /admin/tables/:tableName" should {
     "update a new user" in withApiClient { client =>
       val request = AdminCreateTable.Request(
         Map("name" -> "wiringbits", "email" -> "test@wiringbits.net", "password" -> "wiringbits")
@@ -134,10 +134,11 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
       val email = "wiringbits@wiringbits.net"
       val updateRequest = Map("email" -> email)
-      client.updateItem("users", userId, updateRequest).futureValue
+      val updateResponse = client.updateItem("users", userId, updateRequest).futureValue
 
       val newResponse = client.viewItem("users", userId).futureValue
       val emailResponse = newResponse.find(_._1 == "email").value._2
+      updateResponse.id must be(userId)
       emailResponse must be(email)
     }
   }
