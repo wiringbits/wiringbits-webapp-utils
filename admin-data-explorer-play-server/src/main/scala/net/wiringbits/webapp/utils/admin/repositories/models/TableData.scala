@@ -1,6 +1,3 @@
 package net.wiringbits.webapp.utils.admin.repositories.models
 
-case class TableField(
-    name: String,
-    `type`: String
-)
+case class TableData(data: Map[String, String])

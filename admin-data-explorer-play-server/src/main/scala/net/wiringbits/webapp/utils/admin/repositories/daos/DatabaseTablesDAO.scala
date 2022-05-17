@@ -1,13 +1,14 @@
 package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
-import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
-import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTable, TableField, TableMetadata, TableRow}
-import net.wiringbits.webapp.utils.admin.utils.models.pagination.{Count, Limit, Offset, PaginatedQuery, PaginatedResult}
+import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTable, TableField, TableRow}
+import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
+import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 
 import java.sql.Connection
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
+import scala.util.Try
 
 object DatabaseTablesDAO {
 
@@ -21,31 +22,22 @@ object DatabaseTablesDAO {
     """.as(tableParser.*)
   }
 
-  def getTablesInSettings(tableSettings: DataExplorerSettings): List[DatabaseTable] = {
-    for {
-      table <- tableSettings.tables
-      tableName = table.tableName
-    } yield DatabaseTable(tableName)
-  }
-
   def getTableFields(
       tableName: String
   )(implicit conn: Connection): List[TableField] = {
-    val sql = f"SELECT * FROM $tableName LIMIT 0"
-
+    val sql = s"SELECT * FROM $tableName LIMIT 0"
     val preparedStatement = conn.prepareStatement(sql)
+
     try {
       val resultSet = preparedStatement.executeQuery()
+      val metadata = resultSet.getMetaData
+      val numberOfColumns = metadata.getColumnCount
       try {
-        val metadata = resultSet.getMetaData
-        val numberOfColumns = metadata.getColumnCount
-        val columnNullable = 1
         val fields = for {
           columnNumber <- 1 to numberOfColumns
           columnName = metadata.getColumnName(columnNumber)
           columnType = metadata.getColumnTypeName(columnNumber)
-          isNullable = metadata.isNullable(columnNumber) == columnNullable
-        } yield TableField(columnName, columnType, isNullable)
+        } yield TableField(columnName, columnType)
         fields.toList
       } finally {
         resultSet.close()
@@ -58,27 +50,25 @@ object DatabaseTablesDAO {
   def getTableData(
       tableName: String,
       fields: List[TableField],
-      pagination: PaginatedQuery,
-      tableSettings: DataExplorerSettings
-  )(implicit conn: Connection): PaginatedResult[TableMetadata] = {
+      queryParameters: QueryParameters
+  )(implicit conn: Connection): List[TableRow] = {
     val tableData = new ListBuffer[TableRow]()
-
-    val indexOfTable = tableSettings.tables.indexWhere(_.tableName == tableName)
-    val defaultOrderBy = tableSettings.tables(indexOfTable).defaultOrderByClause
-    val numberOfRecords = countRecordsOnTable(tableName)
-
-    val SQL =
+    val sql =
       s"""
-        SELECT * FROM $tableName
-        ORDER BY ?
-        LIMIT ? OFFSET ?
-        """
+      SELECT * FROM $tableName
+      WHERE ? = ?
+      ORDER BY ${queryParameters.sort.field} ${queryParameters.sort.ordering}
+      LIMIT ? OFFSET ?
+      """
+    val preparedStatement = conn.prepareStatement(sql)
 
-    val preparedStatement = conn.prepareStatement(SQL)
-    preparedStatement.setString(1, defaultOrderBy.string)
-    preparedStatement.setInt(2, pagination.limit.int)
-    preparedStatement.setInt(3, pagination.offset.int)
+    val limit = queryParameters.pagination.end - queryParameters.pagination.start
+    val offset = queryParameters.pagination.start
 
+    preparedStatement.setString(1, queryParameters.filter.field)
+    preparedStatement.setString(2, queryParameters.filter.value)
+    preparedStatement.setInt(3, limit)
+    preparedStatement.setInt(4, offset)
     val resultSet = preparedStatement.executeQuery()
 
     try {
@@ -90,29 +80,20 @@ object DatabaseTablesDAO {
           // This is just a workaround. I think it'll be better if I use a Option[T] syntax
           // so I'll do it later
         } yield Cell(Option(data).getOrElse("null"))
-
         tableData += TableRow(rowData)
       }
-      val table = TableMetadata(tableName, fields, tableData.toList)
-      PaginatedResult[TableMetadata](
-        table,
-        Offset(pagination.offset.int),
-        Limit(pagination.limit.int),
-        Count(numberOfRecords)
-      )
+      tableData.toList
     } finally {
       resultSet.close()
       preparedStatement.close()
     }
   }
 
-  def getMandatoryFields(tableName: String, tableSettings: DataExplorerSettings)(implicit
+  def getMandatoryFields(tableName: String, primaryKeyField: String)(implicit
       conn: Connection
   ): List[TableField] = {
     val mandatoryFields = new ListBuffer[TableField]()
 
-    // TODO: Avoid Option#get
-    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
     val SQL =
       s"""
       SELECT column_name, is_nullable, 
@@ -134,63 +115,41 @@ object DatabaseTablesDAO {
       val defaultValue = Option(resultSet.getString("column_default"))
       val isNullable = resultSet.getString("is_nullable") == "YES"
       val isObligatory = !isNullable && defaultValue.isEmpty
-      if (isObligatory && (columnName != idFieldName)) {
-        mandatoryFields += TableField(columnName, columnType, isNullable)
+      if (isObligatory && (columnName != primaryKeyField)) {
+        mandatoryFields += TableField(columnName, columnType)
       }
     }
     mandatoryFields.toList
   }
 
-  def find(tableName: String, ID: String, tableSettings: DataExplorerSettings)(implicit
+  def find(tableName: String, primaryKeyField: String, primaryKeyValue: String)(implicit
       conn: Connection
-  ): (TableRow, List[TableField]) = {
-    // TODO: Avoid Option#get
-    val fields = getTableFields(tableName)
-    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
-    val SQL =
-      s"""
-      SELECT *
+  ): Option[TableRow] = {
+    val sql = s"""
+    SELECT *
       FROM $tableName
-      WHERE $idFieldName = ?
-      """
+    WHERE $primaryKeyField = ?
+    """
+    val preparedStatement = conn.prepareStatement(sql)
 
-    val preparedStatement = conn.prepareStatement(SQL)
-    preparedStatement.setObject(1, UUID.fromString(ID))
-
+    preparedStatement.setObject(1, UUID.fromString(primaryKeyValue))
     val resultSet = preparedStatement.executeQuery()
-
-    resultSet.next()
-
-    val numberOfColumns = resultSet.getMetaData.getColumnCount
-    val row = for {
-      columnNumber <- 1 to numberOfColumns
-      cellData = resultSet.getString(columnNumber)
-    } yield Cell(Option(cellData).getOrElse("null"))
-    (TableRow(row.toList), fields)
+    Try {
+      resultSet.next()
+      val numberOfColumns = resultSet.getMetaData.getColumnCount
+      val row = for {
+        columnNumber <- 1 to numberOfColumns
+        cellData = resultSet.getString(columnNumber)
+      } yield Cell(Option(cellData).getOrElse("null"))
+      TableRow(row.toList)
+    }.toOption
   }
 
-  def create(tableName: String, body: Map[String, String], tableSettings: DataExplorerSettings)(implicit
+  def create(tableName: String, body: Map[String, String], primaryKeyField: String)(implicit
       conn: Connection
   ): Unit = {
-    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
-
-    val sqlFields = new StringBuilder(idFieldName)
-    val sqlValues = new StringBuilder("?")
-    for ((key, _) <- body) {
-      sqlFields.append(s", $key")
-      sqlValues.append(s", ?")
-    }
-
-    val SQL =
-      s"""
-      INSERT INTO $tableName
-        ($sqlFields)
-      VALUES (
-        ${sqlValues.toString()}
-      )
-      """
-
-    val preparedStatement = conn.prepareStatement(SQL)
+    val sql = QueryBuilder.create(tableName, body, primaryKeyField)
+    val preparedStatement = conn.prepareStatement(sql)
 
     preparedStatement.setObject(1, UUID.randomUUID())
     for (i <- 2 to body.size + 1) {
@@ -202,50 +161,32 @@ object DatabaseTablesDAO {
 
   def update(
       tableName: String,
-      id: String,
-      tableSettings: DataExplorerSettings,
-      body: Map[String, String]
+      fieldsAndValues: Map[TableField, String],
+      primaryKeyField: String,
+      primaryKeyValue: String
   )(implicit conn: Connection): Unit = {
-    // TODO: Avoid Option#get
-    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
+    val sql = QueryBuilder.update(tableName, fieldsAndValues, primaryKeyField)
+    val preparedStatement = conn.prepareStatement(sql)
 
-    val updateStatement = new StringBuilder("SET")
-    for ((name, _) <- body) {
-      updateStatement.append(s" $name = ?,")
+    val notNullData = fieldsAndValues.filterNot(_._2 == "null")
+    notNullData.zipWithIndex.foreach { case ((_, value), i) =>
+      preparedStatement.setObject(i + 1, value)
     }
-    updateStatement.deleteCharAt(updateStatement.length - 1)
-
-    val SQL = s"""
-      UPDATE $tableName
-      $updateStatement
-      WHERE $idFieldName = ?
-      """
-    val preparedStatement = conn.prepareStatement(SQL)
-
-    for (i <- 1 to body.size) {
-      val value = body(body.keys.toList(i - 1))
-      preparedStatement.setObject(i, value)
-    }
-    preparedStatement.setObject(body.size + 1, UUID.fromString(id))
-
+    // where ... = ?
+    preparedStatement.setObject(notNullData.size + 1, UUID.fromString(primaryKeyValue))
     val _ = preparedStatement.executeUpdate()
   }
 
-  def delete(tableName: String, id: String, tableSettings: DataExplorerSettings)(implicit
+  def delete(tableName: String, primaryKeyField: String, primaryKeyValue: String)(implicit
       conn: Connection
   ): Unit = {
-    // TODO: Avoid Option#get
-    val idFieldName = tableSettings.tables.find(_.tableName == tableName).get.idFieldName
-
-    val sql =
-      s"""
+    val sql = s"""
       DELETE FROM $tableName
-      WHERE $idFieldName = ?
+      WHERE $primaryKeyField = ?
       """
-
     val preparedStatement = conn.prepareStatement(sql)
-    preparedStatement.setObject(1, UUID.fromString(id))
 
+    preparedStatement.setObject(1, UUID.fromString(primaryKeyValue))
     val _ = preparedStatement.executeUpdate()
   }
 
@@ -253,6 +194,6 @@ object DatabaseTablesDAO {
     SQL"""
       SELECT COUNT(*)
       FROM #$tableName
-       """.as(SqlParser.int("count").single)
+      """.as(SqlParser.int("count").single)
   }
 }
