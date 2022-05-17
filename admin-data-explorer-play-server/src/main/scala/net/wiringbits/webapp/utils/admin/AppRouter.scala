@@ -38,7 +38,8 @@ class AppRouter @Inject() (adminController: AdminController) extends SimpleRoute
 
     // get table resources by ids
     case GET(p"/admin/tables/$tableName" ? q"filter=$fieldStr") =>
-      val filter = fieldStr.toStringMap.values.headOption.map(_.toStringList).getOrElse(List.empty)
+      // fieldStr is a string like: "List(..., ..., ...)" that's why we substring it
+      val filter = fieldStr.substring(6, fieldStr.length - 1).toStringList
       adminController.find(tableName, filter)
 
     // create table resource

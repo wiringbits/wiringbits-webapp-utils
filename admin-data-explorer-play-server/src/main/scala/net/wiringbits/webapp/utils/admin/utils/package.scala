@@ -1,8 +1,7 @@
 package net.wiringbits.webapp.utils.admin
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
+import play.api.libs.json.Json
 
 package object utils {
   implicit class StringToDataTypesExt(val str: String) extends AnyVal {
@@ -13,9 +12,8 @@ package object utils {
 
     // convert json object string (for example: "{}") to Map
     implicit def toStringMap: Map[String, String] = {
-      val mapper = new ObjectMapper()
-      mapper.registerModule(DefaultScalaModule)
-      mapper.readValue(str, classOf[Map[String, String]])
+      val maybe = Json.parse(str).validate[Map[String, String]]
+      maybe.getOrElse(Map.empty)
     }
   }
 

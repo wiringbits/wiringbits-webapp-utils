@@ -127,11 +127,8 @@ object AdminDataExplorerApiClient {
 
     override def viewItems(tableName: String, id: List[String]): Future[List[Map[String, String]]] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName
-      val parameters = Map(
-        "filter" -> id.mkString
-      )
-      val uri = ServerAPI.withPath(path).withParams(parameters)
-
+      val primaryKeyParam = Json.toJson(Map("id" -> id)).toString()
+      val uri = ServerAPI.withPath(path).withParams(Map("filter" -> primaryKeyParam))
       prepareRequest[List[Map[String, String]]]
         .get(uri)
         .send(backend)

@@ -14,8 +14,6 @@ case class SortParameter(field: String, ordering: String) {
 object SortParameter {
   def fromString(str: String): SortParameter = {
     val sort = str.toStringList
-    // val sortField = sort.headOption.filterNot(_ == "id").getOrElse(primaryKeyField)
     SortParameter(field = sort.head, ordering = sort(1))
   }
-
 }
