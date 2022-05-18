@@ -2,7 +2,7 @@ package net.wiringbits.webapp.utils.admin.services
 
 import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
-import net.wiringbits.webapp.utils.admin.utils.contentRangeHeader
+import net.wiringbits.webapp.utils.admin.utils.{MapStringHideExt, contentRangeHeader}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import net.wiringbits.webapp.utils.api.models.*
 
@@ -39,8 +39,9 @@ class AdminService @Inject() (
       tableRows <- databaseTablesRepository.getTableMetadata(tableName, queryParams)
       numberOfRecords <- databaseTablesRepository.numberOfRecords(tableName)
       tableData = tableRows.map(_.data)
+      hiddenTableData = tableData.map(data => data.hideData(settings.hiddenColumns))
       contentRange = contentRangeHeader(tableName, queryParams, numberOfRecords)
-    } yield (tableData, contentRange)
+    } yield (hiddenTableData, contentRange)
   }
 
   private def validateQueryParameters(tableName: String, params: QueryParameters): Future[Unit] = {
@@ -64,8 +65,10 @@ class AdminService @Inject() (
     for {
       _ <- validations
       tableRow <- databaseTablesRepository.find(tableName, primaryKeyValue)
+      settings = tableSettings.unsafeFindByName(tableName)
       tableData = tableRow.data
-    } yield tableData
+      hiddenData = tableData.hideData(settings.hiddenColumns)
+    } yield hiddenData
   }
 
   def find(tableName: String, primaryKeyValues: List[String]): Future[List[Map[String, String]]] = {
@@ -80,8 +83,10 @@ class AdminService @Inject() (
           databaseTablesRepository.find(tableName, primaryKeyValue)
         }
       }
+      settings = tableSettings.unsafeFindByName(tableName)
       tableData = tableRows.map(_.data)
-    } yield tableData
+      maskedTableData = tableData.map(data => data.hideData(settings.hiddenColumns))
+    } yield maskedTableData
   }
 
   def create(tableName: String, request: AdminCreateTable.Request): Future[Unit] = {

@@ -42,6 +42,7 @@ class DataExplorerConfigValidatorTask @Inject() (
         val fields = DatabaseTablesDAO.getTableFields(settingsTable.tableName)
         validateTableName(settingsTable.tableName, tables)
         validatePrimaryKeyFieldName(settingsTable.primaryKeyField, fields)
+        validateHiddenColumns(settingsTable.hiddenColumns, fields)
       }
     }
   }
@@ -57,6 +58,13 @@ class DataExplorerConfigValidatorTask @Inject() (
   private def validatePrimaryKeyFieldName(idFieldName: String, fields: List[TableField]): Unit = {
     val exists = fields.exists(_.name == idFieldName)
     if (exists) ()
-    else throw new RuntimeException(s"The provided id on DataExplorer settings doesn't exists: ${idFieldName}")
+    else throw new RuntimeException(s"The provided id on DataExplorer settings doesn't exists: $idFieldName")
+  }
+
+  private def validateHiddenColumns(columns: List[String], tableFields: List[TableField]): Unit = {
+    val fieldNames = tableFields.map(_.name)
+    val isValid = columns.forall(fieldNames.contains)
+    if (isValid) ()
+    else throw new RuntimeException(s"The provided hidden columns on DataExplorer settings doesn't exists: $columns")
   }
 }
