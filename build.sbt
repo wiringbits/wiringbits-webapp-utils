@@ -83,7 +83,7 @@ lazy val baseLibSettings: Project => Project =
           })
       },
       libraryDependencies ++= Seq(
-        "org.scalatest" %%% "scalatest" % "3.2.11" % Test
+        "org.scalatest" %%% "scalatest" % "3.2.12" % Test
       )
     )
 
@@ -191,7 +191,7 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.1"),
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "scalablytyped-facades",
     useYarn := true,
     Test / requireJsDomEnv := true,
@@ -225,7 +225,7 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
   .configure(baseLibSettings)
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.1"),
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "webapp-common"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
@@ -251,7 +251,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .dependsOn(webappCommon)
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.1"),
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "admin-data-explorer-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
@@ -278,7 +278,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
   .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.1"),
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "slinky-utils"
   )
 
@@ -289,7 +289,7 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
   .configure(_.enablePlugins(ScalaJSBundlerPlugin))
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.1"),
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "admin-data-explorer-web",
     libraryDependencies ++= Seq(
       "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
@@ -320,12 +320,12 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
       "org.playframework.anorm" %% "anorm" % "2.6.10",
       "com.typesafe.play" %% "play" % "2.8.13",
       "com.typesafe.play" %% "play-json" % "2.9.2",
-      "org.postgresql" % "postgresql" % "42.3.3",
-      "com.github.jwt-scala" %% "jwt-core" % "9.0.4",
+      "org.postgresql" % "postgresql" % "42.3.5",
+      "com.github.jwt-scala" %% "jwt-core" % "9.0.5",
       "de.svenkubiak" % "jBCrypt" % "0.4.3",
       "commons-validator" % "commons-validator" % "1.7",
-      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.2" % "test",
-      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.40.2" % "test",
+      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.7" % "test",
+      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.40.7" % "test",
       "com.softwaremill.sttp.client3" %% "core" % sttp % "test",
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-future" % sttp % "test"
     )

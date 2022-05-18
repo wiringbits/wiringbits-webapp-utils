@@ -17,6 +17,12 @@ package object utils {
     }
   }
 
+  implicit class MapStringHideExt(val data: Map[String, String]) extends AnyVal {
+    def hideData(columnsToHide: List[String]): Map[String, String] = {
+      data.filterNot { case (key, _) => columnsToHide.contains(key) }
+    }
+  }
+
   def contentRangeHeader(tableName: String, queryParameters: QueryParameters, numberOfRecords: Int): String = {
     s"$tableName ${queryParameters.pagination.start}-${queryParameters.pagination.end}/$numberOfRecords"
   }
