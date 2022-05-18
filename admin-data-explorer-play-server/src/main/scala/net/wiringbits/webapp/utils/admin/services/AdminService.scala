@@ -5,6 +5,7 @@ import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
 import net.wiringbits.webapp.utils.admin.utils.contentRangeHeader
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import net.wiringbits.webapp.utils.api.models.*
+import net.wiringbits.webapp.utils.api.models.AdminGetTables.Response.TableField
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,12 +18,25 @@ class AdminService @Inject() (
 ) {
 
   def tables(): Future[AdminGetTables.Response] = {
-    Future.successful {
-      val items = tableSettings.tables.map { x =>
-        AdminGetTables.Response.DatabaseTable(name = x.tableName)
+    for {
+      items <- Future.sequence {
+        tableSettings.tables.map { settings =>
+          for {
+            tableFields <- databaseTablesRepository.getTableFields(settings.tableName)
+            // rename primary key name to "id"
+            fields = tableFields.map { field =>
+              val isPrimaryField = field.name == settings.primaryKeyField
+              val fieldName = if (isPrimaryField) "id" else field.name
+              TableField(fieldName, field.`type`, reference = None)
+            }
+          } yield AdminGetTables.Response.DatabaseTable(
+            name = settings.tableName,
+            fields = fields,
+            settings.primaryKeyField
+          )
+        }
       }
-      AdminGetTables.Response(items)
-    }
+    } yield AdminGetTables.Response(items)
   }
 
   def tableMetadata(

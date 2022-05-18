@@ -12,6 +12,6 @@ object ReactAdmin extends js.Any {
   val EditGuesser, ListGuesser: ElementType = js.native
 
   val Admin, Create, Datagrid, Edit, EditButton, EmailField, List, ReferenceField, ReferenceInput, Resource,
-      SelectInput, SimpleForm, TextField, TextInput, UrlField, fetchUtils: js.Object =
+      SelectInput, SimpleForm, TextField, DateField, TextInput, UrlField, fetchUtils: js.Object =
     js.native
 }

@@ -15,7 +15,8 @@ object EmailField extends FacadeModule.Simple {
   override def mkProps = new Props
 }
 
-trait ReferenceBase extends FacadeModule.ArrayChildren.Simple {
+object ReferenceField extends FacadeModule.ArrayChildren.Simple {
+  override def raw = ReactAdmin.ReferenceField
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
     val source = of[String]
@@ -24,12 +25,14 @@ trait ReferenceBase extends FacadeModule.ArrayChildren.Simple {
   override def mkProps = new Props
 }
 
-object ReferenceField extends ReferenceBase {
-  override def raw = ReactAdmin.ReferenceField
-}
-
-object ReferenceInput extends ReferenceBase {
+object ReferenceInput extends FacadeModule.ArrayChildren.Simple {
   override def raw = ReactAdmin.ReferenceInput
+  class Props extends PropTypes.WithChildren[VdomNode] {
+    val children = of[VdomNode]
+    val source = of[String]
+    val reference = of[String]
+  }
+  override def mkProps = new Props
 }
 
 object SelectInput extends FacadeModule.Simple {
@@ -42,6 +45,12 @@ object SelectInput extends FacadeModule.Simple {
 
 object TextField extends FacadeModule.Simple {
   override def raw = ReactAdmin.TextField
+  class Props extends FieldProps
+  override def mkProps = new Props
+}
+
+object DateField extends FacadeModule.Simple {
+  override def raw = ReactAdmin.DateField
   class Props extends FieldProps
   override def mkProps = new Props
 }

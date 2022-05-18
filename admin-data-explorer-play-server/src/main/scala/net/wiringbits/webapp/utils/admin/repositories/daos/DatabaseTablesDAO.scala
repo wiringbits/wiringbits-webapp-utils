@@ -77,8 +77,6 @@ object DatabaseTablesDAO {
           field <- fields
           fieldName = field.name
           data = resultSet.getString(fieldName)
-          // This is just a workaround. I think it'll be better if I use a Option[T] syntax
-          // so I'll do it later
         } yield Cell(Option(data).getOrElse("null"))
         tableData += TableRow(rowData)
       }
@@ -140,6 +138,7 @@ object DatabaseTablesDAO {
       val row = for {
         columnNumber <- 1 to numberOfColumns
         cellData = resultSet.getString(columnNumber)
+
       } yield Cell(Option(cellData).getOrElse("null"))
       TableRow(row.toList)
     }.toOption
