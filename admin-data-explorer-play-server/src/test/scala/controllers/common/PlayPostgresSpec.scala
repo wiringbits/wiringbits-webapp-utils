@@ -10,7 +10,8 @@ import org.testcontainers.utility.DockerImageName
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Configuration, Environment, Mode}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 trait PlayPostgresSpec extends PlayAPISpec with TestContainerForEach with GuiceOneServerPerTest {
   implicit val executionContext: ExecutionContext = ExecutionContext.Implicits.global
@@ -51,5 +52,14 @@ trait PlayPostgresSpec extends PlayAPISpec with TestContainerForEach with GuiceO
     val config = AdminDataExplorerApiClient.Config(s"http://localhost:$port")
     val client = new AdminDataExplorerApiClient.DefaultImpl(config)
     runTest(client)
+  }
+
+  implicit class RichFutureExt[T](val future: Future[T]) {
+    def expectError: String = future
+      .map(_ => "Success when failure expected")
+      .recover { case NonFatal(ex) =>
+        ex.getMessage
+      }
+      .futureValue
   }
 }
