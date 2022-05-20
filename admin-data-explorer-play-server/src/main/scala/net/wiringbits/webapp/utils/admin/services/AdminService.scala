@@ -2,9 +2,11 @@ package net.wiringbits.webapp.utils.admin.services
 
 import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
+import net.wiringbits.webapp.utils.admin.repositories.models.ForeignReference
 import net.wiringbits.webapp.utils.admin.utils.{MapStringHideExt, contentRangeHeader}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import net.wiringbits.webapp.utils.api.models.*
+import net.wiringbits.webapp.utils.api.models.AdminGetTables.Response.TableField
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -17,12 +19,39 @@ class AdminService @Inject() (
 ) {
 
   def tables(): Future[AdminGetTables.Response] = {
-    Future.successful {
-      val items = tableSettings.tables.map { x =>
-        AdminGetTables.Response.DatabaseTable(name = x.tableName)
-      }
-      AdminGetTables.Response(items)
+    def getFieldName(fieldName: String, primaryKeyField: String) = {
+      val isPrimaryField = fieldName == primaryKeyField
+      if (isPrimaryField) "id" else fieldName
     }
+
+    def getColumnReference(tableReferences: List[ForeignReference], fieldName: String): Option[String] = {
+      val maybe = tableReferences.filter(_.columnName == fieldName)
+      // remove public from string
+      maybe.map(_.primaryTable.replace("public.", "")).headOption
+    }
+
+    for {
+      items <- Future.sequence {
+        tableSettings.tables.map { settings =>
+          val hiddenColumns = settings.hiddenColumns
+          for {
+            tableFields <- databaseTablesRepository.getTableFields(settings.tableName)
+            tableReferences <- databaseTablesRepository.getTableReferences(settings.tableName)
+
+            visibleFields = tableFields.filterNot(field => hiddenColumns.contains(field.name))
+            fields = visibleFields.map { field =>
+              val fieldName = getFieldName(field.name, settings.primaryKeyField)
+              val reference = getColumnReference(tableReferences, field.name)
+              TableField(fieldName, field.`type`, reference = reference)
+            }
+          } yield AdminGetTables.Response.DatabaseTable(
+            name = settings.tableName,
+            fields = fields,
+            settings.primaryKeyField
+          )
+        }
+      }
+    } yield AdminGetTables.Response(items)
   }
 
   def tableMetadata(

@@ -1,7 +1,13 @@
 package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
-import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTable, TableField, TableRow}
+import net.wiringbits.webapp.utils.admin.repositories.models.{
+  Cell,
+  DatabaseTable,
+  ForeignReference,
+  TableField,
+  TableRow
+}
 import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 
@@ -47,6 +53,31 @@ object DatabaseTablesDAO {
     }
   }
 
+  def getTableReferences(
+      tableName: String
+  )(implicit conn: Connection): List[ForeignReference] = {
+    // TODO: revisit query
+    SQL"""
+    SELECT kcu.table_schema || '.' || kcu.table_name AS foreign_table, 
+      rel_tco.table_schema || '.' || rel_tco.table_name AS primary_table, 
+      string_agg(kcu.column_name, ', ') AS fk_columns
+    FROM information_schema.table_constraints tco
+    JOIN information_schema.key_column_usage kcu
+      ON tco.constraint_schema = kcu.constraint_schema
+      AND tco.constraint_name = kcu.constraint_name
+    JOIN information_schema.referential_constraints rco
+      ON tco.constraint_schema = rco.constraint_schema
+      AND tco.constraint_name = rco.constraint_name
+    JOIN information_schema.table_constraints rel_tco
+      ON rco.unique_constraint_schema = rel_tco.constraint_schema
+      AND rco.unique_constraint_name = rel_tco.constraint_name
+    WHERE tco.constraint_type = 'FOREIGN KEY'
+      AND kcu.table_name = $tableName
+    GROUP BY kcu.table_schema, kcu.table_name, rel_tco.table_name, rel_tco.table_schema
+    ORDER BY kcu.table_schema, kcu.table_name
+    """.as(tableReferencesParser.*)
+  }
+
   def getTableData(
       tableName: String,
       fields: List[TableField],
@@ -77,8 +108,6 @@ object DatabaseTablesDAO {
           field <- fields
           fieldName = field.name
           data = resultSet.getString(fieldName)
-          // This is just a workaround. I think it'll be better if I use a Option[T] syntax
-          // so I'll do it later
         } yield Cell(Option(data).getOrElse("null"))
         tableData += TableRow(rowData)
       }
@@ -140,6 +169,7 @@ object DatabaseTablesDAO {
       val row = for {
         columnNumber <- 1 to numberOfColumns
         cellData = resultSet.getString(columnNumber)
+
       } yield Cell(Option(cellData).getOrElse("null"))
       TableRow(row.toList)
     }.toOption

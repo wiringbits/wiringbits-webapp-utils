@@ -1,9 +1,8 @@
 package net.wiringbits.webapp.utils.ui.web.facades.reactadmin
 
-import japgolly.scalajs.react.facade.React.ElementType
-import japgolly.scalajs.react.vdom.html_<^.VdomNode
 import io.github.nafg.simplefacade.Implicits._
 import io.github.nafg.simplefacade.{FacadeModule, PropTypes}
+import japgolly.scalajs.react.vdom.html_<^.VdomNode
 
 object Admin extends FacadeModule.NodeChildren.Simple {
   override def raw = ReactAdmin.Admin
@@ -58,7 +57,7 @@ object Resource extends FacadeModule.Simple {
   override def mkProps = new Props
   class Props extends PropTypes {
     val name = of[String]
-    val create, edit, list = of[ElementType]
+    val create, edit, list = of[VdomNode]
   }
 }
 

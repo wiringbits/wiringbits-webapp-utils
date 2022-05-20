@@ -3,7 +3,7 @@ package net.wiringbits.webapp.utils.admin.repositories
 import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.executors.DatabaseExecutionContext
 import net.wiringbits.webapp.utils.admin.repositories.daos.DatabaseTablesDAO
-import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, TableData, TableField}
+import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, ForeignReference, TableData, TableField}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import play.api.db.Database
 
@@ -23,6 +23,12 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
   def getTableFields(tableName: String): Future[List[TableField]] = Future {
     database.withConnection { implicit conn =>
       DatabaseTablesDAO.getTableFields(tableName)
+    }
+  }
+
+  def getTableReferences(tableName: String): Future[List[ForeignReference]] = Future {
+    database.withConnection { implicit conn =>
+      DatabaseTablesDAO.getTableReferences(tableName)
     }
   }
 
