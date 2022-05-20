@@ -8,16 +8,19 @@ object FieldType {
   case object Date extends FieldType
   case object Text extends FieldType
   case object Email extends FieldType
+  case class Reference(reference: String) extends FieldType
 
   def fromTableField(field: TableField): FieldType = {
     val isEmail = field.name.contains("email")
     val isDate = field.`type`.equals("timestamptz")
-    // TODO: reference fields
+    val default = field.reference
+      .map { FieldType.Reference }
+      .getOrElse(FieldType.Text)
+
     if (isEmail)
       FieldType.Email
     else if (isDate)
       FieldType.Date
-    else
-      FieldType.Text
+    else default
   }
 }

@@ -1,8 +1,8 @@
 package net.wiringbits.webapp.utils.ui.web.facades.reactadmin
 
-import japgolly.scalajs.react.vdom.VdomNode
 import io.github.nafg.simplefacade.Implicits._
 import io.github.nafg.simplefacade.{FacadeModule, PropTypes}
+import japgolly.scalajs.react.vdom.VdomNode
 
 trait FieldProps extends PropTypes {
   val source = of[String]
@@ -15,8 +15,7 @@ object EmailField extends FacadeModule.Simple {
   override def mkProps = new Props
 }
 
-object ReferenceField extends FacadeModule.ArrayChildren.Simple {
-  override def raw = ReactAdmin.ReferenceField
+trait ReferenceBase extends FacadeModule.NodeChildren.Simple {
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
     val source = of[String]
@@ -25,14 +24,12 @@ object ReferenceField extends FacadeModule.ArrayChildren.Simple {
   override def mkProps = new Props
 }
 
-object ReferenceInput extends FacadeModule.ArrayChildren.Simple {
+object ReferenceField extends ReferenceBase {
+  override def raw = ReactAdmin.ReferenceField
+}
+
+object ReferenceInput extends ReferenceBase {
   override def raw = ReactAdmin.ReferenceInput
-  class Props extends PropTypes.WithChildren[VdomNode] {
-    val children = of[VdomNode]
-    val source = of[String]
-    val reference = of[String]
-  }
-  override def mkProps = new Props
 }
 
 object SelectInput extends FacadeModule.Simple {

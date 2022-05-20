@@ -15,6 +15,8 @@ object EditGuesser {
         case FieldType.Date => DateInput(_.source := fieldType.name)
         case FieldType.Text => TextInput(_.source := fieldType.name)
         case FieldType.Email => TextInput(_.source := fieldType.name)
+        case FieldType.Reference(reference) =>
+          ReferenceInput(_.source := fieldType.name, _.reference := reference)(SelectInput(_.optionText := "id"))
       }
     }
     Edit()(

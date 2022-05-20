@@ -2,6 +2,7 @@ package net.wiringbits.webapp.utils.admin.services
 
 import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
 import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
+import net.wiringbits.webapp.utils.admin.repositories.models.ForeignReference
 import net.wiringbits.webapp.utils.admin.utils.{MapStringHideExt, contentRangeHeader}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import net.wiringbits.webapp.utils.api.models.*
@@ -18,17 +19,30 @@ class AdminService @Inject() (
 ) {
 
   def tables(): Future[AdminGetTables.Response] = {
+    def getFieldName(fieldName: String, primaryKeyField: String) = {
+      val isPrimaryField = fieldName == primaryKeyField
+      if (isPrimaryField) "id" else fieldName
+    }
+
+    def getColumnReference(tableReferences: List[ForeignReference], fieldName: String): Option[String] = {
+      val maybe = tableReferences.filter(_.columnName == fieldName)
+      // remove public from string
+      maybe.map(_.primaryTable.replace("public.", "")).headOption
+    }
+
     for {
       items <- Future.sequence {
         tableSettings.tables.map { settings =>
+          val hiddenColumns = settings.hiddenColumns
           for {
             tableFields <- databaseTablesRepository.getTableFields(settings.tableName)
-            hiddenColumns = settings.hiddenColumns
-            // hide columns
-            fields = tableFields.filterNot(field => hiddenColumns.contains(field.name)).map { field =>
-              val isPrimaryField = field.name == settings.primaryKeyField
-              val fieldName = if (isPrimaryField) "id" else field.name
-              TableField(fieldName, field.`type`, reference = None)
+            tableReferences <- databaseTablesRepository.getTableReferences(settings.tableName)
+
+            visibleFields = tableFields.filterNot(field => hiddenColumns.contains(field.name))
+            fields = visibleFields.map { field =>
+              val fieldName = getFieldName(field.name, settings.primaryKeyField)
+              val reference = getColumnReference(tableReferences, field.name)
+              TableField(fieldName, field.`type`, reference = reference)
             }
           } yield AdminGetTables.Response.DatabaseTable(
             name = settings.tableName,
