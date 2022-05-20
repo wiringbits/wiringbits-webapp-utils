@@ -55,6 +55,12 @@ object DateField extends FacadeModule.Simple {
   override def mkProps = new Props
 }
 
+object DateInput extends FacadeModule.Simple {
+  override def raw = ReactAdmin.DateInput
+  class Props extends FieldProps
+  override def mkProps = new Props
+}
+
 object TextInput extends FacadeModule.Simple {
   override def raw = ReactAdmin.TextInput
   class Props extends FieldProps {

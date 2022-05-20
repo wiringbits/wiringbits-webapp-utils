@@ -3,8 +3,7 @@ package net.wiringbits.webapp.utils.ui.web
 import io.github.nafg.simplefacade.Factory
 import japgolly.scalajs.react.vdom.VdomNode
 import net.wiringbits.webapp.utils.api.models.AdminGetTables
-import net.wiringbits.webapp.utils.api.models.AdminGetTables.Response.TableField
-import net.wiringbits.webapp.utils.ui.web.components.TableFieldsList
+import net.wiringbits.webapp.utils.ui.web.components.{EditGuesser, ListGuesser}
 import net.wiringbits.webapp.utils.ui.web.facades.reactadmin._
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 
@@ -18,15 +17,10 @@ object AdminView {
       response.data.map { table =>
         Resource(
           _.name := table.name,
-          _.list := TableFieldsList.component(table),
-          _.edit := createEditFromTableFields(table.fields)
+          _.list := ListGuesser(table),
+          _.edit := EditGuesser(table)
         )
       }
-    }
-
-    def createEditFromTableFields(tableFields: List[TableField]) = {
-      println(tableFields)
-      ReactAdmin.EditGuesser
     }
 
     val resources = buildResources

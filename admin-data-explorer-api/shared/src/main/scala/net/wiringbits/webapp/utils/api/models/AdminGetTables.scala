@@ -5,7 +5,6 @@ import play.api.libs.json.{Format, Json}
 object AdminGetTables {
   case class Response(data: List[Response.DatabaseTable])
   object Response {
-    // Response.TableField?
     case class DatabaseTable(name: String, fields: List[TableField], primaryKeyName: String)
     case class TableField(name: String, `type`: String, reference: Option[String])
 

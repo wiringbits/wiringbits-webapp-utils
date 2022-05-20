@@ -23,8 +23,9 @@ class AdminService @Inject() (
         tableSettings.tables.map { settings =>
           for {
             tableFields <- databaseTablesRepository.getTableFields(settings.tableName)
-            // rename primary key name to "id"
-            fields = tableFields.map { field =>
+            hiddenColumns = settings.hiddenColumns
+            // hide columns
+            fields = tableFields.filterNot(field => hiddenColumns.contains(field.name)).map { field =>
               val isPrimaryField = field.name == settings.primaryKeyField
               val fieldName = if (isPrimaryField) "id" else field.name
               TableField(fieldName, field.`type`, reference = None)
