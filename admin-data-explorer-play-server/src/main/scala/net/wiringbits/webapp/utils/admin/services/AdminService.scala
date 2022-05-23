@@ -42,7 +42,7 @@ class AdminService @Inject() (
             fields = visibleFields.map { field =>
               val fieldName = getFieldName(field.name, settings.primaryKeyField)
               val reference = getColumnReference(tableReferences, field.name)
-              val disabled = settings.disabledColumns.contains(fieldName)
+              val disabled = settings.disabledColumns.contains(field.name)
               TableField(fieldName, field.`type`, reference = reference, disabled = disabled)
             }
           } yield AdminGetTables.Response.DatabaseTable(

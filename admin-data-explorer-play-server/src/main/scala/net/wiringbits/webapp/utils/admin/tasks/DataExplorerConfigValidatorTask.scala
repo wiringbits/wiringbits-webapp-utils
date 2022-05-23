@@ -43,16 +43,14 @@ class DataExplorerConfigValidatorTask @Inject() (
         validateTableName(settingsTable.tableName, tables)
         validatePrimaryKeyFieldName(settingsTable.primaryKeyField, fields)
         validateHiddenColumns(settingsTable.hiddenColumns, fields)
+        validateDisabledColumns(settingsTable.disabledColumns, fields)
       }
     }
   }
 
   private def validateTableName(tableName: String, tablesInDB: List[DatabaseTable]): Unit = {
     if (tablesInDB.exists(_.name == tableName)) ()
-    else
-      throw new RuntimeException(
-        s"$tableName not found, available tables = ${tablesInDB.mkString(", ")}"
-      )
+    else throw new RuntimeException(s"$tableName not found, available tables = ${tablesInDB.mkString(", ")}")
   }
 
   private def validatePrimaryKeyFieldName(idFieldName: String, fields: List[TableField]): Unit = {
@@ -66,5 +64,12 @@ class DataExplorerConfigValidatorTask @Inject() (
     val isValid = columns.forall(fieldNames.contains)
     if (isValid) ()
     else throw new RuntimeException(s"The provided hidden columns on DataExplorer settings doesn't exists: $columns")
+  }
+
+  private def validateDisabledColumns(columns: List[String], tableFields: List[TableField]): Unit = {
+    val fieldNames = tableFields.map(_.name)
+    val isValid = columns.forall(fieldNames.contains)
+    if (isValid) ()
+    else throw new RuntimeException(s"The provided disabled columns on DataExplorer settings doesn't exists: $columns")
   }
 }
