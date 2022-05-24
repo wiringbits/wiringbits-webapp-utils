@@ -25,10 +25,16 @@ class AdminService @Inject() (
       if (isPrimaryField) "id" else fieldName
     }
 
-    def getColumnReference(tableReferences: List[ForeignReference], fieldName: String): Option[String] = {
+    def getReferencedTable(tableReferences: List[ForeignReference], fieldName: String): Option[String] = {
       val maybe = tableReferences.filter(_.columnName == fieldName)
       // remove public from string
       maybe.map(_.primaryTable.replace("public.", "")).headOption
+    }
+
+    def getFieldReference(tableName: String): TableReference = {
+      val maybe = tableSettings.unsafeFindByName(tableName).referenceField
+      val referenceField = maybe.getOrElse("id")
+      TableReference(referencedTable = tableName, referenceField = referenceField)
     }
 
     for {
@@ -43,12 +49,9 @@ class AdminService @Inject() (
             fields = visibleFields.map { field =>
               val fieldName = getFieldName(field.name, settings.primaryKeyField)
               val editable = !settings.nonEditableColumns.contains(field.name)
-              val references = getColumnReference(tableReferences, field.name)
-              val tableReference = references.map { reference =>
-                val referenceField = tableSettings.unsafeFindByName(reference).referenceField
-                TableReference(reference, referenceField.getOrElse("id"))
-              }
-              TableField(name = fieldName, `type` = field.`type`, editable = editable, reference = tableReference)
+              val referencedTableName = getReferencedTable(tableReferences, field.name)
+              val reference = referencedTableName.map { getFieldReference }
+              TableField(name = fieldName, `type` = field.`type`, editable = editable, reference = reference)
             }
           } yield AdminGetTables.Response.DatabaseTable(
             name = settings.tableName,
