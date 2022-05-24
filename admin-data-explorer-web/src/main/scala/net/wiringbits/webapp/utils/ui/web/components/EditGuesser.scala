@@ -12,7 +12,7 @@ object EditGuesser {
     val fields = ResponseGuesser.getTypesFromResponse(response)
     val inputs: List[VdomNode] = fields.map { fieldType =>
       fieldType.`type` match {
-        case FieldType.Date => DateInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
+        case FieldType.Date => DateTimeInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
         case FieldType.Text => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
         case FieldType.Email => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
         case FieldType.Reference(reference, source) =>
