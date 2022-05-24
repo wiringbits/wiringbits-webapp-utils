@@ -13,7 +13,7 @@ object ListGuesser {
     val fields = ResponseGuesser.getTypesFromResponse(response)
     val widgetFields: List[VdomNode] = fields.map { field =>
       field.`type` match {
-        case FieldType.Date => DateField(_.source := field.name)
+        case FieldType.Date => DateField(_.source := field.name, _.showTime := true)
         case FieldType.Text => TextField(_.source := field.name)
         case FieldType.Email => EmailField(_.source := field.name)
         case FieldType.Reference(reference) =>

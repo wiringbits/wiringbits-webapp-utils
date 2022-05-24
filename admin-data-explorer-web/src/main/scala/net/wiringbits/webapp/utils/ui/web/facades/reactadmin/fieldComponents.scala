@@ -48,12 +48,14 @@ object TextField extends FacadeModule.Simple {
 
 object DateField extends FacadeModule.Simple {
   override def raw = ReactAdmin.DateField
-  class Props extends FieldProps
+  class Props extends FieldProps {
+    val showTime = of[Boolean]
+  }
   override def mkProps = new Props
 }
 
-object DateInput extends FacadeModule.Simple {
-  override def raw = ReactAdmin.DateInput
+object DateTimeInput extends FacadeModule.Simple {
+  override def raw = ReactAdmin.DateTimeInput
   class Props extends FieldProps
   override def mkProps = new Props
 }
