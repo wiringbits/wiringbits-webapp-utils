@@ -43,7 +43,7 @@ class DataExplorerConfigValidatorTask @Inject() (
         validateTableName(settingsTable.tableName, tables)
         validatePrimaryKeyFieldName(settingsTable.primaryKeyField, fields)
         validateHiddenColumns(settingsTable.hiddenColumns, fields)
-        validateDisabledColumns(settingsTable.disabledColumns, fields)
+        validateNonEditableColumns(settingsTable.nonEditableColumns, fields)
       }
     }
   }
@@ -66,7 +66,7 @@ class DataExplorerConfigValidatorTask @Inject() (
     else throw new RuntimeException(s"The provided hidden columns on DataExplorer settings doesn't exists: $columns")
   }
 
-  private def validateDisabledColumns(columns: List[String], tableFields: List[TableField]): Unit = {
+  private def validateNonEditableColumns(columns: List[String], tableFields: List[TableField]): Unit = {
     val fieldNames = tableFields.map(_.name)
     val isValid = columns.forall(fieldNames.contains)
     if (isValid) ()
