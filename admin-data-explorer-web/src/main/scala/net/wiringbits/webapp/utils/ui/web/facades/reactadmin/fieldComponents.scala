@@ -48,7 +48,9 @@ object TextField extends FacadeModule.Simple {
 
 object DateField extends FacadeModule.Simple {
   override def raw = ReactAdmin.DateField
-  class Props extends FieldProps
+  class Props extends FieldProps {
+    val showTime = of[Boolean]
+  }
   override def mkProps = new Props
 }
 
