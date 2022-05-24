@@ -16,8 +16,8 @@ object ListGuesser {
         case FieldType.Date => DateField(_.source := field.name)
         case FieldType.Text => TextField(_.source := field.name)
         case FieldType.Email => EmailField(_.source := field.name)
-        case FieldType.Reference(reference) =>
-          ReferenceField(_.reference := reference, _.source := field.name)(TextField(_.source := "id"))
+        case FieldType.Reference(reference, source) =>
+          ReferenceField(_.reference := reference, _.source := field.name)(TextField(_.source := source))
       }
     }
     List()(

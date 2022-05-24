@@ -6,7 +6,7 @@ import net.wiringbits.webapp.utils.admin.repositories.models.ForeignReference
 import net.wiringbits.webapp.utils.admin.utils.{MapStringHideExt, contentRangeHeader}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import net.wiringbits.webapp.utils.api.models.*
-import net.wiringbits.webapp.utils.api.models.AdminGetTables.Response.TableField
+import net.wiringbits.webapp.utils.api.models.AdminGetTables.Response.{TableField, TableReference}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,13 +41,21 @@ class AdminService @Inject() (
             visibleFields = tableFields.filterNot(field => hiddenColumns.contains(field.name))
             fields = visibleFields.map { field =>
               val fieldName = getFieldName(field.name, settings.primaryKeyField)
-              val reference = getColumnReference(tableReferences, field.name)
-              TableField(fieldName, field.`type`, reference = reference)
+              val references = getColumnReference(tableReferences, field.name)
+              val tableReference = references.map { reference =>
+                val referenceField = tableSettings.unsafeFindByName(reference).referenceField
+                TableReference(reference, referenceField.getOrElse("id"))
+              }
+              TableField(
+                name = fieldName,
+                `type` = field.`type`,
+                reference = tableReference
+              )
             }
           } yield AdminGetTables.Response.DatabaseTable(
             name = settings.tableName,
             fields = fields,
-            settings.primaryKeyField
+            primaryKeyName = settings.primaryKeyField
           )
         }
       }
