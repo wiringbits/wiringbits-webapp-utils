@@ -21,6 +21,7 @@ class AdminService @Inject() (
   def tables(): Future[AdminGetTables.Response] = {
     def getFieldName(fieldName: String, primaryKeyField: String) = {
       val isPrimaryField = fieldName == primaryKeyField
+      // NOTE: react-admin requires the id field to be available
       if (isPrimaryField) "id" else fieldName
     }
 
@@ -42,7 +43,8 @@ class AdminService @Inject() (
             fields = visibleFields.map { field =>
               val fieldName = getFieldName(field.name, settings.primaryKeyField)
               val reference = getColumnReference(tableReferences, field.name)
-              TableField(fieldName, field.`type`, reference = reference)
+              val editable = !settings.nonEditableColumns.contains(field.name)
+              TableField(name = fieldName, `type` = field.`type`, reference = reference, editable = editable)
             }
           } yield AdminGetTables.Response.DatabaseTable(
             name = settings.tableName,
