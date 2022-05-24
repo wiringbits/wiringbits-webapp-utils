@@ -44,6 +44,7 @@ class DataExplorerConfigValidatorTask @Inject() (
         validatePrimaryKeyFieldName(settingsTable.primaryKeyField, fields)
         validateHiddenColumns(settingsTable.hiddenColumns, fields)
         validateNonEditableColumns(settingsTable.nonEditableColumns, fields)
+        validateReferenceField(settingsTable.referenceField, fields)
       }
     }
   }
@@ -59,11 +60,22 @@ class DataExplorerConfigValidatorTask @Inject() (
     else throw new RuntimeException(s"The provided id on DataExplorer settings doesn't exists: $idFieldName")
   }
 
-  private def validateHiddenColumns(columns: List[String], tableFields: List[TableField]): Unit = {
-    val fieldNames = tableFields.map(_.name)
+  private def validateHiddenColumns(columns: List[String], fields: List[TableField]): Unit = {
+    val fieldNames = fields.map(_.name)
     val isValid = columns.forall(fieldNames.contains)
     if (isValid) ()
     else throw new RuntimeException(s"The provided hidden columns on DataExplorer settings doesn't exists: $columns")
+  }
+
+  private def validateReferenceField(maybe: Option[String], fields: List[TableField]): Unit = {
+    maybe.foreach { field =>
+      val isValid = fields.exists(_.name == field)
+      if (isValid) ()
+      else
+        throw new RuntimeException(
+          s"The provided reference field column on DataExplorer settings doesn't exists: $field"
+        )
+    }
   }
 
   private def validateNonEditableColumns(columns: List[String], tableFields: List[TableField]): Unit = {

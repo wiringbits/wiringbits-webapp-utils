@@ -15,9 +15,10 @@ object EditGuesser {
         case FieldType.Date => DateTimeInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
         case FieldType.Text => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
         case FieldType.Email => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
-        // TODO: disable to reference?
-        case FieldType.Reference(reference) =>
-          ReferenceInput(_.source := fieldType.name, _.reference := reference)(SelectInput(_.optionText := "id"))
+        case FieldType.Reference(reference, source) =>
+          ReferenceInput(_.source := fieldType.name, _.reference := reference)(
+            SelectInput(_.optionText := source, _.disabled := fieldType.disabled)
+          )
       }
     }
     Edit()(

@@ -36,6 +36,7 @@ object SelectInput extends FacadeModule.Simple {
   override def raw = ReactAdmin.SelectInput
   class Props extends PropTypes {
     val optionText = of[String]
+    val disabled = of[Boolean]
   }
   override def mkProps = new Props
 }
