@@ -7,7 +7,7 @@ object ResponseGuesser {
   def getTypesFromResponse(response: AdminGetTables.Response.DatabaseTable): List[Field] = {
     response.fields.map { field =>
       val fieldType = FieldType.fromTableField(field)
-      Field(name = field.name, `type` = fieldType)
+      Field(name = field.name, `type` = fieldType, disabled = !field.editable)
     }
   }
 }
