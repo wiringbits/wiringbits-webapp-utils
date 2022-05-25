@@ -6,6 +6,7 @@ import net.wiringbits.webapp.utils.admin.AppRouter
 import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.controllers.AdminController
 import net.wiringbits.webapp.utils.api.models.AdminCreateTable
+import org.apache.commons.lang3.StringUtils
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import java.util.UUID
@@ -91,7 +92,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val nameLength = 7
       Range.apply(0, createdUsers).foreach { i =>
         val letter = Character.valueOf(('A' + i).toChar)
-        val name = letter.toString.repeat(nameLength)
+        val name = StringUtils.repeat(letter, nameLength)
         val data = Map("name" -> name, "email" -> s"test@wiringbits$i.net", "password" -> "wiringbits")
         val request = AdminCreateTable.Request(data)
         client.createItem(usersSettings.tableName, request).futureValue
@@ -101,7 +102,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val head = response.headOption.value
       val name = head.find(_._1 == "name").value._2
       response.size must be(createdUsers)
-      name must be("A".repeat(nameLength))
+      name must be(StringUtils.repeat('A', nameLength))
     }
 
     "return the elements in descending order" in withApiClient { client =>
@@ -109,7 +110,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val nameLength = 7
       Range.apply(0, createdUsers).foreach { i =>
         val letter = Character.valueOf(('A' + i).toChar)
-        val name = letter.toString.repeat(nameLength)
+        val name = StringUtils.repeat(letter, nameLength);
         val data = Map("name" -> name, "email" -> s"test@wiringbits$i.net", "password" -> "wiringbits")
         val request = AdminCreateTable.Request(data)
         client.createItem(usersSettings.tableName, request).futureValue
@@ -119,7 +120,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val head = response.headOption.value
       val name = head.find(_._1 == "name").value._2
       response.size must be(createdUsers)
-      name must be("D".repeat(nameLength))
+      name must be(StringUtils.repeat('D', nameLength))
     }
 
     "return filtered elements" in withApiClient { client =>
