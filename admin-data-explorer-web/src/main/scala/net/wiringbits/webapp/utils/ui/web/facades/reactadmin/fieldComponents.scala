@@ -6,6 +6,7 @@ import japgolly.scalajs.react.vdom.VdomNode
 
 trait FieldProps extends PropTypes {
   val source = of[String]
+  val label = of[String]
   val disabled = of[Boolean]
 }
 
@@ -65,10 +66,24 @@ object TextInput extends FacadeModule.Simple {
   override def raw = ReactAdmin.TextInput
   class Props extends FieldProps {
     val multiline = of[Boolean]
+    val alwaysOn = of[Boolean]
   }
   override def mkProps = new Props
 }
 
+object FilterLiveSearch extends FacadeModule.Simple {
+  override def raw = ReactAdmin.FilterLiveSearch
+  class Props extends FieldProps
+  override def mkProps = new Props
+}
+
+object SearchInput extends FacadeModule.Simple {
+  override def raw = ReactAdmin.SearchInput
+  class Props extends FieldProps {
+    val alwaysOn = of[Boolean]
+  }
+  override def mkProps = new Props
+}
 object UrlField extends FacadeModule.Simple {
   override def raw = ReactAdmin.UrlField
   class Props extends FieldProps

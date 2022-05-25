@@ -42,9 +42,10 @@ class DataExplorerConfigValidatorTask @Inject() (
         val fields = DatabaseTablesDAO.getTableFields(settingsTable.tableName)
         validateTableName(settingsTable.tableName, tables)
         validatePrimaryKeyFieldName(settingsTable.primaryKeyField, fields)
+        validateReferenceField(settingsTable.referenceField, fields)
         validateHiddenColumns(settingsTable.hiddenColumns, fields)
         validateNonEditableColumns(settingsTable.nonEditableColumns, fields)
-        validateReferenceField(settingsTable.referenceField, fields)
+        validateFilterColumns(settingsTable.filterColumns, fields)
       }
     }
   }
@@ -83,5 +84,12 @@ class DataExplorerConfigValidatorTask @Inject() (
     val isValid = columns.forall(fieldNames.contains)
     if (isValid) ()
     else throw new RuntimeException(s"The provided disabled columns on DataExplorer settings doesn't exists: $columns")
+  }
+
+  private def validateFilterColumns(columns: List[String], tableFields: List[TableField]): Unit = {
+    val fieldNames = tableFields.map(_.name)
+    val isValid = columns.forall(fieldNames.contains)
+    if (isValid) ()
+    else throw new RuntimeException(s"The provided filter columns on DataExplorer settings doesn't exists: $columns")
   }
 }

@@ -56,7 +56,8 @@ class AdminService @Inject() (
           } yield AdminGetTables.Response.DatabaseTable(
             name = settings.tableName,
             fields = fields,
-            primaryKeyName = settings.primaryKeyField
+            primaryKeyName = settings.primaryKeyField,
+            filterColumns = settings.filterColumns
           )
         }
       }

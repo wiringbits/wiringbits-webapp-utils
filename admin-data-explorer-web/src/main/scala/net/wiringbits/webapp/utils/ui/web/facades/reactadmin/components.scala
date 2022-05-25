@@ -49,6 +49,8 @@ object List extends FacadeModule.NodeChildren.Simple {
   override def mkProps = new Props
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
+    val filters = of[VdomNode]
+    val aside = of[VdomNode]
   }
 }
 

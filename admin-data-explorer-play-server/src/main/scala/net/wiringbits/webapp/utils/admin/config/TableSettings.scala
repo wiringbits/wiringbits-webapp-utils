@@ -10,6 +10,8 @@ package net.wiringbits.webapp.utils.admin.config
   *   columns that the API won't return when the data is queried (for example: user password)
   * @param nonEditableColumns
   *   columns that aren't editable (disabled) via react-admin
+  * @param filterColumns
+  *   columns that can be filtered via react-admin
   */
 
 case class TableSettings(
@@ -17,5 +19,6 @@ case class TableSettings(
     primaryKeyField: String,
     referenceField: Option[String] = None,
     hiddenColumns: List[String] = List.empty,
-    nonEditableColumns: List[String] = List.empty
+    nonEditableColumns: List[String] = List.empty,
+    filterColumns: List[String] = List.empty
 )
