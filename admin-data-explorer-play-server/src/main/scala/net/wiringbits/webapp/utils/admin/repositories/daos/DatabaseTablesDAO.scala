@@ -84,22 +84,32 @@ object DatabaseTablesDAO {
       queryParameters: QueryParameters
   )(implicit conn: Connection): List[TableRow] = {
     val tableData = new ListBuffer[TableRow]()
-    val sql =
-      s"""
-      SELECT * FROM $tableName
-      WHERE ? = ?
-      ORDER BY ${queryParameters.sort.field} ${queryParameters.sort.ordering}
-      LIMIT ? OFFSET ?
-      """
-    val preparedStatement = conn.prepareStatement(sql)
-
     val limit = queryParameters.pagination.end - queryParameters.pagination.start
     val offset = queryParameters.pagination.start
 
-    preparedStatement.setString(1, queryParameters.filter.field)
-    preparedStatement.setString(2, queryParameters.filter.value)
-    preparedStatement.setInt(3, limit)
-    preparedStatement.setInt(4, offset)
+    val preparedStatement = queryParameters.filter.field map { field =>
+      val sql = s"""
+      SELECT * FROM $tableName
+      WHERE $field = ?
+      ORDER BY ${queryParameters.sort.field} ${queryParameters.sort.ordering}
+      LIMIT ? OFFSET ?
+      """
+      val preparedStatement = conn.prepareStatement(sql)
+      preparedStatement.setString(1, queryParameters.filter.value)
+      preparedStatement.setInt(2, limit)
+      preparedStatement.setInt(3, offset)
+      preparedStatement
+    } getOrElse {
+      val sql = s"""
+      SELECT * FROM $tableName
+      ORDER BY ${queryParameters.sort.field} ${queryParameters.sort.ordering}
+      LIMIT ? OFFSET ?
+      """
+      val preparedStatement = conn.prepareStatement(sql)
+      preparedStatement.setInt(1, limit)
+      preparedStatement.setInt(2, offset)
+      preparedStatement
+    }
     val resultSet = preparedStatement.executeQuery()
 
     try {
