@@ -1,13 +1,8 @@
 package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
-import net.wiringbits.webapp.utils.admin.repositories.models.{
-  Cell,
-  DatabaseTable,
-  ForeignReference,
-  TableField,
-  TableRow
-}
+import net.wiringbits.webapp.utils.admin.config.TableSettings
+import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTable, ForeignKey, TableColumn, TableRow}
 import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 
@@ -28,9 +23,9 @@ object DatabaseTablesDAO {
     """.as(tableParser.*)
   }
 
-  def getTableFields(
+  def getTableColumns(
       tableName: String
-  )(implicit conn: Connection): List[TableField] = {
+  )(implicit conn: Connection): List[TableColumn] = {
     val sql = s"SELECT * FROM $tableName LIMIT 0"
     val preparedStatement = conn.prepareStatement(sql)
 
@@ -43,7 +38,7 @@ object DatabaseTablesDAO {
           columnNumber <- 1 to numberOfColumns
           columnName = metadata.getColumnName(columnNumber)
           columnType = metadata.getColumnTypeName(columnNumber)
-        } yield TableField(columnName, columnType)
+        } yield TableColumn(columnName, columnType)
         fields.toList
       } finally {
         resultSet.close()
@@ -53,13 +48,12 @@ object DatabaseTablesDAO {
     }
   }
 
-  def getTableReferences(
+  def getForeignKeys(
       tableName: String
-  )(implicit conn: Connection): List[ForeignReference] = {
-    // TODO: revisit query
+  )(implicit conn: Connection): List[ForeignKey] = {
     SQL"""
-    SELECT kcu.table_schema || '.' || kcu.table_name AS foreign_table, 
-      rel_tco.table_schema || '.' || rel_tco.table_name AS primary_table, 
+    SELECT kcu.table_name AS foreign_table, 
+      rel_tco.table_name AS primary_table, 
       string_agg(kcu.column_name, ', ') AS fk_columns
     FROM information_schema.table_constraints tco
     JOIN information_schema.key_column_usage kcu
@@ -75,33 +69,49 @@ object DatabaseTablesDAO {
       AND kcu.table_name = $tableName
     GROUP BY kcu.table_schema, kcu.table_name, rel_tco.table_name, rel_tco.table_schema
     ORDER BY kcu.table_schema, kcu.table_name
-    """.as(tableReferencesParser.*)
+    """.as(foreignKeyParser.*)
   }
 
   def getTableData(
       tableName: String,
-      fields: List[TableField],
-      queryParameters: QueryParameters
+      fields: List[TableColumn],
+      queryParameters: QueryParameters,
+      settings: TableSettings
   )(implicit conn: Connection): List[TableRow] = {
-    val tableData = new ListBuffer[TableRow]()
-    val sql =
-      s"""
-      SELECT * FROM $tableName
-      WHERE ? = ?
-      ORDER BY ${queryParameters.sort.field} ${queryParameters.sort.ordering}
-      LIMIT ? OFFSET ?
-      """
-    val preparedStatement = conn.prepareStatement(sql)
-
     val limit = queryParameters.pagination.end - queryParameters.pagination.start
     val offset = queryParameters.pagination.start
+    // react-admin gives us a "id" field instead of the primary key of the actual column so we need to replace it
+    val sortBy = if (queryParameters.sort.field == "id") settings.primaryKeyField else queryParameters.sort.field
 
-    preparedStatement.setString(1, queryParameters.filter.field)
-    preparedStatement.setString(2, queryParameters.filter.value)
-    preparedStatement.setInt(3, limit)
-    preparedStatement.setInt(4, offset)
+    val preparedStatement = queryParameters.filter.field map { field =>
+      val primaryKey = if (field == "id") settings.primaryKeyField else field
+      val sql =
+        s"""
+      SELECT * FROM $tableName
+      WHERE $primaryKey = ?
+      ORDER BY $sortBy ${queryParameters.sort.ordering}
+      LIMIT ? OFFSET ?
+      """
+      val preparedStatement = conn.prepareStatement(sql)
+      preparedStatement.setString(1, queryParameters.filter.value)
+      preparedStatement.setInt(2, limit)
+      preparedStatement.setInt(3, offset)
+      preparedStatement
+    } getOrElse {
+      val sql =
+        s"""
+      SELECT * FROM $tableName
+      ORDER BY $sortBy ${queryParameters.sort.ordering}
+      LIMIT ? OFFSET ?
+      """
+      val preparedStatement = conn.prepareStatement(sql)
+      preparedStatement.setInt(1, limit)
+      preparedStatement.setInt(2, offset)
+      preparedStatement
+    }
+
     val resultSet = preparedStatement.executeQuery()
-
+    val tableData = new ListBuffer[TableRow]()
     try {
       while (resultSet.next) {
         val rowData = for {
@@ -120,8 +130,8 @@ object DatabaseTablesDAO {
 
   def getMandatoryFields(tableName: String, primaryKeyField: String)(implicit
       conn: Connection
-  ): List[TableField] = {
-    val mandatoryFields = new ListBuffer[TableField]()
+  ): List[TableColumn] = {
+    val mandatoryFields = new ListBuffer[TableColumn]()
 
     val SQL =
       s"""
@@ -145,7 +155,7 @@ object DatabaseTablesDAO {
       val isNullable = resultSet.getString("is_nullable") == "YES"
       val isObligatory = !isNullable && defaultValue.isEmpty
       if (isObligatory && (columnName != primaryKeyField)) {
-        mandatoryFields += TableField(columnName, columnType)
+        mandatoryFields += TableColumn(columnName, columnType)
       }
     }
     mandatoryFields.toList
@@ -161,6 +171,7 @@ object DatabaseTablesDAO {
     """
     val preparedStatement = conn.prepareStatement(sql)
 
+    // TODO: UUID from String can fail if the ID field isn't an UUID
     preparedStatement.setObject(1, UUID.fromString(primaryKeyValue))
     val resultSet = preparedStatement.executeQuery()
     Try {
@@ -191,7 +202,7 @@ object DatabaseTablesDAO {
 
   def update(
       tableName: String,
-      fieldsAndValues: Map[TableField, String],
+      fieldsAndValues: Map[TableColumn, String],
       primaryKeyField: String,
       primaryKeyValue: String
   )(implicit conn: Connection): Unit = {

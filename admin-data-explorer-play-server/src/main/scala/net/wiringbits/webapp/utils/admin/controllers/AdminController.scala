@@ -1,9 +1,9 @@
 package net.wiringbits.webapp.utils.admin.controllers
 
 import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
-import net.wiringbits.webapp.utils.api.models.*
 import net.wiringbits.webapp.utils.admin.services.AdminService
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
+import net.wiringbits.webapp.utils.api.models.*
 import org.slf4j.LoggerFactory
 import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
@@ -27,11 +27,11 @@ class AdminController @Inject() (
     } yield Ok(Json.toJson(response))
   }
 
-  def getTableMetadata(tableName: String, queryParameters: QueryParameters) = handleGET { request =>
+  def getTableMetadata(tableName: String, queryParams: QueryParameters) = handleGET { request =>
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Get metadata for $tableName, parameters: $queryParameters")
-      (response, contentRange) <- adminService.tableMetadata(tableName, queryParameters)
+      _ = logger.info(s"Get metadata for $tableName, parameters: $queryParams")
+      (response, contentRange) <- adminService.tableMetadata(tableName, queryParams)
     } yield Ok(Json.toJson(response))
       .withHeaders(("Access-Control-Expose-Headers", "Content-Range"), ("Content-Range", contentRange))
   }

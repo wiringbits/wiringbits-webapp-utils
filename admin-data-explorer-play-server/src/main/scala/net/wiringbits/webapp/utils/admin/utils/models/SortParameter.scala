@@ -2,18 +2,15 @@ package net.wiringbits.webapp.utils.admin.utils.models
 
 import net.wiringbits.webapp.utils.admin.utils.StringToDataTypesExt
 
-case class SortParameter(field: String, ordering: String) {
-  def fromPrimaryKeyField(primaryKeyField: String): SortParameter = {
-    val sortField = Option
-      .when(field == "id")(primaryKeyField)
-      .getOrElse(field)
-    SortParameter(sortField, ordering)
-  }
-}
+import scala.util.Try
+
+case class SortParameter(field: String, ordering: String)
 
 object SortParameter {
   def fromString(str: String): SortParameter = {
     val sort = str.toStringList
-    SortParameter(field = sort.head, ordering = sort(1))
+    val field = sort.headOption.getOrElse("")
+    val ordering = Try(sort(1)).getOrElse("")
+    SortParameter(field = field, ordering = ordering)
   }
 }

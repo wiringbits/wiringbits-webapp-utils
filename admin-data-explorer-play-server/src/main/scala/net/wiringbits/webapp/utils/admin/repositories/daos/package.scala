@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.admin.repositories
 
 import anorm.*
-import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, ForeignReference}
+import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, ForeignKey}
 
 package object daos {
   import anorm.{Column, MetaDataItem, TypeDoesNotMatch}
@@ -27,8 +27,8 @@ package object daos {
     )
   }
 
-  val tableReferencesParser: RowParser[ForeignReference] = {
-    Macro.parser[ForeignReference](
+  val foreignKeyParser: RowParser[ForeignKey] = {
+    Macro.parser[ForeignKey](
       "foreign_table",
       "primary_table",
       "fk_columns"

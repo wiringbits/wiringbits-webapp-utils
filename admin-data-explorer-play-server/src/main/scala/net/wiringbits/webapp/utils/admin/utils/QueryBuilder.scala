@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.utils
 
-import net.wiringbits.webapp.utils.admin.repositories.models.TableField
+import net.wiringbits.webapp.utils.admin.repositories.models.TableColumn
 
 import scala.collection.mutable
 
@@ -22,7 +22,7 @@ object QueryBuilder {
       |""".stripMargin
   }
 
-  def update(tableName: String, body: Map[TableField, String], primaryKeyField: String): String = {
+  def update(tableName: String, body: Map[TableColumn, String], primaryKeyField: String): String = {
     val updateStatement = new mutable.StringBuilder("SET")
     for ((tableField, value) <- body) {
       val resultStatement = if (value == "null") "NULL" else s"?::${tableField.`type`}"

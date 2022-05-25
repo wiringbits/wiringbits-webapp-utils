@@ -141,6 +141,21 @@ class AdminControllerSpec extends PlayPostgresSpec {
       updateResponse.id must be(userId)
       emailResponse must be(email)
     }
+
+    "fail if the field in body doesn't exists" in withApiClient { client =>
+      val request = AdminCreateTable.Request(
+        Map("name" -> "wiringbits", "email" -> "test@wiringbits.net", "password" -> "wiringbits")
+      )
+      client.createItem("users", request).futureValue
+
+      val response = client.getTableMetadata("users", List("user_id", "ASC"), List(0, 9), "{}").futureValue
+      val userId = response.headOption.value.find(_._1 == "id").value._2
+
+      val email = "wiringbits@wiringbits.net"
+      val updateRequest = Map("nonExistentField" -> email)
+      val error = client.updateItem("users", userId, updateRequest).expectError
+      error must be("A field doesn't correspond to this table schema")
+    }
   }
 
   "DELETE /admin/tables/users" should {
