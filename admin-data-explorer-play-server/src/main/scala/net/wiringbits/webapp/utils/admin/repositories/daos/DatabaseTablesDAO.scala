@@ -128,37 +128,17 @@ object DatabaseTablesDAO {
     }
   }
 
-  def getMandatoryFields(tableName: String, primaryKeyField: String)(implicit
-      conn: Connection
-  ): List[TableColumn] = {
-    val mandatoryFields = new ListBuffer[TableColumn]()
-
-    val SQL =
-      s"""
-      SELECT column_name, is_nullable, 
-        column_default, data_type
+  def getMandatoryFields(tableName: String, primaryKeyField: String)(implicit conn: Connection): List[TableColumn] = {
+    SQL"""
+      SELECT column_name, data_type
       FROM information_schema.columns
       WHERE table_schema = 'public'
-        AND table_name = ?
+        AND is_nullable = 'NO'
+        AND column_default IS NULL
+        AND table_name = $tableName
+        AND column_name != $primaryKeyField
       ORDER BY column_name
-      """
-
-    val preparedStatement = conn.prepareStatement(SQL)
-    preparedStatement.setObject(1, tableName)
-
-    val resultSet = preparedStatement.executeQuery()
-
-    while (resultSet.next()) {
-      val columnName = resultSet.getString("column_name")
-      val columnType = resultSet.getString("data_type")
-      val defaultValue = Option(resultSet.getString("column_default"))
-      val isNullable = resultSet.getString("is_nullable") == "YES"
-      val isObligatory = !isNullable && defaultValue.isEmpty
-      if (isObligatory && (columnName != primaryKeyField)) {
-        mandatoryFields += TableColumn(columnName, columnType)
-      }
-    }
-    mandatoryFields.toList
+      """.as(tableColumnParser.*)
   }
 
   def find(tableName: String, primaryKeyField: String, primaryKeyValue: String)(implicit
@@ -209,7 +189,7 @@ object DatabaseTablesDAO {
     val sql = QueryBuilder.update(tableName, fieldsAndValues, primaryKeyField)
     val preparedStatement = conn.prepareStatement(sql)
 
-    val notNullData = fieldsAndValues.filterNot(_._2 == "null")
+    val notNullData = fieldsAndValues.filterNot { case (_, value) => value == "null" }
     notNullData.zipWithIndex.foreach { case ((_, value), i) =>
       preparedStatement.setObject(i + 1, value)
     }
