@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin
 
-import net.wiringbits.webapp.utils.admin.repositories.models.TableField
+import net.wiringbits.webapp.utils.admin.repositories.models.TableColumn
 import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
 import org.scalatest.matchers.must.Matchers.{be, convertToAnyMustWrapper}
 import org.scalatest.wordspec.AnyWordSpec
@@ -53,8 +53,8 @@ class QueryBuilderSpec extends AnyWordSpec {
       |""".stripMargin
       val tableName = "users"
       val body = Map(
-        TableField("email", "citext") -> "wiringbits@wiringbits.net",
-        TableField("name", "text") -> "wiringbits@wiringbits.net"
+        TableColumn("email", "citext") -> "wiringbits@wiringbits.net",
+        TableColumn("name", "text") -> "wiringbits@wiringbits.net"
       )
       val primaryKeyField = "user_id"
 
@@ -71,9 +71,9 @@ class QueryBuilderSpec extends AnyWordSpec {
            |""".stripMargin
       val tableName = "users"
       val body = Map(
-        TableField("email", "citext") -> "wiringbits@wiringbits.net",
-        TableField("name", "text") -> "wiringbits@wiringbits.net",
-        TableField("phone_number", "text") -> "null"
+        TableColumn("email", "citext") -> "wiringbits@wiringbits.net",
+        TableColumn("name", "text") -> "wiringbits@wiringbits.net",
+        TableColumn("phone_number", "text") -> "null"
       )
       val primaryKeyField = "user_id"
 

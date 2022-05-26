@@ -23,14 +23,14 @@ class AppRouter @Inject() (adminController: AdminController) extends SimpleRoute
 
     // get database table fields
     // example: GET http://localhost:9000/admin/tables/users?filter={}&range=[0, 9]&sort=["id", "ASC"]
-    case GET(p"/admin/tables/$tableName" ? q"filter=$fieldStr" & q"range=$rangeStr" & q"sort=$sortStr") =>
-      val sortParameter = SortParameter.fromString(sortStr)
-      val paginationParameter = PaginationParameter.fromString(rangeStr)
-      val filterParameter = FilterParameter.fromString(fieldStr)
-
-      val queryParameters =
-        QueryParameters(sort = sortParameter, pagination = paginationParameter, filter = filterParameter)
-      adminController.getTableMetadata(tableName, queryParameters)
+    case GET(p"/admin/tables/$tableName" ? q"filter=$filter" & q"range=$range" & q"sort=$sort") =>
+      val queryParams =
+        QueryParameters(
+          sort = SortParameter.fromString(sort),
+          pagination = PaginationParameter.fromString(range),
+          filter = FilterParameter.fromString(filter)
+        )
+      adminController.getTableMetadata(tableName, queryParams)
 
     // get table resource by id (depends on IDFieldName on AdminConfig)
     case GET(p"/admin/tables/$tableName/$primaryKeyValue") =>

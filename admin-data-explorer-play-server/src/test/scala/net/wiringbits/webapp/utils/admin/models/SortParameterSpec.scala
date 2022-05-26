@@ -14,14 +14,4 @@ class SortParameterSpec extends AnyWordSpec {
       response.ordering must be("ASC")
     }
   }
-  "fromPrimaryKeyField" should {
-    "convert id property to primary key field" in {
-      val str = """["id","ASC"]"""
-      val primaryKeyField = "user_id"
-      val response = SortParameter.fromString(str)
-      val queryParams = response.fromPrimaryKeyField(primaryKeyField)
-      queryParams.field must be("user_id")
-      queryParams.ordering must be("ASC")
-    }
-  }
 }

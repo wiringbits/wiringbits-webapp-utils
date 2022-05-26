@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.repositories.models
 
-case class TableField(
+case class TableColumn(
     name: String,
     `type`: String
 )
