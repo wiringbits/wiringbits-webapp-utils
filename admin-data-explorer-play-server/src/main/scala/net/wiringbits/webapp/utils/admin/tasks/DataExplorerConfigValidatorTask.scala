@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.tasks
 
-import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.daos.DatabaseTablesDAO
 import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, TableColumn}
 import org.slf4j.LoggerFactory
@@ -40,6 +40,7 @@ class DataExplorerConfigValidatorTask @Inject() (
       for (settingsTable <- settings.tables) {
         logger.info(s"Verifying ${settingsTable.tableName}")
         val fields = DatabaseTablesDAO.getTableColumns(settingsTable.tableName)
+        validateSettings(settingsTable)
         validateTableName(settingsTable.tableName, tables)
         validatePrimaryKeyFieldName(settingsTable.primaryKeyField, fields)
         validateHiddenColumns(settingsTable.hiddenColumns, fields)
@@ -83,5 +84,10 @@ class DataExplorerConfigValidatorTask @Inject() (
     val isValid = columns.forall(fieldNames.contains)
     if (isValid) ()
     else throw new RuntimeException(s"The provided disabled columns on DataExplorer settings doesn't exists: $columns")
+  }
+
+  private def validateSettings(settings: TableSettings): Unit = {
+    if (settings.referenceField.exists(settings.hiddenColumns.contains))
+      throw new RuntimeException("Hidden columns cannot contain the reference field")
   }
 }
