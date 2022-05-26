@@ -21,7 +21,7 @@ class AdminService @Inject() (
       foreignKeys: List[ForeignKey],
       columnName: String
   ): Option[AdminGetTables.Response.TableReference] = {
-    val filteredForeignKeys = foreignKeys.filter(_.columnName == columnName)
+    val filteredForeignKeys = foreignKeys.filter(_.foreignColumnName == columnName)
     val maybe = filteredForeignKeys.map(_.primaryTable).headOption
 
     maybe.map { tableName =>
@@ -75,7 +75,7 @@ class AdminService @Inject() (
   def tableMetadata(tableName: String, queryParams: QueryParameters): Future[(List[Map[String, String]], String)] = {
     val validations = {
       for {
-        _ <- Future.successful(validateTableName(tableName))
+        _ <- Future(validateTableName(tableName))
       } yield ()
     }
 
