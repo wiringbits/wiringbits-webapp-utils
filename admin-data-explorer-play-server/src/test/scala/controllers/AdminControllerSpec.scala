@@ -3,17 +3,20 @@ package controllers
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import controllers.common.PlayPostgresSpec
 import net.wiringbits.webapp.utils.admin.AppRouter
+import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.controllers.AdminController
 import net.wiringbits.webapp.utils.api.models.AdminCreateTable
+import org.apache.commons.lang3.StringUtils
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import java.util.UUID
 
 class AdminControllerSpec extends PlayPostgresSpec {
+  def dataExplorerSettings: DataExplorerSettings = app.injector.instanceOf(classOf[DataExplorerSettings])
+  def usersSettings: TableSettings = dataExplorerSettings.tables.headOption.value
 
   override def guiceApplicationBuilder(container: PostgreSQLContainer): GuiceApplicationBuilder = {
     val appBuilder = super.guiceApplicationBuilder(container)
-
     val adminController = appBuilder.injector().instanceOf[AdminController]
     val appRouter = new AppRouter(adminController)
     appBuilder.router(appRouter)
@@ -23,14 +26,125 @@ class AdminControllerSpec extends PlayPostgresSpec {
     "return tables from modules" in withApiClient { client =>
       val response = client.getTables.futureValue
       val tableName = response.data.map(_.name).headOption.value
-      tableName must be("users")
+      tableName must be(usersSettings.tableName)
+    }
+
+    "return extra config from module" in withApiClient { client =>
+      val response = client.getTables.futureValue
+      val head = response.data.headOption.value
+      head.primaryKeyName must be(usersSettings.primaryKeyField)
+      usersSettings.referenceField must be(None)
+      usersSettings.hiddenColumns must be(List.empty)
+      usersSettings.nonEditableColumns must be(List.empty)
     }
   }
 
   "GET /admin/tables/:tableName" should {
-    "return users table" in withApiClient { client =>
-      val response = client.getTableMetadata("users", List("name", "ASC"), List(0, 9), "{}").futureValue
+    "return data" in withApiClient { client =>
+      val name = "wiringbits"
+      val email = "test@wiringbits.net"
+      val request = AdminCreateTable.Request(
+        Map("name" -> name, "email" -> email, "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
+      val head = response.headOption.value
+      // TODO: Find a better way to do this
+      val nameValue = head.find(_._1 == "name").value._2
+      val emailValue = head.find(_._1 == "email").value._2
+      response.size must be(1)
+      name must be(nameValue)
+      email must be(emailValue)
+    }
+
+    "return a empty map if there isn't any user" in withApiClient { client =>
+      val response = client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
       response.size must be(0)
+    }
+
+    "return a empty map if start and end is the same" in withApiClient { client =>
+      val request = AdminCreateTable.Request(
+        Map("name" -> "wiringbits", "email" -> "test@wiringbits.net", "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 0), "{}").futureValue
+      response.size must be(0)
+    }
+
+    "only return the end minus start elements" in withApiClient { client =>
+      Range.apply(0, 4).foreach { i =>
+        val data = Map("name" -> "wiringbits", "email" -> s"test@wiringbits$i.net", "password" -> "wiringbits")
+        val request = AdminCreateTable.Request(data)
+        client.createItem(usersSettings.tableName, request).futureValue
+      }
+      val end = 2
+      val start = 1
+      val returnedElements = end - start
+      val response =
+        client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(start, end), "{}").futureValue
+      response.size must be(returnedElements)
+    }
+
+    "return the elements in ascending order" in withApiClient { client =>
+      val createdUsers = 4
+      val nameLength = 7
+      Range.apply(0, createdUsers).foreach { i =>
+        val letter = Character.valueOf(('A' + i).toChar)
+        val name = StringUtils.repeat(letter, nameLength)
+        val data = Map("name" -> name, "email" -> s"test@wiringbits$i.net", "password" -> "wiringbits")
+        val request = AdminCreateTable.Request(data)
+        client.createItem(usersSettings.tableName, request).futureValue
+      }
+      val response =
+        client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, createdUsers), "{}").futureValue
+      val head = response.headOption.value
+      val name = head.find(_._1 == "name").value._2
+      response.size must be(createdUsers)
+      name must be(StringUtils.repeat('A', nameLength))
+    }
+
+    "return the elements in descending order" in withApiClient { client =>
+      val createdUsers = 4
+      val nameLength = 7
+      Range.apply(0, createdUsers).foreach { i =>
+        val letter = Character.valueOf(('A' + i).toChar)
+        val name = StringUtils.repeat(letter, nameLength);
+        val data = Map("name" -> name, "email" -> s"test@wiringbits$i.net", "password" -> "wiringbits")
+        val request = AdminCreateTable.Request(data)
+        client.createItem(usersSettings.tableName, request).futureValue
+      }
+      val response =
+        client.getTableMetadata(usersSettings.tableName, List("name", "DESC"), List(0, createdUsers), "{}").futureValue
+      val head = response.headOption.value
+      val name = head.find(_._1 == "name").value._2
+      response.size must be(createdUsers)
+      name must be(StringUtils.repeat('D', nameLength))
+    }
+
+    "return filtered elements" in withApiClient { client =>
+      val createdUsers = 4
+      Range.apply(0, createdUsers).foreach { i =>
+        val data = Map("name" -> "wiringbits", "email" -> s"test@wiringbits$i.net", "password" -> "wiringbits")
+        val request = AdminCreateTable.Request(data)
+        client.createItem(usersSettings.tableName, request).futureValue
+      }
+      val expectedEmail = "test@wiringbits0.net"
+      val response =
+        client
+          .getTableMetadata(
+            usersSettings.tableName,
+            List("name", "ASC"),
+            List(0, createdUsers),
+            s"""{"email":"$expectedEmail"}"""
+          )
+          .futureValue
+
+      val head = response.headOption.value
+      val email = head.find(_._1 == "email").value._2
+      response.size must be(1)
+      email must be(expectedEmail)
     }
 
     "fail when table doesn't exists" in withApiClient { client =>
@@ -42,17 +156,16 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
   "GET /admin/tables/:tableName/:primaryKey" should {
     "return table row" in withApiClient { client =>
-      val tableName = "users"
       val name = "wiringbits"
       val email = "test@wiringbits.net"
       val password = "wiringbits"
       val request = AdminCreateTable.Request(Map("name" -> name, "email" -> email, "password" -> password))
-      client.createItem(tableName, request).futureValue
+      client.createItem(usersSettings.tableName, request).futureValue
 
-      val users = client.getTableMetadata(tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
+      val users = client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
       val userId = users.headOption.value.find(_._1 == "id").value._2
 
-      val response = client.viewItem(tableName, userId).futureValue
+      val response = client.viewItem(usersSettings.tableName, userId).futureValue
       response.find(_._1 == "name").value._2 must be(name)
       response.find(_._1 == "email").value._2 must be(email)
       response.find(_._1 == "password").value._2 must be(password)
@@ -61,7 +174,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
     "fail if the table row doesn't exists" in withApiClient { client =>
       val userId = UUID.randomUUID().toString
-      val error = client.viewItem("users", userId).expectError
+      val error = client.viewItem(usersSettings.tableName, userId).expectError
       error must be(s"Cannot find item in users with id $userId")
     }
   }
@@ -127,16 +240,16 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val request = AdminCreateTable.Request(
         Map("name" -> "wiringbits", "email" -> "test@wiringbits.net", "password" -> "wiringbits")
       )
-      client.createItem("users", request).futureValue
+      client.createItem(usersSettings.tableName, request).futureValue
 
-      val response = client.getTableMetadata("users", List("user_id", "ASC"), List(0, 9), "{}").futureValue
+      val response = client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
       val userId = response.headOption.value.find(_._1 == "id").value._2
 
       val email = "wiringbits@wiringbits.net"
       val updateRequest = Map("email" -> email)
-      val updateResponse = client.updateItem("users", userId, updateRequest).futureValue
+      val updateResponse = client.updateItem(usersSettings.tableName, userId, updateRequest).futureValue
 
-      val newResponse = client.viewItem("users", userId).futureValue
+      val newResponse = client.viewItem(usersSettings.tableName, userId).futureValue
       val emailResponse = newResponse.find(_._1 == "email").value._2
       updateResponse.id must be(userId)
       emailResponse must be(email)
