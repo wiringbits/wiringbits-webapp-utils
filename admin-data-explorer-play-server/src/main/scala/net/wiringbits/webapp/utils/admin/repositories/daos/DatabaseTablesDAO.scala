@@ -118,7 +118,7 @@ object DatabaseTablesDAO {
           field <- fields
           fieldName = field.name
           data = resultSet.getString(fieldName)
-        } yield Cell(Option(data).getOrElse("null"))
+        } yield Cell(Option(data).getOrElse(""))
         tableData += TableRow(rowData)
       }
       tableData.toList
@@ -160,8 +160,7 @@ object DatabaseTablesDAO {
       val row = for {
         columnNumber <- 1 to numberOfColumns
         cellData = resultSet.getString(columnNumber)
-
-      } yield Cell(Option(cellData).getOrElse("null"))
+      } yield Cell(Option(cellData).getOrElse(""))
       TableRow(row.toList)
     }.toOption
   }
