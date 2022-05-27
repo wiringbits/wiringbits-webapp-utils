@@ -8,8 +8,9 @@ import scala.scalajs.js.annotation.JSImport
 object ReactAdmin extends js.Any {
   def useRecordContext(): js.Dictionary[js.Any] = js.native
 
+  def useEditContext(): js.Dictionary[js.Any] = js.native
+
   val Admin, Create, Datagrid, Edit, EditButton, EmailField, List, ReferenceField, ReferenceInput, Resource,
-      SelectInput, SimpleForm, TextField, DateField, DateTimeInput, TextInput, Button, TopToolbar, UrlField,
-      fetchUtils: js.Object =
+      SelectInput, SimpleForm, TextField, DateField, DateTimeInput, TextInput, Button, TopToolbar, UrlField: js.Object =
     js.native
 }
