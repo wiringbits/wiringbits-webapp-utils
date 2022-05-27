@@ -9,7 +9,7 @@ import net.wiringbits.webapp.utils.ui.web.utils.ResponseGuesser
 
 object ListGuesser {
 
-  def apply(response: AdminGetTables.Response.DatabaseTable): Factory[List.Props] = {
+  def apply(response: AdminGetTables.Response.DatabaseTable): Factory[ComponentList.Props] = {
     val fields = ResponseGuesser.getTypesFromResponse(response)
     val widgetFields: List[VdomNode] = fields.map { field =>
       field.`type` match {
@@ -20,7 +20,7 @@ object ListGuesser {
           ReferenceField(_.reference := reference, _.source := field.name)(TextField(_.source := source))
       }
     }
-    List()(
+    ComponentList()(
       Datagrid(_.rowClick := "edit")(widgetFields: _*)
     )
   }

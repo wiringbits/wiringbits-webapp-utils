@@ -35,6 +35,7 @@ object Edit extends FacadeModule.NodeChildren.Simple {
   override def mkProps = new Props
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
+    val actions = of[VdomNode]
   }
 }
 
@@ -44,7 +45,24 @@ object EditButton extends FacadeModule.Simple {
   class Props extends PropTypes
 }
 
-object List extends FacadeModule.NodeChildren.Simple {
+object Button extends FacadeModule.NodeChildren.Simple {
+  override def raw = ReactAdmin.Button
+  class Props extends PropTypes.WithChildren[VdomNode] {
+    val children = of[VdomNode]
+    val onClick = of[() => Unit]
+  }
+  override def mkProps = new Props
+}
+
+object TopToolbar extends FacadeModule.NodeChildren.Simple {
+  override def raw = ReactAdmin.TopToolbar
+  class Props extends PropTypes.WithChildren[VdomNode] {
+    val children = of[VdomNode]
+  }
+  override def mkProps = new Props
+}
+
+object ComponentList extends FacadeModule.NodeChildren.Simple {
   override def raw = ReactAdmin.List
   override def mkProps = new Props
   class Props extends PropTypes.WithChildren[VdomNode] {
