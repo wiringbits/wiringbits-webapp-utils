@@ -79,16 +79,20 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
   def update(tableName: String, primaryKeyValue: String, body: Map[String, String]): Future[Unit] =
     Future {
       database.withTransaction { implicit conn =>
-        val primaryKeyField = tableSettings.unsafeFindByName(tableName).primaryKeyField
+        val settings = tableSettings.unsafeFindByName(tableName)
         val columns = DatabaseTablesDAO.getTableColumns(tableName)
+        // hide non editable fields in case somebody edit it
+        val bodyWithoutNonEditableColumns = body.filterNot { case (key, _) =>
+          settings.nonEditableColumns.contains(key)
+        }
         // transforms Map[String, String] to Map[TableColumn, String]
         // this is necessary because we want the column type to cast the data
-        val fieldsAndValues = body.map { case (key, value) =>
+        val fieldsAndValues = bodyWithoutNonEditableColumns.map { case (key, value) =>
           val field =
             columns.find(_.name == key).getOrElse(throw new RuntimeException(s"Invalid property in body request: $key"))
           (field, value)
         }
-        DatabaseTablesDAO.update(tableName, fieldsAndValues, primaryKeyField, primaryKeyValue)
+        DatabaseTablesDAO.update(tableName, fieldsAndValues, settings.primaryKeyField, primaryKeyValue)
       }
     }
 
