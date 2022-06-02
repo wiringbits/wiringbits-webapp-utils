@@ -188,7 +188,7 @@ class AdminService @Inject() (
     val validations = for {
       _ <- Future(validateTableName(tableName))
       settings = tableSettings.unsafeFindByName(tableName)
-      _ = if (settings.canBeDeleted) () else throw new RuntimeException(s"Table $tableName cannot be deleted")
+      _ = if (settings.canBeDeleted) () else throw new RuntimeException(s"Table $tableName resources cannot be deleted")
     } yield ()
 
     for {
