@@ -27,6 +27,7 @@ object Datagrid extends FacadeModule.ArrayChildren.Simple {
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
     val rowClick = of[String]
+    val bulkActionButtons = of[Boolean]
   }
 }
 
@@ -45,11 +46,31 @@ object EditButton extends FacadeModule.Simple {
   class Props extends PropTypes
 }
 
+object SaveButton extends FacadeModule.Simple {
+  override def raw = ReactAdmin.SaveButton
+  override def mkProps = new Props
+  class Props extends PropTypes
+}
+
+object DeleteButton extends FacadeModule.Simple {
+  override def raw = ReactAdmin.DeleteButton
+  override def mkProps = new Props
+  class Props extends PropTypes
+}
+
 object Button extends FacadeModule.NodeChildren.Simple {
   override def raw = ReactAdmin.Button
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
     val onClick = of[() => Unit]
+  }
+  override def mkProps = new Props
+}
+
+object Toolbar extends FacadeModule.NodeChildren.Simple {
+  override def raw = ReactAdmin.Toolbar
+  class Props extends PropTypes.WithChildren[VdomNode] {
+    val children = of[VdomNode]
   }
   override def mkProps = new Props
 }
@@ -84,5 +105,6 @@ object SimpleForm extends FacadeModule.NodeChildren.Simple {
   override def mkProps = new Props
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
+    val toolbar = of[VdomNode]
   }
 }

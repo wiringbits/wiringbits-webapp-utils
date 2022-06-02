@@ -4,13 +4,17 @@ import io.github.nafg.simplefacade.Factory
 import japgolly.scalajs.react.vdom.html_<^._
 import net.wiringbits.webapp.utils.api.models.AdminGetTables
 import net.wiringbits.webapp.utils.ui.web.facades.reactadmin._
-import net.wiringbits.webapp.utils.ui.web.models.ColumnType
+import net.wiringbits.webapp.utils.ui.web.models.{ColumnType, DataExplorerSettings}
 import net.wiringbits.webapp.utils.ui.web.utils.ResponseGuesser
 
 object ListGuesser {
 
-  def apply(response: AdminGetTables.Response.DatabaseTable): Factory[ComponentList.Props] = {
+  def apply(
+      response: AdminGetTables.Response.DatabaseTable,
+      dataExplorerSettings: DataExplorerSettings
+  ): Factory[ComponentList.Props] = {
     val fields = ResponseGuesser.getTypesFromResponse(response)
+
     val widgetFields: List[VdomNode] = fields.map { field =>
       field.`type` match {
         case ColumnType.Date => DateField(_.source := field.name, _.showTime := true)
@@ -21,7 +25,7 @@ object ListGuesser {
       }
     }
     ComponentList()(
-      Datagrid(_.rowClick := "edit")(widgetFields: _*)
+      Datagrid(_.rowClick := "edit", _.bulkActionButtons := dataExplorerSettings.canDelete)(widgetFields: _*)
     )
   }
 }
