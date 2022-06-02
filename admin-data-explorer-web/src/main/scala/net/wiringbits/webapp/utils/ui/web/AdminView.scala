@@ -18,7 +18,7 @@ object AdminView {
       response.data.map { table =>
         Resource(
           _.name := table.name,
-          _.list := ListGuesser(table, dataExplorerSettings),
+          _.list := ListGuesser(table),
           _.edit := EditGuesser(table, dataExplorerSettings)
         )
       }

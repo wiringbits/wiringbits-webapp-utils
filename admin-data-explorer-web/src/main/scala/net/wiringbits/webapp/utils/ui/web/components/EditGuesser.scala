@@ -58,7 +58,7 @@ object EditGuesser {
       }: VdomNode
     }
 
-    val deleteButton: VdomNode = if (dataExplorerSettings.canDelete) DeleteButton() else Fragment()
+    val deleteButton: VdomNode = if (response.canBeDeleted) DeleteButton() else Fragment()
     val toolbar: VdomNode = Toolbar()(
       SaveButton(),
       deleteButton

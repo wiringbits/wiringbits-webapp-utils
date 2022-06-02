@@ -61,7 +61,8 @@ class AdminService @Inject() (
           } yield AdminGetTables.Response.DatabaseTable(
             name = settings.tableName,
             columns = columns,
-            primaryKeyName = settings.primaryKeyField
+            primaryKeyName = settings.primaryKeyField,
+            canBeDeleted = settings.canBeDeleted
           )
         }
       }
