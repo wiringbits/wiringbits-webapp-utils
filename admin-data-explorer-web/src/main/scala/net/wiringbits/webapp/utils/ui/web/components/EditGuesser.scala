@@ -1,11 +1,12 @@
 package net.wiringbits.webapp.utils.ui.web.components
 
+import japgolly.scalajs.react.React.Fragment
 import japgolly.scalajs.react.ScalaFnComponent
 import japgolly.scalajs.react.vdom.html_<^._
 import net.wiringbits.webapp.utils.api.models.AdminGetTables
 import net.wiringbits.webapp.utils.ui.web.facades.reactadmin.ReactAdmin.useEditContext
 import net.wiringbits.webapp.utils.ui.web.facades.reactadmin._
-import net.wiringbits.webapp.utils.ui.web.models.{ButtonAction, ColumnType, TableAction}
+import net.wiringbits.webapp.utils.ui.web.models.{ButtonAction, ColumnType, DataExplorerSettings}
 import net.wiringbits.webapp.utils.ui.web.utils.ResponseGuesser
 import org.scalajs.dom
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
@@ -15,7 +16,7 @@ import scala.util.{Failure, Success}
 
 object EditGuesser {
 
-  def apply(response: AdminGetTables.Response.DatabaseTable, tableAction: Option[TableAction]) = {
+  def apply(response: AdminGetTables.Response.DatabaseTable, dataExplorerSettings: DataExplorerSettings) = {
     val fields = ResponseGuesser.getTypesFromResponse(response)
     val inputs: List[VdomNode] = fields
       .map { fieldType =>
@@ -42,6 +43,7 @@ object EditGuesser {
       val _ = ctx.get("refetch").map(_.asInstanceOf[js.Dynamic].apply())
     }
 
+    val tableAction = dataExplorerSettings.actions.find(_.tableName == response.name)
     def buttons(ctx: js.Dictionary[js.Any]) = tableAction
       .map { x =>
         x.actions.map { action =>
@@ -56,8 +58,14 @@ object EditGuesser {
       }: VdomNode
     }
 
+    val deleteButton: VdomNode = if (dataExplorerSettings.canDelete) DeleteButton() else Fragment()
+    val toolbar: VdomNode = Toolbar()(
+      SaveButton(),
+      deleteButton
+    )
+
     Edit(_.actions := actions())(
-      SimpleForm()(inputs: _*)
+      SimpleForm(_.toolbar := toolbar)(inputs: _*)
     )
   }
 }
