@@ -17,5 +17,6 @@ case class TableSettings(
     primaryKeyField: String,
     referenceField: Option[String] = None,
     hiddenColumns: List[String] = List.empty,
-    nonEditableColumns: List[String] = List.empty
+    nonEditableColumns: List[String] = List.empty,
+    canBeDeleted: Boolean = true
 )
