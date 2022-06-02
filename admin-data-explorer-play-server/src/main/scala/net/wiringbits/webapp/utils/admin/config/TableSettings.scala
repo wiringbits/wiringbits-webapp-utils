@@ -10,6 +10,8 @@ package net.wiringbits.webapp.utils.admin.config
   *   columns that the API won't return when the data is queried (for example: user password)
   * @param nonEditableColumns
   *   columns that aren't editable (disabled) via react-admin
+  * @param canBeDeleted
+  *   indicates if resources from this table can be deleted
   */
 
 case class TableSettings(
