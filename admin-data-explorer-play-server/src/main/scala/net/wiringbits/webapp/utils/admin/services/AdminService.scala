@@ -185,12 +185,15 @@ class AdminService @Inject() (
   }
 
   def delete(tableName: String, primaryKeyValue: String): Future[Unit] = {
-    val validations = Future {
-      validateTableName(tableName)
-    }
+    val validations = for {
+      _ <- Future(validateTableName(tableName))
+      settings = tableSettings.unsafeFindByName(tableName)
+      _ = if (settings.canBeDeleted) () else throw new RuntimeException(s"Table $tableName resources cannot be deleted")
+    } yield ()
 
     for {
       _ <- validations
+
       _ <- databaseTablesRepository.delete(tableName, primaryKeyValue)
     } yield ()
   }
