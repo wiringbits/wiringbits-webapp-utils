@@ -38,7 +38,7 @@ package object daos {
     Macro.parser[ForeignKey](
       "foreign_table",
       "primary_table",
-      "fk_columns"
+      "fk_column"
     )
   }
 

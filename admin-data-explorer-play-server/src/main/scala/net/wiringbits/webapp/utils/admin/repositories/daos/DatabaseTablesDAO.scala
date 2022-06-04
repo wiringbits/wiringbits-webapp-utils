@@ -54,7 +54,7 @@ object DatabaseTablesDAO {
     SQL"""
     SELECT kcu.table_name AS foreign_table, 
       rel_tco.table_name AS primary_table, 
-      string_agg(kcu.column_name, ', ') AS fk_columns
+      kcu.column_name AS fk_column
     FROM information_schema.table_constraints tco
     JOIN information_schema.key_column_usage kcu
       ON tco.constraint_schema = kcu.constraint_schema
@@ -67,7 +67,7 @@ object DatabaseTablesDAO {
       AND rco.unique_constraint_name = rel_tco.constraint_name
     WHERE tco.constraint_type = 'FOREIGN KEY'
       AND kcu.table_name = $tableName
-    GROUP BY kcu.table_schema, kcu.table_name, rel_tco.table_name, rel_tco.table_schema
+    GROUP BY kcu.table_schema, kcu.table_name, kcu.column_name, rel_tco.table_name, rel_tco.table_schema
     ORDER BY kcu.table_schema, kcu.table_name
     """.as(foreignKeyParser.*)
   }
