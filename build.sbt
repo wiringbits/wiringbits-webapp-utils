@@ -297,11 +297,11 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
       "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0"
     ),
     Compile / npmDependencies ++= Seq(
-      "ra-data-simple-rest" -> "^4.0.0",
-      "react" -> "^17.0.0",
-      "react-admin" -> "^4.0.0",
-      "react-dom" -> "^17.0.0",
-      "react-scripts" -> "^5.0.0"
+      "ra-data-simple-rest" -> "4.1.2",
+      "react" -> "17.0.0",
+      "react-admin" -> "4.1.2",
+      "react-dom" -> "17.0.0",
+      "react-scripts" -> "5.0.0"
     )
   )
 
