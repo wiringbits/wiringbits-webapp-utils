@@ -118,7 +118,7 @@ lazy val baseWebSettings: Project => Project =
       },
       libraryDependencies ++= Seq(
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
-        "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
+        "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.0",
         "com.alexitc" %%% "sjs-material-ui-facade" % "0.2.0"
       )
     )
@@ -294,7 +294,7 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
     libraryDependencies ++= Seq(
       "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
       "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.16.0",
-      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0"
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.0"
     ),
     Compile / npmDependencies ++= Seq(
       "react" -> "17.0.0",
