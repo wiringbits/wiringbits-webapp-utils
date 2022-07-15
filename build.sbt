@@ -54,38 +54,35 @@ lazy val baseServerSettings: Project => Project = {
 }
 
 // Used only by the lib projects
-lazy val baseLibSettings: Project => Project =
-  _.enablePlugins(ScalaJSPlugin)
-    .settings(
-      Test / fork := false, // sjs needs this to run tests
-      scalacOptions ++= {
-        Seq(
-          "-encoding",
-          "UTF-8",
-          "-feature",
-          "-language:implicitConversions"
-          // disabled during the migration
-          // "-Xfatal-warnings"
-        ) ++
-          (CrossVersion.partialVersion(scalaVersion.value) match {
-            case Some((3, _)) =>
-              Seq(
-                "-unchecked",
-                "-source:3.0-migration"
-              )
-            case _ =>
-              Seq(
-                "-deprecation",
-                "-Xfatal-warnings",
-                "-Wunused:imports,privates,locals",
-                "-Wvalue-discard"
-              )
-          })
-      },
-      libraryDependencies ++= Seq(
-        "org.scalatest" %%% "scalatest" % "3.2.12" % Test
-      )
-    )
+lazy val baseLibSettings: Project => Project = _.settings(
+  scalacOptions ++= {
+    Seq(
+      "-encoding",
+      "UTF-8",
+      "-feature",
+      "-language:implicitConversions"
+      // disabled during the migration
+      // "-Xfatal-warnings"
+    ) ++
+      (CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((3, _)) =>
+          Seq(
+            "-unchecked",
+            "-source:3.0-migration"
+          )
+        case _ =>
+          Seq(
+            "-deprecation",
+            "-Xfatal-warnings",
+            "-Wunused:imports,privates,locals",
+            "-Wvalue-discard"
+          )
+      })
+  },
+  libraryDependencies ++= Seq(
+    "org.scalatest" %%% "scalatest" % "3.2.12" % Test
+  )
+)
 
 // Used only by the lib projects
 lazy val baseWebSettings: Project => Project =
@@ -228,7 +225,7 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
     crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "webapp-common"
   )
-  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .jvmSettings(
     libraryDependencies ++= Seq(
       // TODO: This shouldn't depend in play-json but I'm leaving it for simplicity
@@ -237,6 +234,7 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
   )
   .jsSettings(
     stUseScalaJsDom := true,
+    Test / fork := false, // sjs needs this to run tests
     Compile / stMinimize := Selection.All,
     libraryDependencies ++= Seq(
       // TODO: This shouldn't depend in play-json but I'm leaving it for simplicity
@@ -254,7 +252,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
     crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "admin-data-explorer-api"
   )
-  .jsConfigure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .jvmSettings(
     libraryDependencies ++= Seq(
       "com.typesafe.play" %% "play-json" % playJson,
@@ -263,6 +261,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   )
   .jsSettings(
     stUseScalaJsDom := true,
+    Test / fork := false, // sjs needs this to run tests
     Compile / stMinimize := Selection.All,
     libraryDependencies ++= Seq(
       "com.typesafe.play" %%% "play-json" % playJson,
@@ -274,23 +273,25 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   */
 lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings, baseWebSettings)
-  .configure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
     scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.2"),
-    name := "slinky-utils"
+    name := "slinky-utils",
+    Test / fork := false // sjs needs this to run tests
   )
 
 // shared on the ui only
 lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
   .dependsOn(adminDataExplorerApi.js)
   .configure(bundlerSettings, baseLibSettings)
-  .configure(_.enablePlugins(ScalaJSBundlerPlugin))
+  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .settings(
     scalaVersion := "2.13.8",
     crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "admin-data-explorer-web",
+    Test / fork := false, // sjs needs this to run tests
     libraryDependencies ++= Seq(
       "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
       "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.16.0",
@@ -346,8 +347,6 @@ lazy val root = (project in file("."))
     adminDataExplorerApi.js,
     slinkyUtils,
     adminDataExplorerWeb,
-    // TODO: Enable this module when compiling it works, for now, let's publish the library without it
-    // to unblock a downstream project.
     adminDataExplorerPlayServer
   )
   .settings(
