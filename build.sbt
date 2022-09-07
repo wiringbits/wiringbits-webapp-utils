@@ -327,7 +327,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
       "org.playframework.anorm" %% "anorm" % "2.6.10",
       "com.typesafe.play" %% "play" % "2.8.13",
       "com.typesafe.play" %% "play-json" % "2.9.2",
-      "org.postgresql" % "postgresql" % "42.3.6",
+      "org.postgresql" % "postgresql" % "42.3.7",
       "com.github.jwt-scala" %% "jwt-core" % "9.0.5",
       "de.svenkubiak" % "jBCrypt" % "0.4.3",
       "commons-validator" % "commons-validator" % "1.7",
