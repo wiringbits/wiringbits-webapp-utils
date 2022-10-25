@@ -80,7 +80,7 @@ lazy val baseLibSettings: Project => Project = _.settings(
       })
   },
   libraryDependencies ++= Seq(
-    "org.scalatest" %%% "scalatest" % "3.2.12" % Test
+    "org.scalatest" %%% "scalatest" % "3.2.14" % Test
   )
 )
 
