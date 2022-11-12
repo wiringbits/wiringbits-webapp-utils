@@ -11,6 +11,9 @@ class DataExplorerTestModule extends AbstractModule {
   }
 
   val settings: List[TableSettings] = List(
-    TableSettings("users", "user_id")
+    TableSettings("users", "user_id"), // "UUID" default
+    TableSettings(tableName = "uuid_table", primaryKeyField = "id", primaryKeyDataType = "UUID"), // explicit default
+    TableSettings(tableName = "serial_table", primaryKeyField = "id", primaryKeyDataType = "Int"),
+    TableSettings(tableName = "big_serial_table", primaryKeyField = "id", primaryKeyDataType = "Int"),
   )
 }

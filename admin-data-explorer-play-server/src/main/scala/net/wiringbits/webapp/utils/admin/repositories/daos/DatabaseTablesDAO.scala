@@ -6,7 +6,7 @@ import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTabl
 import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 
-import java.sql.Connection
+import java.sql.{Connection, PreparedStatement}
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
@@ -141,7 +141,7 @@ object DatabaseTablesDAO {
       """.as(tableColumnParser.*)
   }
 
-  def find(tableName: String, primaryKeyField: String, primaryKeyValue: String)(implicit
+  def find(tableName: String, primaryKeyField: String, primaryKeyValue: String, primaryKeyType: String = "UUID")(implicit
       conn: Connection
   ): Option[TableRow] = {
     val sql = s"""
@@ -151,8 +151,7 @@ object DatabaseTablesDAO {
     """
     val preparedStatement = conn.prepareStatement(sql)
 
-    // TODO: UUID from String can fail if the ID field isn't an UUID
-    preparedStatement.setObject(1, UUID.fromString(primaryKeyValue))
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, primaryKeyType)
     val resultSet = preparedStatement.executeQuery()
     Try {
       resultSet.next()
@@ -165,16 +164,31 @@ object DatabaseTablesDAO {
     }.toOption
   }
 
-  def create(tableName: String, body: Map[String, String], primaryKeyField: String)(implicit
+  def setPreparedStatementKey(preparedStatement: PreparedStatement, primaryKeyValue: String, primaryKeyType: String, parameterIndex: Int = 1): Unit = {
+    primaryKeyType match { // regular string unless UUID
+      case "UUID" => preparedStatement.setObject(parameterIndex, UUID.fromString(primaryKeyValue))
+      case _ => preparedStatement.setInt(parameterIndex, primaryKeyValue.toInt) // use setInt instead of setObject
+    }
+  }
+  def create(tableName: String, body: Map[String, String], primaryKeyField: String, primaryKeyType: String = "UUID")(implicit
       conn: Connection
   ): Unit = {
-    val sql = QueryBuilder.create(tableName, body, primaryKeyField)
+    val sql = QueryBuilder.create(tableName, body, primaryKeyField, primaryKeyType)
     val preparedStatement = conn.prepareStatement(sql)
 
-    preparedStatement.setObject(1, UUID.randomUUID())
-    for (i <- 2 to body.size + 1) {
-      val value = body(body.keys.toList(i - 2))
-      preparedStatement.setObject(i, value)
+    var i = 0
+    if(primaryKeyType == "UUID") {
+      i = i+1
+      preparedStatement.setObject(i, UUID.randomUUID())
+    }
+    // NOTE: QueryBuilder.create needs primaryKeyType parameter because it seems there is no way to pass DEFAULT
+    // into prepared statement parameter. Must be set literally in QueryBuilder.create
+    // eg. NULL can be used in MySQL to generate default value in an autoincrement column, but not Postgres unfortunately
+    // Postgres: INSERT INTO test_serial (id) VALUES(DEFAULT); MySQL: INSERT INTO table (id) VALUES(NULL)
+
+    for (j <- i+1 to body.size + i) {
+      val value = body(body.keys.toList(j - i - 1))
+      preparedStatement.setObject(j, value)
     }
     val _ = preparedStatement.executeUpdate()
   }
@@ -183,7 +197,8 @@ object DatabaseTablesDAO {
       tableName: String,
       fieldsAndValues: Map[TableColumn, String],
       primaryKeyField: String,
-      primaryKeyValue: String
+      primaryKeyValue: String,
+      primaryKeyType: String = "UUID"
   )(implicit conn: Connection): Unit = {
     val sql = QueryBuilder.update(tableName, fieldsAndValues, primaryKeyField)
     val preparedStatement = conn.prepareStatement(sql)
@@ -193,11 +208,11 @@ object DatabaseTablesDAO {
       preparedStatement.setObject(i + 1, value)
     }
     // where ... = ?
-    preparedStatement.setObject(notNullData.size + 1, UUID.fromString(primaryKeyValue))
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, primaryKeyType, notNullData.size + 1)
     val _ = preparedStatement.executeUpdate()
   }
 
-  def delete(tableName: String, primaryKeyField: String, primaryKeyValue: String)(implicit
+  def delete(tableName: String, primaryKeyField: String, primaryKeyValue: String, primaryKeyType: String = "UUID")(implicit
       conn: Connection
   ): Unit = {
     val sql = s"""
@@ -205,8 +220,7 @@ object DatabaseTablesDAO {
       WHERE $primaryKeyField = ?
       """
     val preparedStatement = conn.prepareStatement(sql)
-
-    preparedStatement.setObject(1, UUID.fromString(primaryKeyValue))
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, primaryKeyType)
     val _ = preparedStatement.executeUpdate()
   }
 

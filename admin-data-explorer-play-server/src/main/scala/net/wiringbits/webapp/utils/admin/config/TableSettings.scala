@@ -1,5 +1,6 @@
 package net.wiringbits.webapp.utils.admin.config
 
+
 /** @param tableName
   *   name of table in database
   * @param primaryKeyField
@@ -12,6 +13,8 @@ package net.wiringbits.webapp.utils.admin.config
   *   columns that aren't editable (disabled) via react-admin
   * @param canBeDeleted
   *   indicates if resources from this table can be deleted
+  * @param primaryKeyDataType
+  *   "UUID", or "Int" for SERIAL and BIGSERIAL primary keys
   */
 
 case class TableSettings(
@@ -20,5 +23,6 @@ case class TableSettings(
     referenceField: Option[String] = None,
     hiddenColumns: List[String] = List.empty,
     nonEditableColumns: List[String] = List.empty,
-    canBeDeleted: Boolean = true
+    canBeDeleted: Boolean = true,
+    primaryKeyDataType: String = "UUID"
 )
