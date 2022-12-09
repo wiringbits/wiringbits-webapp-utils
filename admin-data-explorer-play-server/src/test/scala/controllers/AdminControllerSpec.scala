@@ -20,9 +20,11 @@ class AdminControllerSpec extends PlayPostgresSpec {
   def uuidSettings: TableSettings = dataExplorerSettings.tables(1)
   def serialSettings: TableSettings = dataExplorerSettings.tables(2)
   def bigSerialSettings: TableSettings = dataExplorerSettings.tables(3)
+  def serialOverflowSettings: TableSettings = dataExplorerSettings.tables(4)
+  def bigSerialOverflowSettings: TableSettings = dataExplorerSettings.tables(5)
 
   def isValidUUID(str: String): Boolean = {
-    if(str == null) return false
+    if (str == null) return false
     Pattern.compile("^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$").matcher(str).matches()
   }
 
@@ -56,7 +58,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
       val head2 = response.data(1)
       head2.primaryKeyName must be(uuidSettings.primaryKeyField)
-      uuidSettings.referenceField must be (None)
+      uuidSettings.referenceField must be(None)
       uuidSettings.hiddenColumns must be(List.empty)
       uuidSettings.nonEditableColumns must be(List.empty)
 
@@ -67,10 +69,10 @@ class AdminControllerSpec extends PlayPostgresSpec {
       serialSettings.nonEditableColumns must be(List.empty)
 
       val head4 = response.data(3)
-      head4.primaryKeyName must be(serialSettings.primaryKeyField)
-      serialSettings.referenceField must be(None)
-      serialSettings.hiddenColumns must be(List.empty)
-      serialSettings.nonEditableColumns must be(List.empty)
+      head4.primaryKeyName must be(bigSerialSettings.primaryKeyField)
+      bigSerialSettings.referenceField must be(None)
+      bigSerialSettings.hiddenColumns must be(List.empty)
+      bigSerialSettings.nonEditableColumns must be(List.empty)
     }
   }
 
@@ -95,7 +97,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
     "return data from uuid table" in withApiClient { client =>
       val name = "wiringbits"
-      //val uuid_id =  UUID.randomUUID().toString
+      // val uuid_id =  UUID.randomUUID().toString
       val request = AdminCreateTable.Request(
         Map("name" -> name)
       )
@@ -116,7 +118,8 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val request = AdminCreateTable.Request(Map("name" -> name))
       client.createItem(serialSettings.tableName, request).futureValue
 
-      val response = client.getTableMetadata(serialSettings.tableName, List("name", "ASC"), List(0,9), "{}").futureValue
+      val response =
+        client.getTableMetadata(serialSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
       val head = response.headOption.value
       // TODO: Find a better way to do this
       val intValue = head.find(_._1 == "id").value._2
@@ -130,7 +133,8 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val request = AdminCreateTable.Request(Map("name" -> name))
       client.createItem(bigSerialSettings.tableName, request).futureValue
 
-      val response = client.getTableMetadata(bigSerialSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
+      val response =
+        client.getTableMetadata(bigSerialSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
       val head = response.headOption.value
       // TODO: Find a better way to do this
       val intValue = head.find(_._1 == "id").value._2
@@ -139,19 +143,19 @@ class AdminControllerSpec extends PlayPostgresSpec {
       intValue must be("1")
       name must be(nameValue)
     }
-
-
+    
     "return a empty map if there isn't any user" in withApiClient { client =>
       val response = client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
       response.size must be(0)
     }
-    
+
     "return an empty map if tables are empty" in withApiClient { client =>
-      val response = client.getTableMetadata(uuidSettings.tableName, List("id", "ASC"), List(0,9), "{}").futureValue
+      val response = client.getTableMetadata(uuidSettings.tableName, List("id", "ASC"), List(0, 9), "{}").futureValue
       response.size must be(0)
       val response2 = client.getTableMetadata(serialSettings.tableName, List("id", "ASC"), List(0, 9), "{}").futureValue
       response2.size must be(0)
-      val response3 = client.getTableMetadata(bigSerialSettings.tableName, List("id", "ASC"), List(0, 9), "{}").futureValue
+      val response3 =
+        client.getTableMetadata(bigSerialSettings.tableName, List("id", "ASC"), List(0, 9), "{}").futureValue
       response3.size must be(0)
     }
 
@@ -167,18 +171,21 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
     "return an empty map for range of zero length" in withApiClient { client =>
       val name = "wiringbits"
-      val request = AdminCreateTable.Request(Map("name" -> name)) // can use this for all 3 of the simple tables UUID, SERIAL, BIGSERIAL
+      val request = AdminCreateTable.Request(
+        Map("name" -> name)
+      ) // can use this for all 3 of the simple tables UUID, SERIAL, BIGSERIAL
 
       client.createItem(uuidSettings.tableName, request).futureValue // 1
-      val response1 = client.getTableMetadata(uuidSettings.tableName, List("id","ASC"), List(0,0), "{}").futureValue
-      response1.size must be (0)
+      val response1 = client.getTableMetadata(uuidSettings.tableName, List("id", "ASC"), List(0, 0), "{}").futureValue
+      response1.size must be(0)
 
       client.createItem(serialSettings.tableName, request).futureValue // 2
-      val response2 = client.getTableMetadata(serialSettings.tableName, List("id","ASC"), List(0,0), "{}").futureValue
-      response2.size must be (0)
+      val response2 = client.getTableMetadata(serialSettings.tableName, List("id", "ASC"), List(0, 0), "{}").futureValue
+      response2.size must be(0)
 
       client.createItem(bigSerialSettings.tableName, request).futureValue // 2
-      val response3 = client.getTableMetadata(bigSerialSettings.tableName, List("id", "ASC"), List(0, 0), "{}").futureValue
+      val response3 =
+        client.getTableMetadata(bigSerialSettings.tableName, List("id", "ASC"), List(0, 0), "{}").futureValue
       response3.size must be(0)
 
     }
@@ -201,20 +208,22 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val end = 2
       val start = 1
       val returnedElements = end - start
-      //val data = Map() // data for these tables is always nothing. BIG/SERIAL autogenerated.
+      // val data = Map() // data for these tables is always nothing. BIG/SERIAL autogenerated.
       val name = "wiringbits"
 
       val tables = List(uuidSettings, serialSettings, bigSerialSettings)
       // this could just be a for loop instead of for comprehension
-      for(table <- tables)
+      for (table <- tables)
         yield {
           Range.apply(0, 4).foreach { _ =>
-            val request = AdminCreateTable.Request(Map("name" -> name)) // tried using data and got error. I thought val data was in scope but perhaps not
+            val request = AdminCreateTable.Request(
+              Map("name" -> name)
+            ) // tried using data and got error. I thought val data was in scope but perhaps not
             client.createItem(table.tableName, request).futureValue
           }
         }
 
-      for(table <- tables)
+      for (table <- tables)
         yield {
           val response = client.getTableMetadata(table.tableName, List("id", "ASC"), List(start, end), "{}").futureValue
           response.size must be(returnedElements)
@@ -248,15 +257,15 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val expectedName = name + "0"
 
       // insert rows
-      for( table <- tables)
+      for (table <- tables)
         yield {
           Range.apply(0, createdRows).foreach { i =>
             val request = AdminCreateTable.Request(Map("name" -> s"$name$i"))
             client.createItem(table.tableName, request).futureValue
+          }
         }
-      }
 
-      for( table <- tables)
+      for (table <- tables)
         yield {
           val response =
             client.getTableMetadata(table.tableName, List("name", "ASC"), List(0, createdRows), "{}").futureValue
@@ -340,9 +349,9 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
     "return filtered elements for all tables" in withApiClient { client =>
       val createdRows = 4
-      val tables = List(serialSettings,bigSerialSettings)
+      val tables = List(serialSettings, bigSerialSettings)
 
-      for( table <- tables) {
+      for (table <- tables) {
         Range.apply(0, createdRows).foreach { i =>
           val data = Map("name" -> s"wiringbits$i")
           val request = AdminCreateTable.Request(data)
@@ -351,7 +360,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       }
       val expectedName = "wiringbits0"
 
-      for( table <- tables) {
+      for (table <- tables) {
         val response =
           client
             .getTableMetadata(
@@ -376,8 +385,6 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
   }
 
-
-
   "GET /admin/tables/:tableName/:primaryKey" should {
     "return table row" in withApiClient { client =>
       val name = "wiringbits"
@@ -401,7 +408,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val name = "wiringbits"
       val request = AdminCreateTable.Request(Map("name" -> name))
 
-      for(table <- tables) {
+      for (table <- tables) {
         client.createItem(table.tableName, request).futureValue
 
         val rows = client.getTableMetadata(table.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
@@ -420,10 +427,10 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
 
     "fail if the table row doesn't exists for all tables" in withApiClient { client =>
-      val tables = List(serialSettings,bigSerialSettings)
+      val tables = List(serialSettings, bigSerialSettings)
       val rand = new Random()
       val id = rand.nextInt(1000) + 100
-      for( table <- tables) {
+      for (table <- tables) {
         val tableName = table.tableName
         val error = client.viewItem(table.tableName, id.toString).expectError
         error must be(s"Cannot find item in $tableName with id $id")
@@ -453,9 +460,9 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
 
     "return table rows for all tables" in withApiClient { client =>
-      val tables = List(serialSettings,bigSerialSettings)
+      val tables = List(serialSettings, bigSerialSettings)
       val numOfCreatedRows = 3
-      for(table <- tables) {
+      for (table <- tables) {
         Range.apply(0, numOfCreatedRows).foreach { i =>
           val request = AdminCreateTable
             .Request(Map("name" -> s"wiringbits$i"))
@@ -484,7 +491,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val tables = List(serialSettings, bigSerialSettings)
       val rand = new Random()
       val ids = List((rand.nextInt(1000) + 100).toString)
-      for(table <- tables) {
+      for (table <- tables) {
         val tableName = table.tableName
         val error = client.viewItems(tableName, ids).expectError
         error must be(s"Cannot find item in $tableName with id ${ids.headOption.value}")
@@ -503,10 +510,10 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
 
     "create a new row for all tables" in withApiClient { client =>
-      val tables = List(serialSettings,bigSerialSettings)
+      val tables = List(serialSettings, bigSerialSettings)
       val name = "wiringbits"
 
-      for(table <- tables) {
+      for (table <- tables) {
         val request = AdminCreateTable.Request(Map("name" -> name))
         val response = client.createItem(table.tableName, request).futureValue
         response.noData must be(empty)
@@ -522,13 +529,36 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
 
     "fail when a mandatory field is not sent for all tables" in withApiClient { client =>
-      val tables = List(serialSettings,bigSerialSettings)
-      //val name = "wiringbits"
-      for(table <- tables) {
+      val tables = List(serialSettings, bigSerialSettings)
+      // val name = "wiringbits"
+      for (table <- tables) {
         val request = AdminCreateTable.Request(Map())
         val error = client.createItem(table.tableName, request).expectError
         error must be(s"There are missing fields: name")
       }
+    }
+
+    "fail when overlow max int value" in withApiClient { client =>
+      val name = "wiringbits"
+      val table = serialOverflowSettings
+      val request = AdminCreateTable.Request(Map("name" -> name))
+      val ignore = client.createItem(table.tableName, request).futureValue
+      ignore.noData must be(empty)
+      val request2 = AdminCreateTable.Request(Map("name" -> s"asdf"))
+      val error = client.createItem(table.tableName, request2).expectError
+      error must be(s"ERROR: integer out of range")
+    }
+    "fail when overlow max bigint value" in withApiClient { client =>
+      val name = "wiringbits"
+      val table = bigSerialOverflowSettings
+      val request = AdminCreateTable.Request(Map("name" -> name))
+      val ignore = client.createItem(table.tableName, request).futureValue
+      ignore.noData must be(empty)
+      val request2 = AdminCreateTable.Request(Map("name" -> s"asdf"))
+      val error = client.createItem(table.tableName, request2).expectError
+      error must be(
+        s"ERROR: nextval: reached maximum value of sequence \"big_serial_table_overflow_seq\" (9223372036854775807)"
+      )
     }
   }
 
@@ -541,10 +571,10 @@ class AdminControllerSpec extends PlayPostgresSpec {
     error must be(s"A field doesn't correspond to this table schema")
   }
   "fail when field in request doesn't exists for all tables" in withApiClient { client =>
-    val tables = List(serialSettings,bigSerialSettings)
+    val tables = List(serialSettings, bigSerialSettings)
     val name = "wiringbits"
     val nonExistentField = "nonExistentField"
-    for(table <- tables) {
+    for (table <- tables) {
       val request = AdminCreateTable.Request(Map("name" -> name, "nonExistentField" -> nonExistentField))
 
       val error = client.createItem(table.tableName, request).expectError
@@ -573,8 +603,8 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
 
     "update a new row for all tables" in withApiClient { client =>
-      val tables = List(serialSettings,bigSerialSettings)
-      for(table <- tables) {
+      val tables = List(serialSettings, bigSerialSettings)
+      for (table <- tables) {
         val request = AdminCreateTable.Request(
           Map("name" -> "wiringbits")
         )
@@ -609,8 +639,8 @@ class AdminControllerSpec extends PlayPostgresSpec {
     }
 
     "fail if the field in body doesn't exists for all tables" in withApiClient { client =>
-      val tables = List(serialSettings,bigSerialSettings)
-      for(table <- tables) {
+      val tables = List(serialSettings, bigSerialSettings)
+      for (table <- tables) {
         val request = AdminCreateTable.Request(
           Map("name" -> "test")
         )
@@ -647,11 +677,11 @@ class AdminControllerSpec extends PlayPostgresSpec {
 
   "DELETE /admin/tables/:tableName" should {
     "delete a new row in all tables" in withApiClient { client =>
-      val tables = List(serialSettings,bigSerialSettings)
+      val tables = List(serialSettings, bigSerialSettings)
       val name = "wiringbits"
       val request = AdminCreateTable.Request(Map("name" -> name))
 
-      for(table <- tables) {
+      for (table <- tables) {
         client.createItem(table.tableName, request).futureValue
 
         val response = client.getTableMetadata(table.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue

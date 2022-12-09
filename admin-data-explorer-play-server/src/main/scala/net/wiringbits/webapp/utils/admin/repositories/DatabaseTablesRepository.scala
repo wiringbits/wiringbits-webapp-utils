@@ -63,7 +63,12 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     database.withTransaction { implicit conn =>
       val settings = tableSettings.unsafeFindByName(tableName)
       val primaryKeyType = settings.primaryKeyDataType
-      val maybe = DatabaseTablesDAO.find(tableName, settings.primaryKeyField, primaryKeyValue, primaryKeyType)
+      val maybe = DatabaseTablesDAO.find(
+        tableName = tableName,
+        primaryKeyField = settings.primaryKeyField,
+        primaryKeyValue = primaryKeyValue,
+        primaryKeyType = primaryKeyType
+      )
       val columns = DatabaseTablesDAO.getTableColumns(tableName)
       val columnNames = getColumnNames(columns, settings.primaryKeyField)
       maybe.map(x => TableData(x.convertToMap(columnNames)))
@@ -74,7 +79,12 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     database.withConnection { implicit conn =>
       val primaryKeyField = tableSettings.unsafeFindByName(tableName).primaryKeyField
       val primaryKeyType = tableSettings.unsafeFindByName(tableName).primaryKeyDataType
-      DatabaseTablesDAO.create(tableName, body, primaryKeyField, primaryKeyType)
+      DatabaseTablesDAO.create(
+        tableName = tableName,
+        body = body,
+        primaryKeyField = primaryKeyField,
+        primaryKeyType = primaryKeyType
+      )
     }
   }
 
@@ -95,7 +105,13 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
           (field, value)
         }
         val primaryKeyType = settings.primaryKeyDataType
-        DatabaseTablesDAO.update(tableName, fieldsAndValues, settings.primaryKeyField, primaryKeyValue, primaryKeyType)
+        DatabaseTablesDAO.update(
+          tableName = tableName,
+          fieldsAndValues = fieldsAndValues,
+          primaryKeyField = settings.primaryKeyField,
+          primaryKeyValue = primaryKeyValue,
+          primaryKeyType = primaryKeyType
+        )
       }
     }
 
@@ -104,7 +120,12 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
       database.withConnection { implicit conn =>
         val primaryKeyField = tableSettings.unsafeFindByName(tableName).primaryKeyField
         val primaryKeyType = tableSettings.unsafeFindByName(tableName).primaryKeyDataType
-        DatabaseTablesDAO.delete(tableName, primaryKeyField, primaryKeyValue, primaryKeyType)
+        DatabaseTablesDAO.delete(
+          tableName = tableName,
+          primaryKeyField = primaryKeyField,
+          primaryKeyValue = primaryKeyValue,
+          primaryKeyType = primaryKeyType
+        )
       }
     }
 

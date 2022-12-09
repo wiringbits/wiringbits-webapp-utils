@@ -1,6 +1,5 @@
 package net.wiringbits.webapp.utils.admin.config
 
-
 /** @param tableName
   *   name of table in database
   * @param primaryKeyField
@@ -14,7 +13,7 @@ package net.wiringbits.webapp.utils.admin.config
   * @param canBeDeleted
   *   indicates if resources from this table can be deleted
   * @param primaryKeyDataType
-  *   "UUID", or "Int" for SERIAL and BIGSERIAL primary keys
+  *   UUID, Serial, or BigSerial primary keys
   */
 
 case class TableSettings(
@@ -24,5 +23,12 @@ case class TableSettings(
     hiddenColumns: List[String] = List.empty,
     nonEditableColumns: List[String] = List.empty,
     canBeDeleted: Boolean = true,
-    primaryKeyDataType: String = "UUID"
+    primaryKeyDataType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
 )
+
+sealed trait PrimaryKeyDataType extends Product with Serializable
+object PrimaryKeyDataType {
+  final case object UUID extends PrimaryKeyDataType
+  final case object Serial extends PrimaryKeyDataType
+  final case object BigSerial extends PrimaryKeyDataType
+}
