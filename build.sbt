@@ -114,7 +114,7 @@ lazy val baseWebSettings: Project => Project =
           })
       },
       libraryDependencies ++= Seq(
-        "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
+        "io.github.cquiroz" %%% "scala-java-time" % "2.5.0",
         "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
         "com.alexitc" %%% "sjs-material-ui-facade" % "0.2.0"
       )
