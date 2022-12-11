@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.admin.modules
 
 import com.google.inject.{AbstractModule, Provides}
-import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
+import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings, PrimaryKeyDataType}
 
 class DataExplorerTestModule extends AbstractModule {
 
@@ -11,6 +11,27 @@ class DataExplorerTestModule extends AbstractModule {
   }
 
   val settings: List[TableSettings] = List(
-    TableSettings("users", "user_id")
+    TableSettings("users", "user_id"), // "UUID" default
+    TableSettings(
+      tableName = "uuid_table",
+      primaryKeyField = "id",
+      primaryKeyDataType = PrimaryKeyDataType.UUID
+    ), // explicit default
+    TableSettings(tableName = "serial_table", primaryKeyField = "id", primaryKeyDataType = PrimaryKeyDataType.Serial),
+    TableSettings(
+      tableName = "big_serial_table",
+      primaryKeyField = "id",
+      primaryKeyDataType = PrimaryKeyDataType.BigSerial
+    ),
+    TableSettings(
+      tableName = "serial_table_overflow",
+      primaryKeyField = "id",
+      primaryKeyDataType = PrimaryKeyDataType.Serial
+    ),
+    TableSettings(
+      tableName = "big_serial_table_overflow",
+      primaryKeyField = "id",
+      primaryKeyDataType = PrimaryKeyDataType.BigSerial
+    )
   )
 }
