@@ -143,7 +143,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       intValue must be("1")
       name must be(nameValue)
     }
-    
+
     "return a empty map if there isn't any user" in withApiClient { client =>
       val response = client.getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{}").futureValue
       response.size must be(0)
