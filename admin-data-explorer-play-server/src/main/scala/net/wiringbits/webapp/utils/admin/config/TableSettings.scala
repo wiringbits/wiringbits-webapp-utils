@@ -14,6 +14,8 @@ package net.wiringbits.webapp.utils.admin.config
   *   indicates if resources from this table can be deleted
   * @param primaryKeyDataType
   *   UUID, Serial, or BigSerial primary keys
+  * @param filterableColumns
+  *   columns that are filterable via react-admin
   */
 
 case class TableSettings(
@@ -23,7 +25,8 @@ case class TableSettings(
     hiddenColumns: List[String] = List.empty,
     nonEditableColumns: List[String] = List.empty,
     canBeDeleted: Boolean = true,
-    primaryKeyDataType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
+    primaryKeyDataType: PrimaryKeyDataType = PrimaryKeyDataType.UUID,
+    filterableColumns: List[String] = List.empty
 )
 
 sealed trait PrimaryKeyDataType extends Product with Serializable
