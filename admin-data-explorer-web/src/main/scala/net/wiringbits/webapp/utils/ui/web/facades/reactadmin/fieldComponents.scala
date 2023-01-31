@@ -15,6 +15,12 @@ object EmailField extends FacadeModule.Simple {
   override def mkProps = new Props
 }
 
+object ImageField extends FacadeModule.Simple {
+  override def raw = ReactAdmin.ImageField
+  class Props extends FieldProps
+  override def mkProps = new Props
+}
+
 trait ReferenceBase extends FacadeModule.NodeChildren.Simple {
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]

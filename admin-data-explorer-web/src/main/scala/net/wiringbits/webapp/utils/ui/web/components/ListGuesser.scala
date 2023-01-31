@@ -17,6 +17,7 @@ object ListGuesser {
         case ColumnType.Date => DateField(_.source := field.name, _.showTime := true)
         case ColumnType.Text => TextField(_.source := field.name)
         case ColumnType.Email => EmailField(_.source := field.name)
+        case ColumnType.Image => ImageField(_.source := field.name)
         case ColumnType.Reference(reference, source) =>
           ReferenceField(_.reference := reference, _.source := field.name)(TextField(_.source := source))
       }

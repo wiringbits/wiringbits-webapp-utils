@@ -24,6 +24,7 @@ object EditGuesser {
           case ColumnType.Date => DateTimeInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
           case ColumnType.Text => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
           case ColumnType.Email => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
+          case ColumnType.Image => ImageField(_.source := fieldType.name)
           case ColumnType.Reference(reference, source) =>
             ReferenceInput(_.source := fieldType.name, _.reference := reference)(
               SelectInput(_.optionText := source, _.disabled := fieldType.disabled)

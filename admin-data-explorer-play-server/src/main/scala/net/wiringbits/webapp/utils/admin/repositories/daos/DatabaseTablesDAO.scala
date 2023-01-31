@@ -117,7 +117,13 @@ object DatabaseTablesDAO {
         val rowData = for {
           field <- fields
           fieldName = field.name
-          data = resultSet.getString(fieldName)
+          data = {
+            if (settings.photoColumn.contains(fieldName)) {
+              // TODO: we're doing this operation two times (get id string), find another way
+              val rowId = resultSet.getString(settings.primaryKeyField)
+              s"$rowId.png"
+            } else resultSet.getString(fieldName)
+          }
         } yield Cell(Option(data).getOrElse(""))
         tableData += TableRow(rowData)
       }

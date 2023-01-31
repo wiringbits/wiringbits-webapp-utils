@@ -12,6 +12,8 @@ package net.wiringbits.webapp.utils.admin.config
   *   columns that aren't editable (disabled) via react-admin
   * @param canBeDeleted
   *   indicates if resources from this table can be deleted
+  * @param photoColumn
+  *   column that has binary image data to be displayed on the page
   * @param primaryKeyDataType
   *   UUID, Serial, or BigSerial primary keys
   */
@@ -23,6 +25,7 @@ case class TableSettings(
     hiddenColumns: List[String] = List.empty,
     nonEditableColumns: List[String] = List.empty,
     canBeDeleted: Boolean = true,
+    photoColumn: Option[String] = None,
     primaryKeyDataType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
 )
 
