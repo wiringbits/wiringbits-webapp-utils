@@ -74,3 +74,9 @@ object UrlField extends FacadeModule.Simple {
   class Props extends FieldProps
   override def mkProps = new Props
 }
+
+object DateInput extends FacadeModule.Simple {
+  override def raw = ReactAdmin.DateInput
+  class Props extends FieldProps
+  override def mkProps = new Props
+}
