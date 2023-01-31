@@ -39,19 +39,21 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     }
   }
 
-  def getTableMetadata(tableName: String, queryParameters: QueryParameters): Future[List[TableData]] =
-    Future {
-      database.withTransaction { implicit conn =>
-        val settings = tableSettings.unsafeFindByName(tableName)
-        val columns = DatabaseTablesDAO.getTableColumns(tableName)
-        val rows = DatabaseTablesDAO.getTableData(tableName, columns, queryParameters, settings)
-        val columnNames = getColumnNames(columns, settings.primaryKeyField)
-        rows.map { row =>
-          val tableRow = row.convertToMap(columnNames)
-          TableData(tableRow)
-        }
+  def getTableMetadata(
+      tableName: String,
+      settings: TableSettings,
+      queryParameters: QueryParameters
+  ): Future[List[TableData]] = Future {
+    database.withTransaction { implicit conn =>
+      val columns = DatabaseTablesDAO.getTableColumns(tableName)
+      val rows = DatabaseTablesDAO.getTableData(tableName, settings, columns, queryParameters, tableSettings.baseUrl)
+      val columnNames = getColumnNames(columns, settings.primaryKeyField)
+      rows.map { row =>
+        val tableRow = row.convertToMap(columnNames)
+        TableData(tableRow)
       }
     }
+  }
 
   private def getColumnNames(columns: List[TableColumn], primaryKeyField: String) = {
     val columnNames = columns.map(_.name)

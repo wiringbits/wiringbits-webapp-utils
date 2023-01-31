@@ -2,7 +2,7 @@ package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
 import net.wiringbits.webapp.utils.admin.config.{PrimaryKeyDataType, TableSettings}
-import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTable, ForeignKey, TableColumn, TableRow}
+import net.wiringbits.webapp.utils.admin.repositories.models.*
 import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 
@@ -74,9 +74,10 @@ object DatabaseTablesDAO {
 
   def getTableData(
       tableName: String,
+      settings: TableSettings,
       fields: List[TableColumn],
       queryParameters: QueryParameters,
-      settings: TableSettings
+      baseUrl: String
   )(implicit conn: Connection): List[TableRow] = {
     val limit = queryParameters.pagination.end - queryParameters.pagination.start
     val offset = queryParameters.pagination.start
@@ -121,7 +122,7 @@ object DatabaseTablesDAO {
             if (settings.photoColumn.contains(fieldName)) {
               // TODO: we're doing this operation two times (get id string), find another way
               val rowId = resultSet.getString(settings.primaryKeyField)
-              s"http://localhost:9000/admin/images/$tableName/$rowId"
+              s"$baseUrl/admin/images/$tableName/$rowId"
             } else resultSet.getString(fieldName)
           }
         } yield Cell(Option(data).getOrElse(""))
