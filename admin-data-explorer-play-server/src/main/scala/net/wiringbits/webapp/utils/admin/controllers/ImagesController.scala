@@ -16,7 +16,7 @@ class ImagesController @Inject() (
   def find(tableName: String, imageId: String) = handleGET { request =>
     for {
       _ <- adminUser(request)
-      _ = logger.info(s"Get image for $tableName, parameters: $imageId")
+      _ = logger.info(s"Get image for $tableName, id = $imageId")
       image <- adminService.findImage(tableName, imageId)
     } yield Ok.sendFile(image).withHeaders(("Content-Type", "image/png"))
   }
