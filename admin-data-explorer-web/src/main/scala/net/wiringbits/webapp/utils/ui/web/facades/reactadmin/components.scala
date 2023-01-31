@@ -124,4 +124,3 @@ object ExportButton extends FacadeModule.Simple {
   override def mkProps = new Props
   class Props extends PropTypes
 }
-
