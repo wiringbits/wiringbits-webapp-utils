@@ -7,8 +7,13 @@ import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import net.wiringbits.webapp.utils.admin.utils.{MapStringHideExt, contentRangeHeader}
 import net.wiringbits.webapp.utils.api.models.*
 
+import java.awt.image.BufferedImage
+import java.io.{ByteArrayInputStream, File}
+import java.util.UUID
+import javax.imageio.ImageIO
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class AdminService @Inject() (
     databaseTablesRepository: DatabaseTablesRepository,
@@ -218,5 +223,36 @@ class AdminService @Inject() (
       columnNames = tableColumns.map(_.name)
       exists = columnNames.contains(columnName) || columnName == "id"
     } yield if (exists) () else throw new RuntimeException(s"Column $columnName doesn't exists in $tableName")
+  }
+
+  def findImage(tableName: String, imageId: String): Future[File] = {
+    val validations = {
+      for {
+        _ <- Future(validateResourceId(imageId))
+      } yield ()
+    }
+    for {
+      _ <- validations
+      settings = tableSettings.unsafeFindByName(tableName)
+      imageColumnName = settings.photoColumn.getOrElse(
+        throw new RuntimeException("This table doesn't have any associated photo")
+      )
+      maybe <- databaseTablesRepository.getImageData(settings, imageColumnName, imageId)
+      imageData = maybe.getOrElse(throw new RuntimeException(s"Image with id $imageId on $tableName doesn't exists"))
+      image = createImage(imageData)
+    } yield createFile(imageId, image)
+  }
+
+  private def validateResourceId(resourceId: String): Unit = {
+    val isValid = Try(BigInt(resourceId)).isSuccess || Try(UUID.fromString(resourceId)).isSuccess
+    if (isValid) () else throw new RuntimeException(s"Resource id $resourceId is not valid")
+  }
+
+  private def createImage(data: Array[Byte]) = ImageIO.read(new ByteArrayInputStream(data))
+
+  private def createFile(imageId: String, buffImage: BufferedImage) = {
+    val outputFile = File.createTempFile(imageId, ".png")
+    ImageIO.write(buffImage, "png", outputFile)
+    outputFile
   }
 }

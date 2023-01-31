@@ -121,7 +121,7 @@ object DatabaseTablesDAO {
             if (settings.photoColumn.contains(fieldName)) {
               // TODO: we're doing this operation two times (get id string), find another way
               val rowId = resultSet.getString(settings.primaryKeyField)
-              s"$rowId.png"
+              s"localhost:9000/admin/images/$tableName/$rowId"
             } else resultSet.getString(fieldName)
           }
         } yield Cell(Option(data).getOrElse(""))
@@ -259,5 +259,22 @@ object DatabaseTablesDAO {
       SELECT COUNT(*)
       FROM #$tableName
       """.as(SqlParser.int("count").single)
+  }
+
+  def getImageData(settings: TableSettings, imageColumnName: String, imageId: String)(implicit
+      conn: Connection
+  ): Option[Array[Byte]] = {
+    val sql = s"""
+      SELECT $imageColumnName
+      FROM ${settings.tableName}
+      WHERE ${settings.primaryKeyField} = ?
+      """
+    val preparedStatement = conn.prepareStatement(sql)
+    setPreparedStatementKey(preparedStatement, imageId, settings.primaryKeyDataType)
+    val resultSet = preparedStatement.executeQuery()
+    Try {
+      resultSet.next()
+      resultSet.getBytes(imageColumnName)
+    }.toOption
   }
 }

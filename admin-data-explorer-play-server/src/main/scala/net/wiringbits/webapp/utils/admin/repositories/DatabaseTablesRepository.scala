@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.repositories
 
-import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.executors.DatabaseExecutionContext
 import net.wiringbits.webapp.utils.admin.repositories.daos.DatabaseTablesDAO
 import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, ForeignKey, TableColumn, TableData}
@@ -132,6 +132,16 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
   def numberOfRecords(tableName: String): Future[Int] = Future {
     database.withConnection { implicit conn =>
       DatabaseTablesDAO.countRecordsOnTable(tableName)
+    }
+  }
+
+  def getImageData(
+      settings: TableSettings,
+      imageColumnName: String,
+      imageId: String
+  ): Future[Option[Array[Byte]]] = Future {
+    database.withConnection { implicit conn =>
+      DatabaseTablesDAO.getImageData(settings, imageColumnName, imageId)
     }
   }
 }
