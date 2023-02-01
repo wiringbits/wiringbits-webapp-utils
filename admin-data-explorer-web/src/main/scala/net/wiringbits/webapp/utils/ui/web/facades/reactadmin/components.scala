@@ -88,6 +88,8 @@ object ComponentList extends FacadeModule.NodeChildren.Simple {
   override def mkProps = new Props
   class Props extends PropTypes.WithChildren[VdomNode] {
     val children = of[VdomNode]
+    val actions: PropTypes.Prop[VdomNode] = of[VdomNode]
+    val filters: PropTypes.Prop[List[VdomNode]] = of[List[VdomNode]]
   }
 }
 
@@ -107,4 +109,18 @@ object SimpleForm extends FacadeModule.NodeChildren.Simple {
     val children = of[VdomNode]
     val toolbar = of[VdomNode]
   }
+}
+
+object FilterButton extends FacadeModule.Simple {
+  override def raw = ReactAdmin.FilterButton
+  class Props extends PropTypes {
+    val filters: PropTypes.Prop[List[VdomNode]] = of[List[VdomNode]]
+  }
+  override def mkProps = new Props
+}
+
+object ExportButton extends FacadeModule.Simple {
+  override def raw = ReactAdmin.ExportButton
+  override def mkProps = new Props
+  class Props extends PropTypes
 }
