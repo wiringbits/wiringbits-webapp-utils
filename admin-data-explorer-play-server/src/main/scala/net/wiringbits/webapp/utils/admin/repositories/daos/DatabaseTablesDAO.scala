@@ -148,29 +148,30 @@ object DatabaseTablesDAO {
       """.as(tableColumnParser.*)
   }
 
-  def find(
-      tableName: String,
-      primaryKeyField: String,
-      primaryKeyValue: String,
-      primaryKeyType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
-  )(implicit
+  def find(settings: TableSettings, columns: List[TableColumn], primaryKeyValue: String, baseUrl: String)(implicit
       conn: Connection
   ): Option[TableRow] = {
     val sql = s"""
-    SELECT *
-      FROM $tableName
-    WHERE $primaryKeyField = ?
-    """
+      SELECT *
+      FROM ${settings.tableName}
+      WHERE ${settings.primaryKeyField} = ?
+      """
     val preparedStatement = conn.prepareStatement(sql)
 
-    setPreparedStatementKey(preparedStatement, primaryKeyValue, primaryKeyType)
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, settings.primaryKeyDataType)
     val resultSet = preparedStatement.executeQuery()
     Try {
       resultSet.next()
-      val numberOfColumns = resultSet.getMetaData.getColumnCount
       val row = for {
-        columnNumber <- 1 to numberOfColumns
-        cellData = resultSet.getString(columnNumber)
+        column <- columns
+        columnName = column.name
+        cellData = {
+          if (settings.photoColumn.contains(columnName)) {
+            // TODO: we're doing this operation two times (get id string), find another way
+            val rowId = resultSet.getString(settings.primaryKeyField)
+            s"$baseUrl/admin/images/${settings.tableName}/$rowId"
+          } else resultSet.getString(columnName)
+        }
       } yield Cell(Option(cellData).getOrElse(""))
       TableRow(row.toList)
     }.toOption

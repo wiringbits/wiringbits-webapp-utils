@@ -64,14 +64,8 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
   def find(tableName: String, primaryKeyValue: String): Future[Option[TableData]] = Future {
     database.withTransaction { implicit conn =>
       val settings = tableSettings.unsafeFindByName(tableName)
-      val primaryKeyType = settings.primaryKeyDataType
-      val maybe = DatabaseTablesDAO.find(
-        tableName = tableName,
-        primaryKeyField = settings.primaryKeyField,
-        primaryKeyValue = primaryKeyValue,
-        primaryKeyType = primaryKeyType
-      )
       val columns = DatabaseTablesDAO.getTableColumns(tableName)
+      val maybe = DatabaseTablesDAO.find(settings, columns, primaryKeyValue, tableSettings.baseUrl)
       val columnNames = getColumnNames(columns, settings.primaryKeyField)
       maybe.map(x => TableData(x.convertToMap(columnNames)))
     }
