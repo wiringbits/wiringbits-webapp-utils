@@ -157,7 +157,7 @@ object DatabaseTablesDAO {
                 customDataType match {
                   case CustomDataType.BinaryImage =>
                     val rowId = resultSet.getString(settings.primaryKeyField)
-                    s"$baseUrl/admin/images/$tableName/$rowId"
+                    s"$baseUrl/admin/images/$tableName/$columnName/$rowId"
                   case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
                 }
               }
@@ -210,7 +210,7 @@ object DatabaseTablesDAO {
               customDataType match {
                 case CustomDataType.BinaryImage =>
                   val rowId = resultSet.getString(settings.primaryKeyField)
-                  s"$baseUrl/admin/images/${settings.tableName}/$rowId"
+                  s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
                 case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
               }
             }
