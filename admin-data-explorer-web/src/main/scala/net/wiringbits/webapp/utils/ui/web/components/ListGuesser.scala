@@ -16,6 +16,7 @@ object ListGuesser {
         case ColumnType.Date => DateField(_.source := field.name, _.showTime := true)
         case ColumnType.Text => TextField(_.source := field.name)
         case ColumnType.Email => EmailField(_.source := field.name)
+        case ColumnType.Number => NumberField(_.source := field.name)
         case ColumnType.Reference(reference, source) =>
           ReferenceField(_.reference := reference, _.source := field.name)(
             TextField(_.source := source)
@@ -27,6 +28,7 @@ object ListGuesser {
       field.`type` match {
         case ColumnType.Date => DateInput(_.source := field.name)
         case ColumnType.Text | ColumnType.Email => TextInput(_.source := field.name)
+        case ColumnType.Number => NumberInput(_.source := field.name)
         case ColumnType.Reference(reference, source) =>
           ReferenceField(_.reference := reference, _.source := field.name)(
             TextField(_.source := source)
