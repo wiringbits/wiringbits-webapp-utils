@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin
 
-import net.wiringbits.webapp.utils.admin.controllers.AdminController
+import net.wiringbits.webapp.utils.admin.controllers.{AdminController, ImagesController}
 import net.wiringbits.webapp.utils.admin.utils.StringToDataTypesExt
 import net.wiringbits.webapp.utils.admin.utils.models.{
   FilterParameter,
@@ -14,7 +14,7 @@ import play.api.routing.sird.*
 
 import javax.inject.Inject
 
-class AppRouter @Inject() (adminController: AdminController) extends SimpleRouter {
+class AppRouter @Inject() (adminController: AdminController, imagesController: ImagesController) extends SimpleRouter {
 
   override def routes: Routes = {
     // get database tables
@@ -53,5 +53,9 @@ class AppRouter @Inject() (adminController: AdminController) extends SimpleRoute
     // delete table resource
     case DELETE(p"/admin/tables/$tableName/$id") =>
       adminController.delete(tableName, id)
+
+    // get a image
+    case GET(p"/admin/images/$tableName/$columnName/$primaryKeyValue") =>
+      imagesController.find(tableName, columnName, primaryKeyValue)
   }
 }

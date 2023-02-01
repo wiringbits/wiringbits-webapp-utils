@@ -7,7 +7,7 @@ class DataExplorerTestModule extends AbstractModule {
 
   @Provides()
   def dataExplorerSettings: DataExplorerSettings = {
-    DataExplorerSettings(settings)
+    DataExplorerSettings("http://localhost:9000", settings)
   }
 
   val settings: List[TableSettings] = List(

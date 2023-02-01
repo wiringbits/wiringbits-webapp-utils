@@ -1,9 +1,9 @@
 package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
-import net.wiringbits.webapp.utils.admin.config.{PrimaryKeyDataType, TableSettings}
+import net.wiringbits.webapp.utils.admin.config.{CustomDataType, PrimaryKeyDataType, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.models.*
-import net.wiringbits.webapp.utils.admin.utils.{StringRegex, QueryBuilder}
+import net.wiringbits.webapp.utils.admin.utils.{QueryBuilder, StringRegex}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 
 import java.sql.{Connection, Date, PreparedStatement}
@@ -75,9 +75,10 @@ object DatabaseTablesDAO {
 
   def getTableData(
       tableName: String,
+      settings: TableSettings,
       fields: List[TableColumn],
       queryParameters: QueryParameters,
-      settings: TableSettings
+      baseUrl: String
   )(implicit conn: Connection): List[TableRow] = {
     val dateRegex = StringRegex.dateRegex
     val limit = queryParameters.pagination.end - queryParameters.pagination.start
@@ -149,7 +150,19 @@ object DatabaseTablesDAO {
         val rowData = for {
           field <- fields
           fieldName = field.name
-          data = resultSet.getString(fieldName)
+          data = {
+            val maybe = settings.columnTypeOverrides.find(_._1 == fieldName)
+            maybe
+              .map { case (columnName, customDataType) =>
+                customDataType match {
+                  case CustomDataType.BinaryImage =>
+                    val rowId = resultSet.getString(settings.primaryKeyField)
+                    s"$baseUrl/admin/images/$tableName/$columnName/$rowId"
+                  case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
+                }
+              }
+              .getOrElse(resultSet.getString(fieldName))
+          }
         } yield Cell(Option(data).getOrElse(""))
         tableData += TableRow(rowData)
       }
@@ -173,29 +186,36 @@ object DatabaseTablesDAO {
       """.as(tableColumnParser.*)
   }
 
-  def find(
-      tableName: String,
-      primaryKeyField: String,
-      primaryKeyValue: String,
-      primaryKeyType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
-  )(implicit
+  def find(settings: TableSettings, columns: List[TableColumn], primaryKeyValue: String, baseUrl: String)(implicit
       conn: Connection
   ): Option[TableRow] = {
     val sql = s"""
-    SELECT *
-      FROM $tableName
-    WHERE $primaryKeyField = ?
-    """
+      SELECT *
+      FROM ${settings.tableName}
+      WHERE ${settings.primaryKeyField} = ?
+      """
     val preparedStatement = conn.prepareStatement(sql)
 
-    setPreparedStatementKey(preparedStatement, primaryKeyValue, primaryKeyType)
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, settings.primaryKeyDataType)
     val resultSet = preparedStatement.executeQuery()
     Try {
       resultSet.next()
-      val numberOfColumns = resultSet.getMetaData.getColumnCount
       val row = for {
-        columnNumber <- 1 to numberOfColumns
-        cellData = resultSet.getString(columnNumber)
+        column <- columns
+        columnName = column.name
+        cellData = {
+          val maybe = settings.columnTypeOverrides.find(_._1 == columnName)
+          maybe
+            .map { case (columnName, customDataType) =>
+              customDataType match {
+                case CustomDataType.BinaryImage =>
+                  val rowId = resultSet.getString(settings.primaryKeyField)
+                  s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
+                case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
+              }
+            }
+            .getOrElse(resultSet.getString(columnName))
+        }
       } yield Cell(Option(cellData).getOrElse(""))
       TableRow(row.toList)
     }.toOption
@@ -285,5 +305,22 @@ object DatabaseTablesDAO {
       SELECT COUNT(*)
       FROM #$tableName
       """.as(SqlParser.int("count").single)
+  }
+
+  def getImageData(settings: TableSettings, columnName: String, imageId: String)(implicit
+      conn: Connection
+  ): Option[Array[Byte]] = {
+    val sql = s"""
+      SELECT $columnName
+      FROM ${settings.tableName}
+      WHERE ${settings.primaryKeyField} = ?
+      """
+    val preparedStatement = conn.prepareStatement(sql)
+    setPreparedStatementKey(preparedStatement, imageId, settings.primaryKeyDataType)
+    val resultSet = preparedStatement.executeQuery()
+    Try {
+      resultSet.next()
+      resultSet.getBytes(columnName)
+    }.toOption
   }
 }
