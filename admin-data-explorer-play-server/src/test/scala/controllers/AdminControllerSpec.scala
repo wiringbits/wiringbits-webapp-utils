@@ -4,7 +4,7 @@ import com.dimafeng.testcontainers.PostgreSQLContainer
 import controllers.common.PlayPostgresSpec
 import net.wiringbits.webapp.utils.admin.AppRouter
 import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
-import net.wiringbits.webapp.utils.admin.controllers.AdminController
+import net.wiringbits.webapp.utils.admin.controllers.{AdminController, ImagesController}
 import net.wiringbits.webapp.utils.api.models.AdminCreateTable
 import org.apache.commons.lang3.StringUtils
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -31,7 +31,8 @@ class AdminControllerSpec extends PlayPostgresSpec {
   override def guiceApplicationBuilder(container: PostgreSQLContainer): GuiceApplicationBuilder = {
     val appBuilder = super.guiceApplicationBuilder(container)
     val adminController = appBuilder.injector().instanceOf[AdminController]
-    val appRouter = new AppRouter(adminController)
+    val imagesController = appBuilder.injector().instanceOf[ImagesController]
+    val appRouter = new AppRouter(adminController, imagesController)
     appBuilder.router(appRouter)
   }
 
