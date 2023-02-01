@@ -14,10 +14,10 @@ object ColumnType {
 
   def fromTableField(column: TableColumn): ColumnType = {
     val isEmail = column.name.contains("email")
-    val isDate = column.`type`.equals("timestamptz")
-    val isImage = column.`type`.equals("bytea")
-    val isInt = column.`type`.equals("integer")
-    val isNumeric = column.`type`.contains("numeric")
+    val isDate = column.`type`.equalsIgnoreCase("timestamptz")
+    val isImage = column.`type`.equalsIgnoreCase("bytea")
+    val isInt = column.`type`.equalsIgnoreCase("integer")
+    val isNumeric = column.`type`.toLowerCase.contains("numeric")
     val default = column.reference
       .map { reference => ColumnType.Reference(reference.referencedTable, reference.referenceField) }
       .getOrElse(ColumnType.Text)
