@@ -3,7 +3,7 @@ package net.wiringbits.webapp.utils.admin.repositories.daos
 import anorm.{SqlParser, SqlStringInterpolation}
 import net.wiringbits.webapp.utils.admin.config.{PrimaryKeyDataType, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.models.*
-import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
+import net.wiringbits.webapp.utils.admin.utils.{StringRegex, QueryBuilder}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 
 import java.sql.{Connection, Date, PreparedStatement}
@@ -79,24 +79,25 @@ object DatabaseTablesDAO {
       queryParameters: QueryParameters,
       settings: TableSettings
   )(implicit conn: Connection): List[TableRow] = {
-    val datePattern = "([12]\\d{3})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])".r
+    val dateRegex = StringRegex.dateRegex
     val limit = queryParameters.pagination.end - queryParameters.pagination.start
     val offset = queryParameters.pagination.start
     // react-admin gives us a "id" field instead of the primary key of the actual column so we need to replace it
     val sortBy = if (queryParameters.sort.field == "id") settings.primaryKeyField else queryParameters.sort.field
 
     val preparedStatement = queryParameters.filter.field map { field =>
-      val primaryKey = if (field == "id") settings.primaryKeyField else field
+      val filterColumn = if (field == "id") settings.primaryKeyField else field
       val filterValue = queryParameters.filter.value
+
       filterValue match {
-        case datePattern(year, month, day) =>
+        case dateRegex(year, month, day) =>
           val parsedDate = LocalDate.of(year.toInt, month.toInt, day.toInt)
           val initDate = Date.valueOf(parsedDate)
           val endDate = Date.valueOf(parsedDate.plusDays(1L))
           val sql =
             s"""
           SELECT * FROM $tableName
-          WHERE $primaryKey BETWEEN ? AND ?
+          WHERE $filterColumn BETWEEN ? AND ?
           ORDER BY $sortBy ${queryParameters.sort.ordering}
           LIMIT ? OFFSET ?
           """
@@ -106,16 +107,24 @@ object DatabaseTablesDAO {
           preparedStatement.setInt(3, limit)
           preparedStatement.setInt(4, offset)
           preparedStatement
+
         case _ =>
           val sql =
             s"""
           SELECT * FROM $tableName
-          WHERE $primaryKey = ?
+          WHERE $filterColumn = ?
           ORDER BY $sortBy ${queryParameters.sort.ordering}
           LIMIT ? OFFSET ?
           """
           val preparedStatement = conn.prepareStatement(sql)
-          preparedStatement.setString(1, filterValue)
+
+          if (filterValue.toIntOption.isDefined)
+            preparedStatement.setInt(1, filterValue.toInt)
+          else if (filterValue.toDoubleOption.isDefined)
+            preparedStatement.setDouble(1, filterValue.toDouble)
+          else
+            preparedStatement.setString(1, filterValue)
+
           preparedStatement.setInt(2, limit)
           preparedStatement.setInt(3, offset)
           preparedStatement
