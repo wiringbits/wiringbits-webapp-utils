@@ -13,11 +13,11 @@ class ImagesController @Inject() (
     extends AbstractController(cc) {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  def find(tableName: String, imageId: String) = handleGET { request =>
+  def find(tableName: String, columnName: String, imageId: String) = handleGET { request =>
     for {
       _ <- adminUser(request)
       _ = logger.info(s"Get image for $tableName, id = $imageId")
-      image <- adminService.findImage(tableName, imageId)
+      image <- adminService.findImage(tableName, columnName, imageId)
     } yield Ok.sendFile(image).withHeaders(("Content-Type", "image/png"))
   }
 }

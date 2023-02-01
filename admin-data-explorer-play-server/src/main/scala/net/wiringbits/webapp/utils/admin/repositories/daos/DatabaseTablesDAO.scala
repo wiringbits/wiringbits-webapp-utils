@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
-import net.wiringbits.webapp.utils.admin.config.{PrimaryKeyDataType, TableSettings}
+import net.wiringbits.webapp.utils.admin.config.{CustomDataType, PrimaryKeyDataType, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.models.*
 import net.wiringbits.webapp.utils.admin.utils.{QueryBuilder, StringRegex}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
@@ -151,11 +151,17 @@ object DatabaseTablesDAO {
           field <- fields
           fieldName = field.name
           data = {
-            if (settings.photoColumn.contains(fieldName)) {
-              // TODO: we're doing this operation two times (get id string), find another way
-              val rowId = resultSet.getString(settings.primaryKeyField)
-              s"$baseUrl/admin/images/$tableName/$rowId"
-            } else resultSet.getString(fieldName)
+            val maybe = settings.columnTypeOverrides.find(_._1 == fieldName)
+            maybe
+              .map { case (columnName, customDataType) =>
+                customDataType match {
+                  case CustomDataType.BinaryImage =>
+                    val rowId = resultSet.getString(settings.primaryKeyField)
+                    s"$baseUrl/admin/images/$tableName/$rowId"
+                  case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
+                }
+              }
+              .getOrElse(resultSet.getString(fieldName))
           }
         } yield Cell(Option(data).getOrElse(""))
         tableData += TableRow(rowData)
@@ -198,11 +204,17 @@ object DatabaseTablesDAO {
         column <- columns
         columnName = column.name
         cellData = {
-          if (settings.photoColumn.contains(columnName)) {
-            // TODO: we're doing this operation two times (get id string), find another way
-            val rowId = resultSet.getString(settings.primaryKeyField)
-            s"$baseUrl/admin/images/${settings.tableName}/$rowId"
-          } else resultSet.getString(columnName)
+          val maybe = settings.columnTypeOverrides.find(_._1 == columnName)
+          maybe
+            .map { case (columnName, customDataType) =>
+              customDataType match {
+                case CustomDataType.BinaryImage =>
+                  val rowId = resultSet.getString(settings.primaryKeyField)
+                  s"$baseUrl/admin/images/${settings.tableName}/$rowId"
+                case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
+              }
+            }
+            .getOrElse(resultSet.getString(columnName))
         }
       } yield Cell(Option(cellData).getOrElse(""))
       TableRow(row.toList)
@@ -295,11 +307,11 @@ object DatabaseTablesDAO {
       """.as(SqlParser.int("count").single)
   }
 
-  def getImageData(settings: TableSettings, imageColumnName: String, imageId: String)(implicit
+  def getImageData(settings: TableSettings, columnName: String, imageId: String)(implicit
       conn: Connection
   ): Option[Array[Byte]] = {
     val sql = s"""
-      SELECT $imageColumnName
+      SELECT $columnName
       FROM ${settings.tableName}
       WHERE ${settings.primaryKeyField} = ?
       """
@@ -308,7 +320,7 @@ object DatabaseTablesDAO {
     val resultSet = preparedStatement.executeQuery()
     Try {
       resultSet.next()
-      resultSet.getBytes(imageColumnName)
+      resultSet.getBytes(columnName)
     }.toOption
   }
 }

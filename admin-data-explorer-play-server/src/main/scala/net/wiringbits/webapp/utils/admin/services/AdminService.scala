@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.services
 
-import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.{CustomDataType, DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
 import net.wiringbits.webapp.utils.admin.repositories.models.{ForeignKey, TableData}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
@@ -227,19 +227,18 @@ class AdminService @Inject() (
     } yield if (exists) () else throw new RuntimeException(s"Column $columnName doesn't exists in $tableName")
   }
 
-  def findImage(tableName: String, imageId: String): Future[File] = {
+  def findImage(tableName: String, columnName: String, imageId: String): Future[File] = {
     val validations = {
       for {
+        _ <- validateColumnName(tableName, columnName)
         _ <- Future(validateResourceId(imageId))
       } yield ()
     }
     for {
       _ <- validations
       settings = tableSettings.unsafeFindByName(tableName)
-      imageColumnName = settings.photoColumn.getOrElse(
-        throw new RuntimeException("This table doesn't have any associated photo")
-      )
-      maybe <- databaseTablesRepository.getImageData(settings, imageColumnName, imageId)
+      _ = validateImageColumn(settings, columnName)
+      maybe <- databaseTablesRepository.getImageData(settings, columnName, imageId)
       imageData = maybe.getOrElse(throw new RuntimeException(s"Image with id $imageId on $tableName doesn't exists"))
       image = createImage(imageData)
     } yield createFile(imageId, image)
@@ -248,6 +247,11 @@ class AdminService @Inject() (
   private def validateResourceId(resourceId: String): Unit = {
     val isValid = Try(BigInt(resourceId)).isSuccess || Try(UUID.fromString(resourceId)).isSuccess
     if (isValid) () else throw new RuntimeException(s"Resource id $resourceId is not valid")
+  }
+
+  private def validateImageColumn(settings: TableSettings, columnName: String): Unit = {
+    val maybe = settings.columnTypeOverrides.find(x => x._1 == columnName && x._2 == CustomDataType.BinaryImage)
+    if (maybe.isDefined) () else throw new RuntimeException("This column can't be used as a binary image")
   }
 
   private def createImage(data: Array[Byte]) = ImageIO.read(new ByteArrayInputStream(data))

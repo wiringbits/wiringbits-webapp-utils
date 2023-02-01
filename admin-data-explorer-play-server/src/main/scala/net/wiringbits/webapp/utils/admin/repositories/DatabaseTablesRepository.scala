@@ -133,11 +133,11 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
 
   def getImageData(
       settings: TableSettings,
-      imageColumnName: String,
+      columnName: String,
       imageId: String
   ): Future[Option[Array[Byte]]] = Future {
     database.withConnection { implicit conn =>
-      DatabaseTablesDAO.getImageData(settings, imageColumnName, imageId)
+      DatabaseTablesDAO.getImageData(settings, columnName, imageId)
     }
   }
 }

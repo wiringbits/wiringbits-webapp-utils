@@ -55,7 +55,7 @@ class AppRouter @Inject() (adminController: AdminController, imagesController: I
       adminController.delete(tableName, id)
 
     // get a image
-    case GET(p"/admin/images/$tableName/$primaryKeyValue") =>
-      imagesController.find(tableName, primaryKeyValue)
+    case GET(p"/admin/images/$tableName/$columnName/$primaryKeyValue") =>
+      imagesController.find(tableName, columnName, primaryKeyValue)
   }
 }
