@@ -256,6 +256,7 @@ class AdminService @Inject() (
 
   private def createImage(data: Array[Byte]) = ImageIO.read(new ByteArrayInputStream(data))
 
+  // TODO: avoid assuming that every DB image is on png format
   private def createFile(imageId: String, buffImage: BufferedImage) = {
     val outputFile = File.createTempFile(imageId, ".png")
     ImageIO.write(buffImage, "png", outputFile)
