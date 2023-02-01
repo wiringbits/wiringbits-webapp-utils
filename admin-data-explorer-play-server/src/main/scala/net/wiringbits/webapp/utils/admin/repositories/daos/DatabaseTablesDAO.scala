@@ -116,26 +116,27 @@ object DatabaseTablesDAO {
           ORDER BY $sortBy ${queryParameters.sort.ordering}
           LIMIT ? OFFSET ?
           """
-          val preparedStatement = if (filterValue.toIntOption.isDefined) {
-            val preparedStatement = conn.prepareStatement(nonStringSql)
-            preparedStatement.setInt(1, filterValue.toInt)
-            preparedStatement
-          } else if (filterValue.toDoubleOption.isDefined) {
-            val preparedStatement = conn.prepareStatement(nonStringSql)
-            preparedStatement.setDouble(1, filterValue.toDouble)
-            preparedStatement
-          } else {
-            val sql =
-              s"""
-            SELECT * FROM $tableName
-            WHERE $filterColumn LIKE ?
-            ORDER BY $sortBy ${queryParameters.sort.ordering}
-            LIMIT ? OFFSET ?
-            """
-            val preparedStatement = conn.prepareStatement(sql)
-            preparedStatement.setString(1, s"%$filterValue%")
-            preparedStatement
-          }
+          val preparedStatement =
+            if (filterValue.toIntOption.isDefined) {
+              val preparedStatement = conn.prepareStatement(nonStringSql)
+              preparedStatement.setInt(1, filterValue.toInt)
+              preparedStatement
+            } else if (filterValue.toDoubleOption.isDefined) {
+              val preparedStatement = conn.prepareStatement(nonStringSql)
+              preparedStatement.setDouble(1, filterValue.toDouble)
+              preparedStatement
+            } else {
+              val sql =
+                s"""
+              SELECT * FROM $tableName
+              WHERE $filterColumn LIKE ?
+              ORDER BY $sortBy ${queryParameters.sort.ordering}
+              LIMIT ? OFFSET ?
+              """
+              val preparedStatement = conn.prepareStatement(sql)
+              preparedStatement.setString(1, s"%$filterValue%")
+              preparedStatement
+            }
 
           preparedStatement.setInt(2, limit)
           preparedStatement.setInt(3, offset)
