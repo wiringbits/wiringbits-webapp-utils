@@ -110,21 +110,34 @@ object DatabaseTablesDAO {
           preparedStatement
 
         case _ =>
-          val sql =
+          val nonStringSql =
             s"""
           SELECT * FROM $tableName
           WHERE $filterColumn = ?
           ORDER BY $sortBy ${queryParameters.sort.ordering}
           LIMIT ? OFFSET ?
           """
-          val preparedStatement = conn.prepareStatement(sql)
-
-          if (filterValue.toIntOption.isDefined)
-            preparedStatement.setInt(1, filterValue.toInt)
-          else if (filterValue.toDoubleOption.isDefined)
-            preparedStatement.setDouble(1, filterValue.toDouble)
-          else
-            preparedStatement.setString(1, filterValue)
+          val preparedStatement =
+            if (filterValue.toIntOption.isDefined) {
+              val preparedStatement = conn.prepareStatement(nonStringSql)
+              preparedStatement.setInt(1, filterValue.toInt)
+              preparedStatement
+            } else if (filterValue.toDoubleOption.isDefined) {
+              val preparedStatement = conn.prepareStatement(nonStringSql)
+              preparedStatement.setDouble(1, filterValue.toDouble)
+              preparedStatement
+            } else {
+              val sql =
+                s"""
+              SELECT * FROM $tableName
+              WHERE $filterColumn LIKE ?
+              ORDER BY $sortBy ${queryParameters.sort.ordering}
+              LIMIT ? OFFSET ?
+              """
+              val preparedStatement = conn.prepareStatement(sql)
+              preparedStatement.setString(1, s"%$filterValue%")
+              preparedStatement
+            }
 
           preparedStatement.setInt(2, limit)
           preparedStatement.setInt(3, offset)
