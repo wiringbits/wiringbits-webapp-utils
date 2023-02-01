@@ -16,6 +16,8 @@ package net.wiringbits.webapp.utils.admin.config
   *   column that has binary image data to be displayed on the page
   * @param primaryKeyDataType
   *   UUID, Serial, or BigSerial primary keys
+  * @param filterableColumns
+  *   columns that are filterable via react-admin
   */
 
 case class TableSettings(
@@ -25,8 +27,9 @@ case class TableSettings(
     hiddenColumns: List[String] = List.empty,
     nonEditableColumns: List[String] = List.empty,
     canBeDeleted: Boolean = true,
+    primaryKeyDataType: PrimaryKeyDataType = PrimaryKeyDataType.UUID,
     photoColumn: Option[String] = None,
-    primaryKeyDataType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
+    filterableColumns: List[String] = List.empty
 )
 
 sealed trait PrimaryKeyDataType extends Product with Serializable

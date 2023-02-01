@@ -56,11 +56,13 @@ class AdminService @Inject() (
               val fieldName = getColumnName(column.name, settings.primaryKeyField)
               val isEditable = !settings.nonEditableColumns.contains(column.name)
               val reference = getColumnReference(foreignKeys, column.name)
+              val isFilterable = settings.filterableColumns.contains(column.name)
               AdminGetTables.Response.TableColumn(
                 name = fieldName,
                 `type` = column.`type`,
                 editable = isEditable,
-                reference = reference
+                reference = reference,
+                filterable = isFilterable
               )
             }
           } yield AdminGetTables.Response.DatabaseTable(

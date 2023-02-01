@@ -9,13 +9,15 @@ object ColumnType {
   case object Text extends ColumnType
   case object Email extends ColumnType
   case object Image extends ColumnType
+  case object Number extends ColumnType
   case class Reference(referencedTable: String, source: String) extends ColumnType
 
   def fromTableField(column: TableColumn): ColumnType = {
     val isEmail = column.name.contains("email")
     val isDate = column.`type`.equals("timestamptz")
     val isImage = column.`type`.equals("bytea")
-    // it can be also a file
+    val isInt = column.`type`.equals("integer")
+    val isNumeric = column.`type`.contains("numeric")
     val default = column.reference
       .map { reference => ColumnType.Reference(reference.referencedTable, reference.referenceField) }
       .getOrElse(ColumnType.Text)
@@ -26,6 +28,8 @@ object ColumnType {
       ColumnType.Date
     else if (isImage)
       ColumnType.Image
+    else if (isInt || isNumeric)
+      ColumnType.Number
     else default
   }
 }

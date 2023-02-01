@@ -84,3 +84,25 @@ object UrlField extends FacadeModule.Simple {
   class Props extends FieldProps
   override def mkProps = new Props
 }
+
+object DateInput extends FacadeModule.Simple {
+  override def raw = ReactAdmin.DateInput
+  class Props extends FieldProps
+  override def mkProps = new Props
+}
+
+object NumberInput extends FacadeModule.Simple {
+  override def raw = ReactAdmin.NumberInput
+  class Props extends FieldProps {
+    val max = of[Double]
+    val min = of[Double]
+    val step = of[Double]
+  }
+  override def mkProps: Props = new Props
+}
+
+object NumberField extends FacadeModule.Simple {
+  override def raw = ReactAdmin.NumberField
+  class Props extends FieldProps
+  override def mkProps = new Props
+}
