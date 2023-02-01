@@ -91,7 +91,7 @@ class AdminService @Inject() (
       _ <- validations
       settings = tableSettings.unsafeFindByName(tableName)
       _ <- validateQueryParameters(tableName, queryParams)
-      tableRows <- databaseTablesRepository.getTableMetadata(tableName, settings, queryParams)
+      tableRows <- databaseTablesRepository.getTableMetadata(settings, queryParams)
       numberOfRecords <- databaseTablesRepository.numberOfRecords(tableName)
       hiddenTableData = tableRows.map(data => hideData(data, settings.hiddenColumns))
       contentRange = contentRangeHeader(tableName, queryParams, numberOfRecords)
