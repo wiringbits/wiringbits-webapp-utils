@@ -111,8 +111,8 @@ object DatabaseTablesDAO {
     val preparedStatement = conn.prepareStatement(sql)
 
     queryParameters.filters.zipWithIndex
-      // We have to increment index by 1 because SQL parameterIndex starts in 1
       .foreach { case (FilterParameter(_, filterValue), index) =>
+        // We have to increment index by 1 because SQL parameterIndex starts in 1
         val sqlIndex = index + 1
 
         filterValue match {
