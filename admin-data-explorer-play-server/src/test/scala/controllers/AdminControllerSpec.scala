@@ -394,7 +394,7 @@ class AdminControllerSpec extends PlayPostgresSpec {
       client.createItem(usersSettings.tableName, request).futureValue
 
       val response = client
-        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{\"name\":\"irin\"}")
+        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), """{"name":"irin"}""")
         .futureValue
       val head = response.headOption.value
       val nameValue = head.find(_._1 == "name").value._2
@@ -413,7 +413,45 @@ class AdminControllerSpec extends PlayPostgresSpec {
       client.createItem(usersSettings.tableName, request).futureValue
 
       val response = client
-        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), "{\"name\":\"yyy\"}")
+        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), """{"name":"yyy"}""")
+        .futureValue
+      response.headOption.isEmpty must be(true)
+    }
+
+    "return data with two filters" in withApiClient { client =>
+      val name = "wiringbits"
+      val email = "test@wiringbits.net"
+      val request = AdminCreateTable.Request(
+        Map("name" -> name, "email" -> email, "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client
+        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), """{"name":"irin","email":"test"}""")
+        .futureValue
+      val head = response.headOption.value
+      val nameValue = head.find(_._1 == "name").value._2
+      val emailValue = head.find(_._1 == "email").value._2
+      response.size must be(1)
+      name must be(nameValue)
+      email must be(emailValue)
+    }
+
+    "not return with a valid filter and a non valid filter" in withApiClient { client =>
+      val name = "wiringbits"
+      val email = "test@wiringbits.net"
+      val request = AdminCreateTable.Request(
+        Map("name" -> name, "email" -> email, "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client
+        .getTableMetadata(
+          usersSettings.tableName,
+          List("name", "ASC"),
+          List(0, 9),
+          """{"name":"irin","email":"yyyy"}"""
+        )
         .futureValue
       response.headOption.isEmpty must be(true)
     }

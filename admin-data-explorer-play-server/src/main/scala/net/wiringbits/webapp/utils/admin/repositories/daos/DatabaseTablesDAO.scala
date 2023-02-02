@@ -4,7 +4,7 @@ import anorm.{SqlParser, SqlStringInterpolation}
 import net.wiringbits.webapp.utils.admin.config.{CustomDataType, PrimaryKeyDataType, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.models.*
 import net.wiringbits.webapp.utils.admin.utils.{QueryBuilder, StringRegex}
-import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
+import net.wiringbits.webapp.utils.admin.utils.models.{FilterParameter, QueryParameters}
 
 import java.sql.{Connection, Date, PreparedStatement}
 import java.time.LocalDate
@@ -86,75 +86,49 @@ object DatabaseTablesDAO {
     // react-admin gives us a "id" field instead of the primary key of the actual column so we need to replace it
     val sortBy = if (queryParameters.sort.field == "id") settings.primaryKeyField else queryParameters.sort.field
 
-    val preparedStatement = queryParameters.filter.field map { field =>
-      val filterColumn = if (field == "id") settings.primaryKeyField else field
-      val filterValue = queryParameters.filter.value
+    val conditionsSql = queryParameters.filters
+      .map { case FilterParameter(filterField, filterValue) =>
+        filterValue match {
+          case dateRegex(_, _, _) =>
+            s"DATE($filterField) = ?"
 
-      filterValue match {
-        case dateRegex(year, month, day) =>
-          val parsedDate = LocalDate.of(year.toInt, month.toInt, day.toInt)
-          val initDate = Date.valueOf(parsedDate)
-          val endDate = Date.valueOf(parsedDate.plusDays(1L))
-          val sql =
-            s"""
-          SELECT * FROM $tableName
-          WHERE $filterColumn BETWEEN ? AND ?
-          ORDER BY $sortBy ${queryParameters.sort.ordering}
-          LIMIT ? OFFSET ?
-          """
-          val preparedStatement = conn.prepareStatement(sql)
-          preparedStatement.setDate(1, initDate)
-          preparedStatement.setDate(2, endDate)
-          preparedStatement.setInt(3, limit)
-          preparedStatement.setInt(4, offset)
-          preparedStatement
-
-        case _ =>
-          val nonStringSql =
-            s"""
-          SELECT * FROM $tableName
-          WHERE $filterColumn = ?
-          ORDER BY $sortBy ${queryParameters.sort.ordering}
-          LIMIT ? OFFSET ?
-          """
-          val preparedStatement =
-            if (filterValue.toIntOption.isDefined) {
-              val preparedStatement = conn.prepareStatement(nonStringSql)
-              preparedStatement.setInt(1, filterValue.toInt)
-              preparedStatement
-            } else if (filterValue.toDoubleOption.isDefined) {
-              val preparedStatement = conn.prepareStatement(nonStringSql)
-              preparedStatement.setDouble(1, filterValue.toDouble)
-              preparedStatement
-            } else {
-              val sql =
-                s"""
-              SELECT * FROM $tableName
-              WHERE $filterColumn LIKE ?
-              ORDER BY $sortBy ${queryParameters.sort.ordering}
-              LIMIT ? OFFSET ?
-              """
-              val preparedStatement = conn.prepareStatement(sql)
-              preparedStatement.setString(1, s"%$filterValue%")
-              preparedStatement
-            }
-
-          preparedStatement.setInt(2, limit)
-          preparedStatement.setInt(3, offset)
-          preparedStatement
+          case _ =>
+            if (filterValue.toIntOption.isDefined || filterValue.toDoubleOption.isDefined)
+              s"$filterField = ?"
+            else
+              s"$filterField LIKE ?"
+        }
       }
-    } getOrElse {
-      val sql =
-        s"""
+      .mkString("WHERE ", " AND ", " ")
+
+    val sql =
+      s"""
       SELECT * FROM $tableName
+      ${if (queryParameters.filters.nonEmpty) conditionsSql else ""}
       ORDER BY $sortBy ${queryParameters.sort.ordering}
-      LIMIT ? OFFSET ?
+      LIMIT $limit OFFSET $offset
       """
-      val preparedStatement = conn.prepareStatement(sql)
-      preparedStatement.setInt(1, limit)
-      preparedStatement.setInt(2, offset)
-      preparedStatement
-    }
+    val preparedStatement = conn.prepareStatement(sql)
+
+    queryParameters.filters.zipWithIndex
+      // We have to increment index by 1 because SQL parameterIndex starts in 1
+      .foreach { case (FilterParameter(_, filterValue), index) =>
+        val sqlIndex = index + 1
+
+        filterValue match {
+          case dateRegex(year, month, day) =>
+            val parsedDate = LocalDate.of(year.toInt, month.toInt, day.toInt)
+            preparedStatement.setDate(sqlIndex, Date.valueOf(parsedDate))
+
+          case _ =>
+            if (filterValue.toIntOption.isDefined)
+              preparedStatement.setInt(sqlIndex, filterValue.toInt)
+            else if (filterValue.toDoubleOption.isDefined)
+              preparedStatement.setDouble(sqlIndex, filterValue.toDouble)
+            else
+              preparedStatement.setString(sqlIndex, s"%$filterValue%")
+        }
+      }
 
     val resultSet = preparedStatement.executeQuery()
     val tableData = new ListBuffer[TableRow]()
