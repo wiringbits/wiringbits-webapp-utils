@@ -185,12 +185,11 @@ object DatabaseTablesDAO {
       columnName: String,
       baseUrl: String
   ) = {
-    val maybe = settings.columnTypeOverrides.find(_._1 == columnName)
+    val maybe = settings.columnTypeOverrides.get(columnName)
     val data = maybe
-      .map {
-        case (columnName, CustomDataType.BinaryImage) =>
-          val rowId = resultSet.getString(settings.primaryKeyField)
-          s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
+      .map { case CustomDataType.BinaryImage =>
+        val rowId = resultSet.getString(settings.primaryKeyField)
+        s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
       }
       .getOrElse(resultSet.getString(columnName))
     Option(data).getOrElse("")
