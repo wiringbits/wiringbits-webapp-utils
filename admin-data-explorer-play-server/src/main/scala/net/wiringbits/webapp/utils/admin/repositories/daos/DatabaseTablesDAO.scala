@@ -3,10 +3,10 @@ package net.wiringbits.webapp.utils.admin.repositories.daos
 import anorm.{SqlParser, SqlStringInterpolation}
 import net.wiringbits.webapp.utils.admin.config.{CustomDataType, PrimaryKeyDataType, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.models.*
-import net.wiringbits.webapp.utils.admin.utils.{QueryBuilder, StringRegex}
 import net.wiringbits.webapp.utils.admin.utils.models.{FilterParameter, QueryParameters}
+import net.wiringbits.webapp.utils.admin.utils.{QueryBuilder, StringRegex}
 
-import java.sql.{Connection, Date, PreparedStatement}
+import java.sql.{Connection, Date, PreparedStatement, ResultSet}
 import java.time.LocalDate
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
@@ -74,15 +74,15 @@ object DatabaseTablesDAO {
   }
 
   def getTableData(
-      tableName: String,
       settings: TableSettings,
-      fields: List[TableColumn],
+      columns: List[TableColumn],
       queryParameters: QueryParameters,
       baseUrl: String
   )(implicit conn: Connection): List[TableRow] = {
     val dateRegex = StringRegex.dateRegex
     val limit = queryParameters.pagination.end - queryParameters.pagination.start
     val offset = queryParameters.pagination.start
+    val tableName = settings.tableName
     // react-admin gives us a "id" field instead of the primary key of the actual column so we need to replace it
     val sortBy = if (queryParameters.sort.field == "id") settings.primaryKeyField else queryParameters.sort.field
 
@@ -135,22 +135,15 @@ object DatabaseTablesDAO {
     try {
       while (resultSet.next) {
         val rowData = for {
-          field <- fields
-          fieldName = field.name
-          data = {
-            val maybe = settings.columnTypeOverrides.find(_._1 == fieldName)
-            maybe
-              .map { case (columnName, customDataType) =>
-                customDataType match {
-                  case CustomDataType.BinaryImage =>
-                    val rowId = resultSet.getString(settings.primaryKeyField)
-                    s"$baseUrl/admin/images/$tableName/$columnName/$rowId"
-                  case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
-                }
-              }
-              .getOrElse(resultSet.getString(fieldName))
-          }
-        } yield Cell(Option(data).getOrElse(""))
+          column <- columns
+          columnName = column.name
+          stringData = getStringFromColumnName(
+            settings = settings,
+            resultSet = resultSet,
+            columnName = columnName,
+            baseUrl = baseUrl
+          )
+        } yield Cell(stringData)
         tableData += TableRow(rowData)
       }
       tableData.toList
@@ -158,6 +151,25 @@ object DatabaseTablesDAO {
       resultSet.close()
       preparedStatement.close()
     }
+  }
+
+  private def getStringFromColumnName(
+      settings: TableSettings,
+      resultSet: ResultSet,
+      columnName: String,
+      baseUrl: String
+  ) = {
+    val maybe = settings.columnTypeOverrides.get(columnName)
+    val data = maybe
+      .map {
+        case CustomDataType.BinaryImage =>
+          val rowId = resultSet.getString(settings.primaryKeyField)
+          s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
+        // TODO: handle binary file
+        case CustomDataType.Binary => resultSet.getString(columnName)
+      }
+      .getOrElse(resultSet.getString(columnName))
+    Option(data).getOrElse("")
   }
 
   def getMandatoryFields(tableName: String, primaryKeyField: String)(implicit conn: Connection): List[TableColumn] = {
@@ -190,20 +202,13 @@ object DatabaseTablesDAO {
       val row = for {
         column <- columns
         columnName = column.name
-        cellData = {
-          val maybe = settings.columnTypeOverrides.find(_._1 == columnName)
-          maybe
-            .map { case (columnName, customDataType) =>
-              customDataType match {
-                case CustomDataType.BinaryImage =>
-                  val rowId = resultSet.getString(settings.primaryKeyField)
-                  s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
-                case CustomDataType.Binary | CustomDataType.Text => resultSet.getString(columnName)
-              }
-            }
-            .getOrElse(resultSet.getString(columnName))
-        }
-      } yield Cell(Option(cellData).getOrElse(""))
+        stringData = getStringFromColumnName(
+          settings = settings,
+          resultSet = resultSet,
+          columnName = columnName,
+          baseUrl = baseUrl
+        )
+      } yield Cell(stringData)
       TableRow(row.toList)
     }.toOption
   }
