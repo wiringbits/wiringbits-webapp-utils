@@ -41,7 +41,7 @@ object PrimaryKeyDataType {
 
 sealed trait CustomDataType extends Product with Serializable
 object CustomDataType {
-  final case object Text extends CustomDataType
   final case object BinaryImage extends CustomDataType
+  // TODO: add support to binary files
   final case object Binary extends CustomDataType
 }
