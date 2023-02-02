@@ -187,9 +187,12 @@ object DatabaseTablesDAO {
   ) = {
     val maybe = settings.columnTypeOverrides.get(columnName)
     val data = maybe
-      .map { case CustomDataType.BinaryImage =>
-        val rowId = resultSet.getString(settings.primaryKeyField)
-        s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
+      .map {
+        case CustomDataType.BinaryImage =>
+          val rowId = resultSet.getString(settings.primaryKeyField)
+          s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
+        // TODO: handle binary file
+        case CustomDataType.Binary => resultSet.getString(columnName)
       }
       .getOrElse(resultSet.getString(columnName))
     Option(data).getOrElse("")
