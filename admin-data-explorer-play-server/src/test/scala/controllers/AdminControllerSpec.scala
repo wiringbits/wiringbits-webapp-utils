@@ -427,7 +427,12 @@ class AdminControllerSpec extends PlayPostgresSpec {
       client.createItem(usersSettings.tableName, request).futureValue
 
       val response = client
-        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), """{"name":"irin","email":"test"}""")
+        .getTableMetadata(
+          usersSettings.tableName,
+          List("name", "ASC"),
+          List(0, 9),
+          """{"name":"irin","email":"test"}"""
+        )
         .futureValue
       val head = response.headOption.value
       val nameValue = head.find(_._1 == "name").value._2
