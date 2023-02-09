@@ -1,37 +1,49 @@
 package net.wiringbits.webapp.utils.ui.web
 
-import io.github.nafg.simplefacade.Factory
-import japgolly.scalajs.react.vdom.VdomNode
 import net.wiringbits.webapp.utils.api.models.AdminGetTables
 import net.wiringbits.webapp.utils.ui.web.components.{EditGuesser, ListGuesser}
 import net.wiringbits.webapp.utils.ui.web.facades.reactadmin._
+import net.wiringbits.webapp.utils.ui.web.facades.simpleRestProvider
 import net.wiringbits.webapp.utils.ui.web.models.DataExplorerSettings
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
+import slinky.core.FunctionalComponent
+import slinky.core.annotations.react
+import slinky.core.facade.{Hooks, ReactElement}
 
-import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
+@react
 object AdminView {
-  private def AdminTables(api: API, response: AdminGetTables.Response, dataExplorerSettings: DataExplorerSettings) = {
-    val tablesUrl = s"${api.url}/admin/tables"
+  case class Props(api: API, dataExplorerSettings: DataExplorerSettings = DataExplorerSettings())
 
-    def buildResources: List[VdomNode] = {
-      response.data.map { table =>
+  val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
+    val (tables, setTables) = Hooks.useState[List[AdminGetTables.Response.DatabaseTable]](List.empty)
+
+    Hooks.useEffect(
+      () => {
+        props.api.client.getTables.onComplete {
+          case Success(response) =>
+            setTables(response.data)
+
+          case Failure(ex) =>
+            ex.printStackTrace()
+        }
+      },
+      ""
+    )
+
+    val tablesUrl = s"${props.api.url}/admin/tables"
+
+    def buildResources: List[ReactElement] = {
+      tables.map { table =>
         Resource(
-          _.name := table.name,
-          _.list := ListGuesser(table),
-          _.edit := EditGuesser(table, dataExplorerSettings)
+          name = table.name,
+          list = ListGuesser(table),
+          edit = EditGuesser(table, props.dataExplorerSettings)
         )
       }
     }
 
-    val resources = buildResources
-    Admin(_.dataProvider := simpleRestProvider(tablesUrl))(resources: _*)
-  }
-
-  def apply(
-      api: API,
-      dataExplorerSettings: DataExplorerSettings = DataExplorerSettings()
-  ): Future[Factory[Admin.Props]] = {
-    api.client.getTables.map { AdminTables(api, _, dataExplorerSettings) }
+    Admin(dataProvider = simpleRestProvider(tablesUrl))(buildResources: _*)
   }
 }

@@ -1,4 +1,4 @@
-package net.wiringbits.webapp.utils.ui.web.facades.reactadmin
+package net.wiringbits.webapp.utils.ui.web.facades
 
 import scala.scalajs.js
 

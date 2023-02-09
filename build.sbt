@@ -284,8 +284,8 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
 
 // shared on the ui only
 lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
-  .dependsOn(adminDataExplorerApi.js)
-  .configure(bundlerSettings, baseLibSettings)
+  .dependsOn(adminDataExplorerApi.js, webappCommon.js, scalablytypedFacades)
+  .configure(baseWebSettings, baseLibSettings, bundlerSettings)
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .settings(
     scalaVersion := "2.13.8",

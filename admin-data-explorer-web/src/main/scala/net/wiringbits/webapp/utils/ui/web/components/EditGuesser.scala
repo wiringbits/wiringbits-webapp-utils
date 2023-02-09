@@ -1,8 +1,5 @@
 package net.wiringbits.webapp.utils.ui.web.components
 
-import japgolly.scalajs.react.React.Fragment
-import japgolly.scalajs.react.ScalaFnComponent
-import japgolly.scalajs.react.vdom.html_<^._
 import net.wiringbits.webapp.utils.api.models.AdminGetTables
 import net.wiringbits.webapp.utils.ui.web.facades.reactadmin.ReactAdmin.useEditContext
 import net.wiringbits.webapp.utils.ui.web.facades.reactadmin._
@@ -10,28 +7,37 @@ import net.wiringbits.webapp.utils.ui.web.models.{ButtonAction, ColumnType, Data
 import net.wiringbits.webapp.utils.ui.web.utils.ResponseGuesser
 import org.scalajs.dom
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
+import slinky.core.facade.{Fragment, ReactElement}
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 import scala.scalajs.js
 import scala.util.{Failure, Success}
 
 object EditGuesser {
+  case class Props(response: AdminGetTables.Response.DatabaseTable, dataExplorerSettings: DataExplorerSettings)
 
-  def apply(response: AdminGetTables.Response.DatabaseTable, dataExplorerSettings: DataExplorerSettings) = {
-    val fields = ResponseGuesser.getTypesFromResponse(response)
-    val inputs: List[VdomNode] = fields
-      .map { fieldType =>
-        fieldType.`type` match {
-          case ColumnType.Date => DateTimeInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
-          case ColumnType.Text => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
-          case ColumnType.Email => TextInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
-          case ColumnType.Image => ImageField(_.source := fieldType.name)
-          case ColumnType.Number => NumberInput(_.source := fieldType.name, _.disabled := fieldType.disabled)
-          case ColumnType.Reference(reference, source) =>
-            ReferenceInput(_.source := fieldType.name, _.reference := reference)(
-              SelectInput(_.optionText := source, _.disabled := fieldType.disabled)
-            )
-        }
+  def apply(
+      response: AdminGetTables.Response.DatabaseTable,
+      dataExplorerSettings: DataExplorerSettings
+  ): KeyAddingStage = {
+    component(Props(response, dataExplorerSettings))
+  }
+
+  val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
+    val fields = ResponseGuesser.getTypesFromResponse(props.response)
+    val inputs: List[ReactElement] = fields.map { field =>
+      field.`type` match {
+        case ColumnType.Date => DateTimeInput(source = field.name, disabled = field.disabled)
+        case ColumnType.Text => TextInput(source = field.name, disabled = field.disabled)
+        case ColumnType.Email => TextInput(source = field.name, disabled = field.disabled)
+        case ColumnType.Image => ImageField(source = field.name)
+        case ColumnType.Number => NumberInput(source = field.name, disabled = field.disabled)
+        case ColumnType.Reference(reference, source) =>
+          ReferenceInput(source = field.name, reference = reference)(
+            SelectInput(optionText = source, disabled = field.disabled)
+          )
       }
+    }
 
     def onClick(action: ButtonAction, ctx: js.Dictionary[js.Any]): Unit = {
       val primaryKey = dom.window.location.hash.split("/").lastOption.getOrElse("")
@@ -45,29 +51,29 @@ object EditGuesser {
       val _ = ctx.get("refetch").map(_.asInstanceOf[js.Dynamic].apply())
     }
 
-    val tableAction = dataExplorerSettings.actions.find(_.tableName == response.name)
-    def buttons(ctx: js.Dictionary[js.Any]) = tableAction
-      .map { x =>
-        x.actions.map { action =>
-          Button(_.onClick := (() => onClick(action, ctx)))(action.text)
-        }: List[VdomNode]
-      }
-      .getOrElse(List.empty)
+    val tableAction = props.dataExplorerSettings.actions.find(_.tableName == props.response.name)
 
-    val actions = ScalaFnComponent.withHooks[Unit].unchecked(useEditContext()).render { (_, ctx) =>
-      {
-        TopToolbar()(buttons(ctx): _*)
-      }: VdomNode
+    def buttons(): List[ReactElement] = {
+      val ctx = useEditContext()
+      tableAction
+        .map { x =>
+          x.actions.map { action =>
+            Button(onClick = () => onClick(action, ctx))(action.text)
+          }: List[ReactElement]
+        }
+        .getOrElse(List.empty)
     }
 
-    val deleteButton: VdomNode = if (response.canBeDeleted) DeleteButton() else Fragment()
-    val toolbar: VdomNode = Toolbar()(
+    val actions = TopToolbar()(buttons(): _*)
+
+    val deleteButton: ReactElement = if (props.response.canBeDeleted) DeleteButton() else Fragment()
+    val toolbar: ReactElement = Toolbar()(
       SaveButton(),
       deleteButton
     )
 
-    Edit(_.actions := actions())(
-      SimpleForm(_.toolbar := toolbar)(inputs: _*)
+    Edit(actions = actions())(
+      SimpleForm(toolbar = toolbar)(inputs: _*)
     )
   }
 }

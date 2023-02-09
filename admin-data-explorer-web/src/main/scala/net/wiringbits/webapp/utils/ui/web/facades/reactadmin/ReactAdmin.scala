@@ -3,15 +3,13 @@ package net.wiringbits.webapp.utils.ui.web.facades.reactadmin
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
-@js.native
 @JSImport("react-admin", JSImport.Namespace)
-object ReactAdmin extends js.Any {
-  def useRecordContext(): js.Dictionary[js.Any] = js.native
-
+@js.native
+object ReactAdmin extends js.Object {
   def useEditContext(): js.Dictionary[js.Any] = js.native
 
-  val Admin, Create, Datagrid, Edit, EditButton, EmailField, ImageField, List, ReferenceField, ReferenceInput, Resource,
-      SelectInput, SimpleForm, TextField, DateField, DateTimeInput, TextInput, Button, SaveButton, DeleteButton,
-      Toolbar, TopToolbar, UrlField, DateInput, FilterButton, ExportButton, NumberInput, NumberField: js.Object =
+  val Admin, Resource, EditGuesser, ListGuesser, TextInput, ImageField, NumberInput, DateTimeInput, ReferenceInput,
+      SelectInput, Button, DeleteButton, SaveButton, TopToolbar, Toolbar, Edit, SimpleForm, DateField, TextField,
+      EmailField, NumberField, ReferenceField, DateInput, FilterButton, ExportButton, ComponentList, Datagrid: js.Object =
     js.native
 }
