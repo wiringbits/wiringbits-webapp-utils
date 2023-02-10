@@ -11,6 +11,7 @@ import net.wiringbits.webapp.utils.admin.utils.models.{
 import play.api.routing.Router.Routes
 import play.api.routing.SimpleRouter
 import play.api.routing.sird.*
+import play.utils.UriEncoding
 
 import javax.inject.Inject
 
@@ -22,8 +23,8 @@ class AppRouter @Inject() (adminController: AdminController, imagesController: I
       adminController.getTables()
 
     // get database table fields
-    // example: GET http://localhost:9000/admin/tables/users?filters={}&range=[0, 9]&sort=["id", "ASC"]
-    case GET(p"/admin/tables/$tableName" ? q"filters=$filters" & q"range=$range" & q"sort=$sort") =>
+    // example: GET http://localhost:9000/admin/tables/users?filter={}&range=[0, 9]&sort=["id", "ASC"]
+    case GET(p"/admin/tables/$tableName" ? q"filter=$filters" & q"range=$range" & q"sort=$sort") =>
       val queryParams =
         QueryParameters(
           sort = SortParameter.fromString(sort),
@@ -39,7 +40,8 @@ class AppRouter @Inject() (adminController: AdminController, imagesController: I
     // get table resources by ids
     case GET(p"/admin/tables/$tableName" ? q"filter=$fieldStr") =>
       // fieldStr is a string like: "List(..., ..., ...)" that's why we substring it
-      val filter = fieldStr.substring(6, fieldStr.length - 1).toStringList
+      val decodedFieldStr = UriEncoding.decodePathSegment(fieldStr, "UTF-8")
+      val filter = decodedFieldStr.substring(6, decodedFieldStr.length - 1).toStringList
       adminController.find(tableName, filter)
 
     // create table resource
