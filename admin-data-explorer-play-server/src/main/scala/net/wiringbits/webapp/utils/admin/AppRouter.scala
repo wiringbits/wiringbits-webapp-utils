@@ -2,16 +2,10 @@ package net.wiringbits.webapp.utils.admin
 
 import net.wiringbits.webapp.utils.admin.controllers.{AdminController, ImagesController}
 import net.wiringbits.webapp.utils.admin.utils.StringToDataTypesExt
-import net.wiringbits.webapp.utils.admin.utils.models.{
-  FilterParameter,
-  PaginationParameter,
-  QueryParameters,
-  SortParameter
-}
+import net.wiringbits.webapp.utils.admin.utils.models.{FilterParameter, PaginationParameter, QueryParameters, SortParameter}
 import play.api.routing.Router.Routes
 import play.api.routing.SimpleRouter
 import play.api.routing.sird.*
-import play.utils.UriEncoding
 
 import javax.inject.Inject
 
@@ -40,8 +34,7 @@ class AppRouter @Inject() (adminController: AdminController, imagesController: I
     // get table resources by ids
     case GET(p"/admin/tables/$tableName" ? q"filter=$fieldStr") =>
       // fieldStr is a string like: "List(..., ..., ...)" that's why we substring it
-      val decodedFieldStr = UriEncoding.decodePathSegment(fieldStr, "UTF-8")
-      val filter = decodedFieldStr.substring(6, decodedFieldStr.length - 1).toStringList
+      val filter = fieldStr.substring(6, fieldStr.length - 1).toStringList
       adminController.find(tableName, filter)
 
     // create table resource
