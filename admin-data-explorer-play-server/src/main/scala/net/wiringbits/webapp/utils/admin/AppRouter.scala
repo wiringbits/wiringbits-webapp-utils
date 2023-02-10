@@ -2,7 +2,12 @@ package net.wiringbits.webapp.utils.admin
 
 import net.wiringbits.webapp.utils.admin.controllers.{AdminController, ImagesController}
 import net.wiringbits.webapp.utils.admin.utils.StringToDataTypesExt
-import net.wiringbits.webapp.utils.admin.utils.models.{FilterParameter, PaginationParameter, QueryParameters, SortParameter}
+import net.wiringbits.webapp.utils.admin.utils.models.{
+  FilterParameter,
+  PaginationParameter,
+  QueryParameters,
+  SortParameter
+}
 import play.api.routing.Router.Routes
 import play.api.routing.SimpleRouter
 import play.api.routing.sird.*
