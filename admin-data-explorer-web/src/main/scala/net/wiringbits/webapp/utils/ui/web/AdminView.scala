@@ -6,15 +6,17 @@ import net.wiringbits.webapp.utils.ui.web.facades.reactadmin._
 import net.wiringbits.webapp.utils.ui.web.facades.simpleRestProvider
 import net.wiringbits.webapp.utils.ui.web.models.DataExplorerSettings
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
-import slinky.core.FunctionalComponent
-import slinky.core.annotations.react
 import slinky.core.facade.{Hooks, ReactElement}
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 import scala.util.{Failure, Success}
 
-@react
 object AdminView {
   case class Props(api: API, dataExplorerSettings: DataExplorerSettings = DataExplorerSettings())
+
+  def apply(api: API, dataExplorerSettings: DataExplorerSettings = DataExplorerSettings()): KeyAddingStage = component(
+    Props(api, dataExplorerSettings)
+  )
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val (tables, setTables) = Hooks.useState[List[AdminGetTables.Response.DatabaseTable]](List.empty)
@@ -34,16 +36,18 @@ object AdminView {
 
     val tablesUrl = s"${props.api.url}/admin/tables"
 
-    def buildResources: List[ReactElement] = {
+    def buildResources: Seq[ReactElement] = {
       tables.map { table =>
         Resource(
-          name = table.name,
-          list = ListGuesser(table),
-          edit = EditGuesser(table, props.dataExplorerSettings)
+          Resource.Props(
+            name = table.name,
+            list = ListGuesser(table),
+            edit = EditGuesser(table, props.dataExplorerSettings)
+          )
         )
       }
     }
 
-    Admin(dataProvider = simpleRestProvider(tablesUrl))(buildResources: _*)
+    Admin(Admin.Props(dataProvider = simpleRestProvider(tablesUrl), children = buildResources))
   }
 }

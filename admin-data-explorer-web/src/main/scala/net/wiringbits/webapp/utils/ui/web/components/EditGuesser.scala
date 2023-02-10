@@ -25,16 +25,20 @@ object EditGuesser {
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val fields = ResponseGuesser.getTypesFromResponse(props.response)
-    val inputs: List[ReactElement] = fields.map { field =>
+    val inputs: Seq[ReactElement] = fields.map { field =>
       field.`type` match {
-        case ColumnType.Date => DateTimeInput(source = field.name, disabled = field.disabled)
-        case ColumnType.Text => TextInput(source = field.name, disabled = field.disabled)
-        case ColumnType.Email => TextInput(source = field.name, disabled = field.disabled)
-        case ColumnType.Image => ImageField(source = field.name)
-        case ColumnType.Number => NumberInput(source = field.name, disabled = field.disabled)
+        case ColumnType.Date => DateTimeInput(DateTimeInput.Props(source = field.name, disabled = field.disabled))
+        case ColumnType.Text => TextInput(TextInput.Props(source = field.name, disabled = field.disabled))
+        case ColumnType.Email => TextInput(TextInput.Props(source = field.name, disabled = field.disabled))
+        case ColumnType.Image => ImageField(ImageField.Props(source = field.name))
+        case ColumnType.Number => NumberInput(NumberInput.Props(source = field.name, disabled = field.disabled))
         case ColumnType.Reference(reference, source) =>
-          ReferenceInput(source = field.name, reference = reference)(
-            SelectInput(optionText = source, disabled = field.disabled)
+          ReferenceInput(
+            ReferenceInput.Props(
+              source = field.name,
+              reference = reference,
+              children = Seq(SelectInput(SelectInput.Props(optionText = source, disabled = field.disabled)))
+            )
           )
       }
     }
@@ -53,27 +57,34 @@ object EditGuesser {
 
     val tableAction = props.dataExplorerSettings.actions.find(_.tableName == props.response.name)
 
-    def buttons(): List[ReactElement] = {
+    def buttons(): Seq[ReactElement] = {
       val ctx = useEditContext()
       tableAction
         .map { x =>
           x.actions.map { action =>
-            Button(onClick = () => onClick(action, ctx))(action.text)
-          }: List[ReactElement]
+            Button(Button.Props(onClick = () => onClick(action, ctx), children = Seq(action.text)))
+          }: Seq[ReactElement]
         }
-        .getOrElse(List.empty)
+        .getOrElse(Seq.empty)
     }
 
-    val actions = TopToolbar()(buttons(): _*)
+    val actions = TopToolbar(TopToolbar.Props(children = buttons()))
 
     val deleteButton: ReactElement = if (props.response.canBeDeleted) DeleteButton() else Fragment()
-    val toolbar: ReactElement = Toolbar()(
-      SaveButton(),
-      deleteButton
+    val toolbar: ReactElement = Toolbar(
+      Toolbar.Props(children =
+        Seq(
+          SaveButton(),
+          deleteButton
+        )
+      )
     )
 
-    Edit(actions = actions())(
-      SimpleForm(toolbar = toolbar)(inputs: _*)
+    Edit(
+      Edit.Props(
+        actions = actions(),
+        children = Seq(SimpleForm(SimpleForm.Props(toolbar = toolbar, children = inputs)))
+      )
     )
   }
 }

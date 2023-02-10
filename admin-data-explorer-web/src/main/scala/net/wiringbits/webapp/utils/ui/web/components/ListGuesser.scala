@@ -19,44 +19,53 @@ object ListGuesser {
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val fields = ResponseGuesser.getTypesFromResponse(props.response)
 
-    val widgetFields: List[ReactElement] = fields.map { field =>
+    def defaultField(reference: String, source: String, children: Seq[ReactElement]): ReactElement =
+      ReferenceField(
+        ReferenceField.Props(
+          reference = reference,
+          source = source,
+          children = children
+        )
+      )
+
+    val widgetFields: Seq[ReactElement] = fields.map { field =>
       val imageStyles = js.Dynamic.literal("width" -> "100px")
       val styles = js.Dynamic.literal("& img" -> imageStyles)
       field.`type` match {
-        case ColumnType.Date => DateField(source = field.name, showTime = true)
-        case ColumnType.Text => TextField(source = field.name)
-        case ColumnType.Email => EmailField(source = field.name)
-        case ColumnType.Image => ImageField(source = field.name, sx = styles)
-        case ColumnType.Number => NumberField(source = field.name)
+        case ColumnType.Date => DateField(DateField.Props(source = field.name, showTime = true))
+        case ColumnType.Text => TextField(TextField.Props(source = field.name))
+        case ColumnType.Email => EmailField(EmailField.Props(source = field.name))
+        case ColumnType.Image => ImageField(ImageField.Props(source = field.name, sx = styles))
+        case ColumnType.Number => NumberField(NumberField.Props(source = field.name))
         case ColumnType.Reference(reference, source) =>
-          ReferenceField(reference = reference, source = field.name)(
-            TextField(source = source)
-          )
+          defaultField(reference, field.name, Seq(TextField(TextField.Props(source = source))))
       }
     }
 
-    val filterList: List[ReactElement] = fields.filter(_.filterable).map { field =>
+    val filterList: Seq[ReactElement] = fields.filter(_.filterable).map { field =>
       field.`type` match {
-        case ColumnType.Date => DateInput(source = field.name)
-        case ColumnType.Text | ColumnType.Email => TextInput(source = field.name)
+        case ColumnType.Date => DateInput(DateInput.Props(source = field.name))
+        case ColumnType.Text | ColumnType.Email => TextInput(TextInput.Props(source = field.name))
         case ColumnType.Image => Fragment()
-        case ColumnType.Number => NumberInput(source = field.name)
+        case ColumnType.Number => NumberInput(NumberInput.Props(source = field.name))
         case ColumnType.Reference(reference, source) =>
-          ReferenceField(reference = reference, source = field.name)(
-            TextField(source = source)
-          )
+          defaultField(reference, field.name, Seq(TextField(TextField.Props(source = source))))
       }
     }
 
-    val listToolbar: ReactElement = TopToolbar()(
-      FilterButton(
-        filters = filterList
-      ),
-      ExportButton()
+    val listToolbar: ReactElement = TopToolbar(
+      TopToolbar.Props(
+        children = Seq(
+          FilterButton(FilterButton.Props(filters = filterList)),
+          ExportButton()
+        )
+      )
     )
 
-    ComponentList(actions = listToolbar, filters = filterList)(
-      Datagrid(rowClick = "edit", bulkActionButtons = props.response.canBeDeleted)(widgetFields: _*)
+    ComponentList(ComponentList.Props(actions = listToolbar, filters = filterList))(
+      Datagrid(
+        Datagrid.Props(rowClick = "edit", bulkActionButtons = props.response.canBeDeleted, children = widgetFields)
+      )
     )
   }
 }
