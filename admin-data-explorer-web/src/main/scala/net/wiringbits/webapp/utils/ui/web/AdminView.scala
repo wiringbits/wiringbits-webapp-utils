@@ -8,6 +8,7 @@ import net.wiringbits.webapp.utils.ui.web.models.DataExplorerSettings
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.global
 import slinky.core.facade.{Hooks, ReactElement}
 import slinky.core.{FunctionalComponent, KeyAddingStage}
+import slinky.web.html.{div, h1}
 
 import scala.util.{Failure, Success}
 
@@ -20,15 +21,18 @@ object AdminView {
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val (tables, setTables) = Hooks.useState[List[AdminGetTables.Response.DatabaseTable]](List.empty)
+    val (error, setError) = Hooks.useState[Option[String]](Option.empty)
 
+    // We have to find a way to use AsyncComponent instead of useEffect
     Hooks.useEffect(
       () => {
         props.api.client.getTables.onComplete {
           case Success(response) =>
             setTables(response.data)
+            setError(None)
 
           case Failure(ex) =>
-            ex.printStackTrace()
+            setError(Some(ex.getMessage))
         }
       },
       ""
@@ -48,6 +52,9 @@ object AdminView {
       }
     }
 
-    Admin(Admin.Props(dataProvider = simpleRestProvider(tablesUrl), children = buildResources))
+    div()(
+      Admin(Admin.Props(dataProvider = simpleRestProvider(tablesUrl), children = buildResources)),
+      error.map(h1(_))
+    )
   }
 }
