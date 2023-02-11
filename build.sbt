@@ -300,7 +300,6 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
     Compile / npmDependencies ++= Seq(
       "react" -> "17.0.0",
       "react-dom" -> "17.0.0",
-      "@types/react-dom" -> "17.0.0",
       "react-scripts" -> "5.0.0",
       "react-admin" -> "4.1.0",
       "ra-ui-materialui" -> "4.1.0",
