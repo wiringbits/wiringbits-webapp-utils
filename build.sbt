@@ -284,7 +284,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
 
 // shared on the ui only
 lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
-  .dependsOn(adminDataExplorerApi.js, webappCommon.js, scalablytypedFacades)
+  .dependsOn(adminDataExplorerApi.js, webappCommon.js)
   .configure(baseWebSettings, baseLibSettings, bundlerSettings)
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .settings(
@@ -293,11 +293,15 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
     name := "admin-data-explorer-web",
     Test / fork := false, // sjs needs this to run tests
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0"
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
+      "me.shadaj" %%% "slinky-core" % "0.7.3",
+      "me.shadaj" %%% "slinky-web" % "0.7.3"
     ),
+    stOutputPackage := "net.wiringbits.facades",
     Compile / npmDependencies ++= Seq(
       "react" -> "17.0.0",
       "react-dom" -> "17.0.0",
+      "@types/react-dom" -> "17.0.0",
       "react-scripts" -> "5.0.0",
       "react-admin" -> "4.1.0",
       "ra-ui-materialui" -> "4.1.0",
