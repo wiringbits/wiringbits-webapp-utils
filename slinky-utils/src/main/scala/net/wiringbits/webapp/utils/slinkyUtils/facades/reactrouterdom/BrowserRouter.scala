@@ -15,7 +15,7 @@ object BrowserRouter extends ExternalComponent {
   case class Props(basename: String, children: ReactElement)
   override val component: String | js.Object = BrowserRouterComponent
 
-  def apply(basename: String, children: ReactElement): ReactElement = {
+  def apply(basename: String)(children: ReactElement): ReactElement = {
     super.apply(Props(basename = basename, children = children))
   }
 }
