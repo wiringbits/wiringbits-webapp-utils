@@ -19,7 +19,7 @@ object Route extends ExternalComponent {
   )
   override val component: String | js.Object = RouteComponent
 
-  def apply(path: String, exact: Boolean = false)(render: () => ReactElement): ReactElement = {
-    super.apply(Props(path = path, exact = exact, render = render))
+  def apply(path: String, exact: Boolean = false)(render: => ReactElement): ReactElement = {
+    super.apply(Props(path = path, exact = exact, render = () => render))
   }
 }
