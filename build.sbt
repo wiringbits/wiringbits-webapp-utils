@@ -208,9 +208,7 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
       "@material-ui/icons" -> "3.0.2",
       "@types/classnames" -> "2.2.10",
       "react-router" -> "5.1.2",
-      "@types/react-router" -> "5.1.2",
-      "react-router-dom" -> "5.1.2",
-      "@types/react-router-dom" -> "5.1.2"
+      "react-router-dom" -> "5.1.2"
     ),
     stFlavour := Flavour.Slinky,
     stReactEnableTreeShaking := Selection.All,
