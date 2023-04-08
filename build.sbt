@@ -330,7 +330,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
     libraryDependencies ++= Seq(
       "org.playframework.anorm" %% "anorm" % "2.6.10",
       "com.typesafe.play" %% "play" % "2.8.13",
-      "com.typesafe.play" %% "play-json" % "2.9.2",
+      "com.typesafe.play" %% "play-json" % "2.9.4",
       "org.postgresql" % "postgresql" % "42.3.6",
       "com.github.jwt-scala" %% "jwt-core" % "9.0.5",
       "de.svenkubiak" % "jBCrypt" % "0.4.3",
