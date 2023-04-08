@@ -328,7 +328,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(
-      "org.playframework.anorm" %% "anorm" % "2.6.10",
+      "org.playframework.anorm" %% "anorm" % "2.7.0",
       "com.typesafe.play" %% "play" % "2.8.19",
       "com.typesafe.play" %% "play-json" % "2.9.4",
       "org.postgresql" % "postgresql" % "42.3.8",
