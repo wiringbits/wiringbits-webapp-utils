@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin
 
-import net.wiringbits.webapp.utils.admin.controllers.AdminController
+import net.wiringbits.webapp.utils.admin.controllers.{AdminController, ImagesController}
 import net.wiringbits.webapp.utils.admin.utils.StringToDataTypesExt
 import net.wiringbits.webapp.utils.admin.utils.models.{
   FilterParameter,
@@ -14,7 +14,7 @@ import play.api.routing.sird.*
 
 import javax.inject.Inject
 
-class AppRouter @Inject() (adminController: AdminController) extends SimpleRouter {
+class AppRouter @Inject() (adminController: AdminController, imagesController: ImagesController) extends SimpleRouter {
 
   override def routes: Routes = {
     // get database tables
@@ -22,13 +22,13 @@ class AppRouter @Inject() (adminController: AdminController) extends SimpleRoute
       adminController.getTables()
 
     // get database table fields
-    // example: GET http://localhost:9000/admin/tables/users?filter={}&range=[0, 9]&sort=["id", "ASC"]
-    case GET(p"/admin/tables/$tableName" ? q"filter=$filter" & q"range=$range" & q"sort=$sort") =>
+    // example: GET http://localhost:9000/admin/tables/users?filters={}&range=[0, 9]&sort=["id", "ASC"]
+    case GET(p"/admin/tables/$tableName" ? q"filters=$filters" & q"range=$range" & q"sort=$sort") =>
       val queryParams =
         QueryParameters(
           sort = SortParameter.fromString(sort),
           pagination = PaginationParameter.fromString(range),
-          filter = FilterParameter.fromString(filter)
+          filters = FilterParameter.fromString(filters)
         )
       adminController.getTableMetadata(tableName, queryParams)
 
@@ -53,5 +53,9 @@ class AppRouter @Inject() (adminController: AdminController) extends SimpleRoute
     // delete table resource
     case DELETE(p"/admin/tables/$tableName/$id") =>
       adminController.delete(tableName, id)
+
+    // get a image
+    case GET(p"/admin/images/$tableName/$columnName/$primaryKeyValue") =>
+      imagesController.find(tableName, columnName, primaryKeyValue)
   }
 }
