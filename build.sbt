@@ -195,21 +195,25 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
     stTypescriptVersion := "3.9.3",
     stOutputPackage := "net.wiringbits.facades",
     // material-ui is provided by a pre-packaged library
-    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
+    stIgnore ++= List(
+      "@material-ui/core",
+      "@material-ui/styles",
+      "@material-ui/icons",
+      "react-router",
+      "react-router-dom"
+    ),
     Compile / npmDependencies ++= Seq(
       "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
       "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
       "@material-ui/icons" -> "3.0.2",
       "@types/classnames" -> "2.2.10",
       "react-router" -> "5.1.2",
-      "@types/react-router" -> "5.1.2",
-      "react-router-dom" -> "5.1.2",
-      "@types/react-router-dom" -> "5.1.2"
+      "react-router-dom" -> "5.1.2"
     ),
     stFlavour := Flavour.Slinky,
     stReactEnableTreeShaking := Selection.All,
     stUseScalaJsDom := true,
-    stMinimize := Selection.AllExcept("@types/classnames", "@types/react-router", "@types/react-router-dom"),
+    stMinimize := Selection.AllExcept("@types/classnames"),
     // docs are huge and unnecessary
     Compile / doc / sources := Nil,
     // disabled because it somehow triggers many warnings
