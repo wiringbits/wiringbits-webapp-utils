@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.config
 
-case class DataExplorerSettings(tables: List[TableSettings]) {
+case class DataExplorerSettings(baseUrl: String, tables: List[TableSettings]) {
   def unsafeFindByName(tableName: String): TableSettings = {
     tables
       .find(_.tableName == tableName)

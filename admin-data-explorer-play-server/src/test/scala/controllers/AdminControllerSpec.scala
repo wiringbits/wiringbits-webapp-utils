@@ -4,7 +4,7 @@ import com.dimafeng.testcontainers.PostgreSQLContainer
 import controllers.common.PlayPostgresSpec
 import net.wiringbits.webapp.utils.admin.AppRouter
 import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
-import net.wiringbits.webapp.utils.admin.controllers.AdminController
+import net.wiringbits.webapp.utils.admin.controllers.{AdminController, ImagesController}
 import net.wiringbits.webapp.utils.api.models.AdminCreateTable
 import org.apache.commons.lang3.StringUtils
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -31,7 +31,8 @@ class AdminControllerSpec extends PlayPostgresSpec {
   override def guiceApplicationBuilder(container: PostgreSQLContainer): GuiceApplicationBuilder = {
     val appBuilder = super.guiceApplicationBuilder(container)
     val adminController = appBuilder.injector().instanceOf[AdminController]
-    val appRouter = new AppRouter(adminController)
+    val imagesController = appBuilder.injector().instanceOf[ImagesController]
+    val appRouter = new AppRouter(adminController, imagesController)
     appBuilder.router(appRouter)
   }
 
@@ -382,6 +383,82 @@ class AdminControllerSpec extends PlayPostgresSpec {
       val invalidTableName = "aaaaaaaaaaa"
       val error = client.getTableMetadata(invalidTableName, List("name", "ASC"), List(0, 9), "{}").expectError
       error must be(s"Unexpected error because the DB table wasn't found: $invalidTableName")
+    }
+
+    "return data with partial match" in withApiClient { client =>
+      val name = "wiringbits"
+      val email = "test@wiringbits.net"
+      val request = AdminCreateTable.Request(
+        Map("name" -> name, "email" -> email, "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client
+        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), """{"name":"irin"}""")
+        .futureValue
+      val head = response.headOption.value
+      val nameValue = head.find(_._1 == "name").value._2
+      val emailValue = head.find(_._1 == "email").value._2
+      response.size must be(1)
+      name must be(nameValue)
+      email must be(emailValue)
+    }
+
+    "not return data due to partial match" in withApiClient { client =>
+      val name = "wiringbits"
+      val email = "test@wiringbits.net"
+      val request = AdminCreateTable.Request(
+        Map("name" -> name, "email" -> email, "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client
+        .getTableMetadata(usersSettings.tableName, List("name", "ASC"), List(0, 9), """{"name":"yyy"}""")
+        .futureValue
+      response.headOption.isEmpty must be(true)
+    }
+
+    "return data with two filters" in withApiClient { client =>
+      val name = "wiringbits"
+      val email = "test@wiringbits.net"
+      val request = AdminCreateTable.Request(
+        Map("name" -> name, "email" -> email, "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client
+        .getTableMetadata(
+          usersSettings.tableName,
+          List("name", "ASC"),
+          List(0, 9),
+          """{"name":"irin","email":"test"}"""
+        )
+        .futureValue
+      val head = response.headOption.value
+      val nameValue = head.find(_._1 == "name").value._2
+      val emailValue = head.find(_._1 == "email").value._2
+      response.size must be(1)
+      name must be(nameValue)
+      email must be(emailValue)
+    }
+
+    "not return with a valid filter and a non valid filter" in withApiClient { client =>
+      val name = "wiringbits"
+      val email = "test@wiringbits.net"
+      val request = AdminCreateTable.Request(
+        Map("name" -> name, "email" -> email, "password" -> "wiringbits")
+      )
+      client.createItem(usersSettings.tableName, request).futureValue
+
+      val response = client
+        .getTableMetadata(
+          usersSettings.tableName,
+          List("name", "ASC"),
+          List(0, 9),
+          """{"name":"irin","email":"yyyy"}"""
+        )
+        .futureValue
+      response.headOption.isEmpty must be(true)
     }
   }
 

@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.admin.repositories
 
-import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.{DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.executors.DatabaseExecutionContext
 import net.wiringbits.webapp.utils.admin.repositories.daos.DatabaseTablesDAO
 import net.wiringbits.webapp.utils.admin.repositories.models.{DatabaseTable, ForeignKey, TableColumn, TableData}
@@ -39,19 +39,17 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
     }
   }
 
-  def getTableMetadata(tableName: String, queryParameters: QueryParameters): Future[List[TableData]] =
-    Future {
-      database.withTransaction { implicit conn =>
-        val settings = tableSettings.unsafeFindByName(tableName)
-        val columns = DatabaseTablesDAO.getTableColumns(tableName)
-        val rows = DatabaseTablesDAO.getTableData(tableName, columns, queryParameters, settings)
-        val columnNames = getColumnNames(columns, settings.primaryKeyField)
-        rows.map { row =>
-          val tableRow = row.convertToMap(columnNames)
-          TableData(tableRow)
-        }
+  def getTableMetadata(settings: TableSettings, queryParameters: QueryParameters): Future[List[TableData]] = Future {
+    database.withTransaction { implicit conn =>
+      val columns = DatabaseTablesDAO.getTableColumns(settings.tableName)
+      val rows = DatabaseTablesDAO.getTableData(settings, columns, queryParameters, tableSettings.baseUrl)
+      val columnNames = getColumnNames(columns, settings.primaryKeyField)
+      rows.map { row =>
+        val tableRow = row.convertToMap(columnNames)
+        TableData(tableRow)
       }
     }
+  }
 
   private def getColumnNames(columns: List[TableColumn], primaryKeyField: String) = {
     val columnNames = columns.map(_.name)
@@ -62,14 +60,8 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
   def find(tableName: String, primaryKeyValue: String): Future[Option[TableData]] = Future {
     database.withTransaction { implicit conn =>
       val settings = tableSettings.unsafeFindByName(tableName)
-      val primaryKeyType = settings.primaryKeyDataType
-      val maybe = DatabaseTablesDAO.find(
-        tableName = tableName,
-        primaryKeyField = settings.primaryKeyField,
-        primaryKeyValue = primaryKeyValue,
-        primaryKeyType = primaryKeyType
-      )
       val columns = DatabaseTablesDAO.getTableColumns(tableName)
+      val maybe = DatabaseTablesDAO.find(settings, columns, primaryKeyValue, tableSettings.baseUrl)
       val columnNames = getColumnNames(columns, settings.primaryKeyField)
       maybe.map(x => TableData(x.convertToMap(columnNames)))
     }
@@ -132,6 +124,16 @@ class DatabaseTablesRepository @Inject() (database: Database)(implicit
   def numberOfRecords(tableName: String): Future[Int] = Future {
     database.withConnection { implicit conn =>
       DatabaseTablesDAO.countRecordsOnTable(tableName)
+    }
+  }
+
+  def getImageData(
+      settings: TableSettings,
+      columnName: String,
+      imageId: String
+  ): Future[Option[Array[Byte]]] = Future {
+    database.withConnection { implicit conn =>
+      DatabaseTablesDAO.getImageData(settings, columnName, imageId)
     }
   }
 }
