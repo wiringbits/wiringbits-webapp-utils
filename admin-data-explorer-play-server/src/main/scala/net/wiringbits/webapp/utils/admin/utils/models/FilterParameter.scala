@@ -2,13 +2,15 @@ package net.wiringbits.webapp.utils.admin.utils.models
 
 import net.wiringbits.webapp.utils.admin.utils.StringToDataTypesExt
 
-case class FilterParameter(field: Option[String], value: String)
+case class FilterParameter(field: String, value: String) {
+  override def toString: String = s"$field=$value"
+}
 
 object FilterParameter {
-  def fromString(str: String): FilterParameter = {
-    val filter = str.toStringMap
-    val field = filter.keys.headOption
-    val value = filter.values.headOption.getOrElse("")
-    FilterParameter(field, value)
+  def fromString(str: String): List[FilterParameter] = {
+    val filters = str.toStringMap
+    filters.map { case (field, value) =>
+      FilterParameter(field, value)
+    }.toList
   }
 }

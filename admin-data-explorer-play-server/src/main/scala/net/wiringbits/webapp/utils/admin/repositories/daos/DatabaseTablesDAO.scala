@@ -1,12 +1,13 @@
 package net.wiringbits.webapp.utils.admin.repositories.daos
 
 import anorm.{SqlParser, SqlStringInterpolation}
-import net.wiringbits.webapp.utils.admin.config.TableSettings
-import net.wiringbits.webapp.utils.admin.repositories.models.{Cell, DatabaseTable, ForeignKey, TableColumn, TableRow}
-import net.wiringbits.webapp.utils.admin.utils.QueryBuilder
-import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
+import net.wiringbits.webapp.utils.admin.config.{CustomDataType, PrimaryKeyDataType, TableSettings}
+import net.wiringbits.webapp.utils.admin.repositories.models.*
+import net.wiringbits.webapp.utils.admin.utils.models.{FilterParameter, QueryParameters}
+import net.wiringbits.webapp.utils.admin.utils.{QueryBuilder, StringRegex}
 
-import java.sql.Connection
+import java.sql.{Connection, Date, PreparedStatement, ResultSet}
+import java.time.LocalDate
 import java.util.UUID
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
@@ -73,52 +74,76 @@ object DatabaseTablesDAO {
   }
 
   def getTableData(
-      tableName: String,
-      fields: List[TableColumn],
+      settings: TableSettings,
+      columns: List[TableColumn],
       queryParameters: QueryParameters,
-      settings: TableSettings
+      baseUrl: String
   )(implicit conn: Connection): List[TableRow] = {
+    val dateRegex = StringRegex.dateRegex
     val limit = queryParameters.pagination.end - queryParameters.pagination.start
     val offset = queryParameters.pagination.start
+    val tableName = settings.tableName
     // react-admin gives us a "id" field instead of the primary key of the actual column so we need to replace it
     val sortBy = if (queryParameters.sort.field == "id") settings.primaryKeyField else queryParameters.sort.field
 
-    val preparedStatement = queryParameters.filter.field map { field =>
-      val primaryKey = if (field == "id") settings.primaryKeyField else field
-      val sql =
-        s"""
+    val conditionsSql = queryParameters.filters
+      .map { case FilterParameter(filterField, filterValue) =>
+        filterValue match {
+          case dateRegex(_, _, _) =>
+            s"DATE($filterField) = ?"
+
+          case _ =>
+            if (filterValue.toIntOption.isDefined || filterValue.toDoubleOption.isDefined)
+              s"$filterField = ?"
+            else
+              s"$filterField LIKE ?"
+        }
+      }
+      .mkString("WHERE ", " AND ", " ")
+
+    val sql =
+      s"""
       SELECT * FROM $tableName
-      WHERE $primaryKey = ?
+      ${if (queryParameters.filters.nonEmpty) conditionsSql else ""}
       ORDER BY $sortBy ${queryParameters.sort.ordering}
-      LIMIT ? OFFSET ?
+      LIMIT $limit OFFSET $offset
       """
-      val preparedStatement = conn.prepareStatement(sql)
-      preparedStatement.setString(1, queryParameters.filter.value)
-      preparedStatement.setInt(2, limit)
-      preparedStatement.setInt(3, offset)
-      preparedStatement
-    } getOrElse {
-      val sql =
-        s"""
-      SELECT * FROM $tableName
-      ORDER BY $sortBy ${queryParameters.sort.ordering}
-      LIMIT ? OFFSET ?
-      """
-      val preparedStatement = conn.prepareStatement(sql)
-      preparedStatement.setInt(1, limit)
-      preparedStatement.setInt(2, offset)
-      preparedStatement
-    }
+    val preparedStatement = conn.prepareStatement(sql)
+
+    queryParameters.filters.zipWithIndex
+      .foreach { case (FilterParameter(_, filterValue), index) =>
+        // We have to increment index by 1 because SQL parameterIndex starts in 1
+        val sqlIndex = index + 1
+
+        filterValue match {
+          case dateRegex(year, month, day) =>
+            val parsedDate = LocalDate.of(year.toInt, month.toInt, day.toInt)
+            preparedStatement.setDate(sqlIndex, Date.valueOf(parsedDate))
+
+          case _ =>
+            if (filterValue.toIntOption.isDefined)
+              preparedStatement.setInt(sqlIndex, filterValue.toInt)
+            else if (filterValue.toDoubleOption.isDefined)
+              preparedStatement.setDouble(sqlIndex, filterValue.toDouble)
+            else
+              preparedStatement.setString(sqlIndex, s"%$filterValue%")
+        }
+      }
 
     val resultSet = preparedStatement.executeQuery()
     val tableData = new ListBuffer[TableRow]()
     try {
       while (resultSet.next) {
         val rowData = for {
-          field <- fields
-          fieldName = field.name
-          data = resultSet.getString(fieldName)
-        } yield Cell(Option(data).getOrElse(""))
+          column <- columns
+          columnName = column.name
+          stringData = getStringFromColumnName(
+            settings = settings,
+            resultSet = resultSet,
+            columnName = columnName,
+            baseUrl = baseUrl
+          )
+        } yield Cell(stringData)
         tableData += TableRow(rowData)
       }
       tableData.toList
@@ -126,6 +151,25 @@ object DatabaseTablesDAO {
       resultSet.close()
       preparedStatement.close()
     }
+  }
+
+  private def getStringFromColumnName(
+      settings: TableSettings,
+      resultSet: ResultSet,
+      columnName: String,
+      baseUrl: String
+  ) = {
+    val maybe = settings.columnTypeOverrides.get(columnName)
+    val data = maybe
+      .map {
+        case CustomDataType.BinaryImage =>
+          val rowId = resultSet.getString(settings.primaryKeyField)
+          s"$baseUrl/admin/images/${settings.tableName}/$columnName/$rowId"
+        // TODO: handle binary file
+        case CustomDataType.Binary => resultSet.getString(columnName)
+      }
+      .getOrElse(resultSet.getString(columnName))
+    Option(data).getOrElse("")
   }
 
   def getMandatoryFields(tableName: String, primaryKeyField: String)(implicit conn: Connection): List[TableColumn] = {
@@ -141,40 +185,73 @@ object DatabaseTablesDAO {
       """.as(tableColumnParser.*)
   }
 
-  def find(tableName: String, primaryKeyField: String, primaryKeyValue: String)(implicit
+  def find(settings: TableSettings, columns: List[TableColumn], primaryKeyValue: String, baseUrl: String)(implicit
       conn: Connection
   ): Option[TableRow] = {
     val sql = s"""
-    SELECT *
-      FROM $tableName
-    WHERE $primaryKeyField = ?
-    """
+      SELECT *
+      FROM ${settings.tableName}
+      WHERE ${settings.primaryKeyField} = ?
+      """
     val preparedStatement = conn.prepareStatement(sql)
 
-    // TODO: UUID from String can fail if the ID field isn't an UUID
-    preparedStatement.setObject(1, UUID.fromString(primaryKeyValue))
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, settings.primaryKeyDataType)
     val resultSet = preparedStatement.executeQuery()
     Try {
       resultSet.next()
-      val numberOfColumns = resultSet.getMetaData.getColumnCount
       val row = for {
-        columnNumber <- 1 to numberOfColumns
-        cellData = resultSet.getString(columnNumber)
-      } yield Cell(Option(cellData).getOrElse(""))
+        column <- columns
+        columnName = column.name
+        stringData = getStringFromColumnName(
+          settings = settings,
+          resultSet = resultSet,
+          columnName = columnName,
+          baseUrl = baseUrl
+        )
+      } yield Cell(stringData)
       TableRow(row.toList)
     }.toOption
   }
 
-  def create(tableName: String, body: Map[String, String], primaryKeyField: String)(implicit
+  private def setPreparedStatementKey(
+      preparedStatement: PreparedStatement,
+      primaryKeyValue: String,
+      primaryKeyType: PrimaryKeyDataType,
+      parameterIndex: Int = 1
+  ): Unit = {
+    primaryKeyType match { // regular string unless UUID
+      case PrimaryKeyDataType.UUID => preparedStatement.setObject(parameterIndex, UUID.fromString(primaryKeyValue))
+      // TODO: Handle errors when the value is not an integer
+      case PrimaryKeyDataType.Serial =>
+        preparedStatement.setInt(parameterIndex, primaryKeyValue.toInt) // use setInt instead of setObject
+      case PrimaryKeyDataType.BigSerial =>
+        preparedStatement.setLong(parameterIndex, primaryKeyValue.toLong) // use setLong instead of setObject
+    }
+  }
+  def create(
+      tableName: String,
+      body: Map[String, String],
+      primaryKeyField: String,
+      primaryKeyType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
+  )(implicit
       conn: Connection
   ): Unit = {
-    val sql = QueryBuilder.create(tableName, body, primaryKeyField)
+    val sql = QueryBuilder.create(tableName, body, primaryKeyField, primaryKeyType)
     val preparedStatement = conn.prepareStatement(sql)
 
-    preparedStatement.setObject(1, UUID.randomUUID())
-    for (i <- 2 to body.size + 1) {
-      val value = body(body.keys.toList(i - 2))
-      preparedStatement.setObject(i, value)
+    var i = 0
+    if (primaryKeyType == PrimaryKeyDataType.UUID) {
+      i = i + 1
+      preparedStatement.setObject(i, UUID.randomUUID())
+    }
+    // NOTE: QueryBuilder.create needs primaryKeyType parameter because it seems there is no way to pass DEFAULT
+    // into prepared statement parameter. Must be set literally in QueryBuilder.create
+    // eg. NULL can be used in MySQL to generate default value in an autoincrement column, but not Postgres unfortunately
+    // Postgres: INSERT INTO test_serial (id) VALUES(DEFAULT); MySQL: INSERT INTO table (id) VALUES(NULL)
+
+    for (j <- i + 1 to body.size + i) {
+      val value = body(body.keys.toList(j - i - 1))
+      preparedStatement.setObject(j, value)
     }
     val _ = preparedStatement.executeUpdate()
   }
@@ -183,7 +260,8 @@ object DatabaseTablesDAO {
       tableName: String,
       fieldsAndValues: Map[TableColumn, String],
       primaryKeyField: String,
-      primaryKeyValue: String
+      primaryKeyValue: String,
+      primaryKeyType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
   )(implicit conn: Connection): Unit = {
     val sql = QueryBuilder.update(tableName, fieldsAndValues, primaryKeyField)
     val preparedStatement = conn.prepareStatement(sql)
@@ -193,11 +271,16 @@ object DatabaseTablesDAO {
       preparedStatement.setObject(i + 1, value)
     }
     // where ... = ?
-    preparedStatement.setObject(notNullData.size + 1, UUID.fromString(primaryKeyValue))
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, primaryKeyType, notNullData.size + 1)
     val _ = preparedStatement.executeUpdate()
   }
 
-  def delete(tableName: String, primaryKeyField: String, primaryKeyValue: String)(implicit
+  def delete(
+      tableName: String,
+      primaryKeyField: String,
+      primaryKeyValue: String,
+      primaryKeyType: PrimaryKeyDataType = PrimaryKeyDataType.UUID
+  )(implicit
       conn: Connection
   ): Unit = {
     val sql = s"""
@@ -205,8 +288,7 @@ object DatabaseTablesDAO {
       WHERE $primaryKeyField = ?
       """
     val preparedStatement = conn.prepareStatement(sql)
-
-    preparedStatement.setObject(1, UUID.fromString(primaryKeyValue))
+    setPreparedStatementKey(preparedStatement, primaryKeyValue, primaryKeyType)
     val _ = preparedStatement.executeUpdate()
   }
 
@@ -215,5 +297,22 @@ object DatabaseTablesDAO {
       SELECT COUNT(*)
       FROM #$tableName
       """.as(SqlParser.int("count").single)
+  }
+
+  def getImageData(settings: TableSettings, columnName: String, imageId: String)(implicit
+      conn: Connection
+  ): Option[Array[Byte]] = {
+    val sql = s"""
+      SELECT $columnName
+      FROM ${settings.tableName}
+      WHERE ${settings.primaryKeyField} = ?
+      """
+    val preparedStatement = conn.prepareStatement(sql)
+    setPreparedStatementKey(preparedStatement, imageId, settings.primaryKeyDataType)
+    val resultSet = preparedStatement.executeQuery()
+    Try {
+      resultSet.next()
+      resultSet.getBytes(columnName)
+    }.toOption
   }
 }
