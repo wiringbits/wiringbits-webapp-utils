@@ -1,14 +1,19 @@
 package net.wiringbits.webapp.utils.admin.services
 
-import net.wiringbits.webapp.utils.admin.config.DataExplorerSettings
+import net.wiringbits.webapp.utils.admin.config.{CustomDataType, DataExplorerSettings, TableSettings}
 import net.wiringbits.webapp.utils.admin.repositories.DatabaseTablesRepository
 import net.wiringbits.webapp.utils.admin.repositories.models.{ForeignKey, TableData}
 import net.wiringbits.webapp.utils.admin.utils.models.QueryParameters
 import net.wiringbits.webapp.utils.admin.utils.{MapStringHideExt, contentRangeHeader}
 import net.wiringbits.webapp.utils.api.models.*
 
+import java.awt.image.BufferedImage
+import java.io.{ByteArrayInputStream, File}
+import java.util.UUID
+import javax.imageio.ImageIO
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class AdminService @Inject() (
     databaseTablesRepository: DatabaseTablesRepository,
@@ -51,11 +56,13 @@ class AdminService @Inject() (
               val fieldName = getColumnName(column.name, settings.primaryKeyField)
               val isEditable = !settings.nonEditableColumns.contains(column.name)
               val reference = getColumnReference(foreignKeys, column.name)
+              val isFilterable = settings.filterableColumns.contains(column.name)
               AdminGetTables.Response.TableColumn(
                 name = fieldName,
                 `type` = column.`type`,
                 editable = isEditable,
-                reference = reference
+                reference = reference,
+                filterable = isFilterable
               )
             }
           } yield AdminGetTables.Response.DatabaseTable(
@@ -84,7 +91,7 @@ class AdminService @Inject() (
       _ <- validations
       settings = tableSettings.unsafeFindByName(tableName)
       _ <- validateQueryParameters(tableName, queryParams)
-      tableRows <- databaseTablesRepository.getTableMetadata(tableName, queryParams)
+      tableRows <- databaseTablesRepository.getTableMetadata(settings, queryParams)
       numberOfRecords <- databaseTablesRepository.numberOfRecords(tableName)
       hiddenTableData = tableRows.map(data => hideData(data, settings.hiddenColumns))
       contentRange = contentRangeHeader(tableName, queryParams, numberOfRecords)
@@ -218,5 +225,41 @@ class AdminService @Inject() (
       columnNames = tableColumns.map(_.name)
       exists = columnNames.contains(columnName) || columnName == "id"
     } yield if (exists) () else throw new RuntimeException(s"Column $columnName doesn't exists in $tableName")
+  }
+
+  def findImage(tableName: String, columnName: String, imageId: String): Future[File] = {
+    val validations = {
+      for {
+        _ <- validateColumnName(tableName, columnName)
+        _ <- Future(validateResourceId(imageId))
+      } yield ()
+    }
+    for {
+      _ <- validations
+      settings = tableSettings.unsafeFindByName(tableName)
+      _ = validateImageColumn(settings, columnName)
+      maybe <- databaseTablesRepository.getImageData(settings, columnName, imageId)
+      imageData = maybe.getOrElse(throw new RuntimeException(s"Image with id $imageId on $tableName doesn't exists"))
+      image = createImage(imageData)
+    } yield createFile(imageId, image)
+  }
+
+  private def validateResourceId(resourceId: String): Unit = {
+    val isValid = Try(BigInt(resourceId)).isSuccess || Try(UUID.fromString(resourceId)).isSuccess
+    if (isValid) () else throw new RuntimeException(s"Resource id $resourceId is not valid")
+  }
+
+  private def validateImageColumn(settings: TableSettings, columnName: String): Unit = {
+    val maybe = settings.columnTypeOverrides.find(x => x._1 == columnName && x._2 == CustomDataType.BinaryImage)
+    if (maybe.isDefined) () else throw new RuntimeException("This column can't be used as a binary image")
+  }
+
+  private def createImage(data: Array[Byte]) = ImageIO.read(new ByteArrayInputStream(data))
+
+  // TODO: avoid assuming that every DB image is on png format
+  private def createFile(imageId: String, buffImage: BufferedImage) = {
+    val outputFile = File.createTempFile(imageId, ".png")
+    ImageIO.write(buffImage, "png", outputFile)
+    outputFile
   }
 }

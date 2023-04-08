@@ -28,7 +28,7 @@ object AdminView {
     Admin(_.dataProvider := simpleRestProvider(tablesUrl))(resources: _*)
   }
 
-  def component(
+  def apply(
       api: API,
       dataExplorerSettings: DataExplorerSettings = DataExplorerSettings()
   ): Future[Factory[Admin.Props]] = {
