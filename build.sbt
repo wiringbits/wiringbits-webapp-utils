@@ -80,7 +80,7 @@ lazy val baseLibSettings: Project => Project = _.settings(
       })
   },
   libraryDependencies ++= Seq(
-    "org.scalatest" %%% "scalatest" % "3.2.12" % Test
+    "org.scalatest" %%% "scalatest" % "3.2.15" % Test
   )
 )
 
@@ -115,7 +115,7 @@ lazy val baseWebSettings: Project => Project =
       },
       libraryDependencies ++= Seq(
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
-        "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0",
+        "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.1",
         "com.alexitc" %%% "sjs-material-ui-facade" % "0.2.0"
       )
     )
@@ -172,14 +172,14 @@ lazy val playSettings: Project => Project = {
       play.sbt.routes.RoutesKeys.routesImport := Seq.empty,
       libraryDependencies ++= Seq(
         evolutions,
-        "com.typesafe.play" %% "play-jdbc" % "2.8.13",
+        "com.typesafe.play" %% "play-jdbc" % "2.8.19",
         "com.google.inject" % "guice" % "5.1.0"
       ),
       // test
       libraryDependencies ++= Seq(
         "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-        "org.mockito" %% "mockito-scala" % "1.17.5" % Test,
-        "org.mockito" %% "mockito-scala-scalatest" % "1.17.5" % Test
+        "org.mockito" %% "mockito-scala" % "1.17.14" % Test,
+        "org.mockito" %% "mockito-scala-scalatest" % "1.17.14" % Test
       )
     )
 }
@@ -195,21 +195,25 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
     stTypescriptVersion := "3.9.3",
     stOutputPackage := "net.wiringbits.facades",
     // material-ui is provided by a pre-packaged library
-    stIgnore ++= List("@material-ui/core", "@material-ui/styles", "@material-ui/icons"),
+    stIgnore ++= List(
+      "@material-ui/core",
+      "@material-ui/styles",
+      "@material-ui/icons",
+      "react-router",
+      "react-router-dom"
+    ),
     Compile / npmDependencies ++= Seq(
       "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
       "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
       "@material-ui/icons" -> "3.0.2",
       "@types/classnames" -> "2.2.10",
       "react-router" -> "5.1.2",
-      "@types/react-router" -> "5.1.2",
-      "react-router-dom" -> "5.1.2",
-      "@types/react-router-dom" -> "5.1.2"
+      "react-router-dom" -> "5.1.2"
     ),
     stFlavour := Flavour.Slinky,
     stReactEnableTreeShaking := Selection.All,
     stUseScalaJsDom := true,
-    stMinimize := Selection.AllExcept("@types/classnames", "@types/react-router", "@types/react-router-dom"),
+    stMinimize := Selection.AllExcept("@types/classnames"),
     // docs are huge and unnecessary
     Compile / doc / sources := Nil,
     // disabled because it somehow triggers many warnings
@@ -295,7 +299,7 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
     libraryDependencies ++= Seq(
       "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
       "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.16.0",
-      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0"
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.1"
     ),
     Compile / npmDependencies ++= Seq(
       "react" -> "17.0.0",
@@ -325,14 +329,14 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(
       "org.playframework.anorm" %% "anorm" % "2.6.10",
-      "com.typesafe.play" %% "play" % "2.8.13",
-      "com.typesafe.play" %% "play-json" % "2.9.2",
+      "com.typesafe.play" %% "play" % "2.8.19",
+      "com.typesafe.play" %% "play-json" % "2.9.4",
       "org.postgresql" % "postgresql" % "42.3.8",
       "com.github.jwt-scala" %% "jwt-core" % "9.0.5",
       "de.svenkubiak" % "jBCrypt" % "0.4.3",
       "commons-validator" % "commons-validator" % "1.7",
-      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.7" % "test",
-      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.40.7" % "test",
+      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.14" % "test",
+      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.40.14" % "test",
       "com.softwaremill.sttp.client3" %% "core" % sttp % "test",
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-future" % sttp % "test"
     )

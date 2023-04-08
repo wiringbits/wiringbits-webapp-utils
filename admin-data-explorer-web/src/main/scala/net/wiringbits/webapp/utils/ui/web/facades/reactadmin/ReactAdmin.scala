@@ -10,8 +10,8 @@ object ReactAdmin extends js.Any {
 
   def useEditContext(): js.Dictionary[js.Any] = js.native
 
-  val Admin, Create, Datagrid, Edit, EditButton, EmailField, List, ReferenceField, ReferenceInput, Resource,
+  val Admin, Create, Datagrid, Edit, EditButton, EmailField, ImageField, List, ReferenceField, ReferenceInput, Resource,
       SelectInput, SimpleForm, TextField, DateField, DateTimeInput, TextInput, Button, SaveButton, DeleteButton,
-      Toolbar, TopToolbar, UrlField: js.Object =
+      Toolbar, TopToolbar, UrlField, DateInput, FilterButton, ExportButton, NumberInput, NumberField: js.Object =
     js.native
 }

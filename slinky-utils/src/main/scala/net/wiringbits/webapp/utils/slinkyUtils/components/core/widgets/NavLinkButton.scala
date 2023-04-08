@@ -12,9 +12,10 @@ import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
   Styles,
   WithStylesOptions
 }
-import net.wiringbits.facades.reactRouterDom.{components => router}
+import net.wiringbits.webapp.utils.slinkyUtils.facades.reactrouterdom.NavLink
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.{FunctionalComponent, KeyAddingStage}
+import slinky.web.html.{className, onClick}
 
 object NavLinkButton {
   case class Props(path: String, text: String, onClick: () => Unit)
@@ -42,11 +43,10 @@ object NavLinkButton {
 
     val text = mui.Typography()(props.text).variant(muiStrings.h6).color(Color.inherit)
 
-    router
-      .NavLink[String](to = props.path)(text)
-      .className(classes("navLinkButton"))
-      .activeClassName(s"${classes("navLinkButton")} ${classes("navLinkButtonActive")}")
-      .exact(true)
-      .onClick(_ => props.onClick())
+    NavLink(className := classes("navLinkButton"), onClick := (_ => props.onClick()))(
+      to = props.path,
+      activeClassName = s"${classes("navLinkButton")} ${classes("navLinkButtonActive")}",
+      exact = true
+    )(text)
   }
 }
