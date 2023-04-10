@@ -187,8 +187,8 @@ lazy val playSettings: Project => Project = {
 lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
-    scalaVersion := "2.13.10",
-    crossScalaVersions := Seq("2.13.10", "3.1.2"),
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "scalablytyped-facades",
     useYarn := true,
     Test / requireJsDomEnv := true,
@@ -221,8 +221,8 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
 lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-common"))
   .configure(baseLibSettings)
   .settings(
-    scalaVersion := "2.13.10",
-    crossScalaVersions := Seq("2.13.10", "3.1.2"),
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "webapp-common"
   )
   .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
@@ -248,8 +248,8 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .configure(baseLibSettings)
   .dependsOn(webappCommon)
   .settings(
-    scalaVersion := "2.13.10",
-    crossScalaVersions := Seq("2.13.10", "3.1.2"),
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "admin-data-explorer-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
@@ -276,8 +276,8 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
-    scalaVersion := "2.13.10",
-    crossScalaVersions := Seq("2.13.10", "3.1.2"),
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "slinky-utils",
     Test / fork := false // sjs needs this to run tests
   )
@@ -288,8 +288,8 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
   .configure(bundlerSettings, baseLibSettings)
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .settings(
-    scalaVersion := "2.13.10",
-    crossScalaVersions := Seq("2.13.10", "3.1.2"),
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8", "3.1.2"),
     name := "admin-data-explorer-web",
     Test / fork := false, // sjs needs this to run tests
     libraryDependencies ++= Seq(
@@ -318,8 +318,8 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
   .dependsOn(adminDataExplorerApi.jvm, webappCommon.jvm)
   .configure(baseServerSettings, playSettings)
   .settings(
-    scalaVersion := "2.13.10",
-    crossScalaVersions := Seq("2.13.10"),
+    scalaVersion := "2.13.8",
+    crossScalaVersions := Seq("2.13.8"),
     name := "admin-data-explorer-play-server",
     fork := true,
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
