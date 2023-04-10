@@ -6,7 +6,13 @@ object AdminGetTables {
   case class Response(data: List[Response.DatabaseTable])
   object Response {
     case class DatabaseTable(name: String, columns: List[TableColumn], primaryKeyName: String, canBeDeleted: Boolean)
-    case class TableColumn(name: String, `type`: String, editable: Boolean, reference: Option[TableReference])
+    case class TableColumn(
+        name: String,
+        `type`: String,
+        editable: Boolean,
+        reference: Option[TableReference],
+        filterable: Boolean
+    )
     case class TableReference(referencedTable: String, referenceField: String)
 
     implicit val adminTableReferenceResponseFormat: Format[TableReference] = Json.format[TableReference]
