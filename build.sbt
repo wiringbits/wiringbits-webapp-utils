@@ -294,7 +294,7 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
     Test / fork := false, // sjs needs this to run tests
     libraryDependencies ++= Seq(
       "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
-      "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.17.0",
+      "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.16.0",
       "org.scala-js" %%% "scala-js-macrotask-executor" % "1.0.0"
     ),
     Compile / npmDependencies ++= Seq(
