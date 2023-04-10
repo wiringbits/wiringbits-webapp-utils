@@ -15,7 +15,7 @@ trait AdminDataExplorerApiClient {
       tableName: String,
       sort: List[String],
       range: List[Int],
-      filter: String
+      filters: String
   ): Future[List[Map[String, String]]]
 
   def viewItem(tableName: String, id: String): Future[Map[String, String]]
@@ -95,13 +95,13 @@ object AdminDataExplorerApiClient {
         tableName: String,
         sort: List[String],
         range: List[Int],
-        filter: String
+        filters: String
     ): Future[List[Map[String, String]]] = {
       val path = ServerAPI.path :+ "admin" :+ "tables" :+ tableName
       val parameters: Map[String, String] = Map(
         "sort" -> sort.mkString("[", ",", "]"),
         "range" -> range.mkString("[", ",", "]"),
-        "filter" -> filter
+        "filters" -> filters
       )
       val uri = ServerAPI
         .withPath(path)
