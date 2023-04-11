@@ -188,7 +188,7 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.3"),
+    crossScalaVersions := Seq("2.13.8", "3.2.2"),
     name := "scalablytyped-facades",
     useYarn := true,
     Test / requireJsDomEnv := true,
@@ -226,7 +226,7 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
   .configure(baseLibSettings)
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.3"),
+    crossScalaVersions := Seq("2.13.8", "3.2.2"),
     name := "webapp-common"
   )
   .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
@@ -253,7 +253,7 @@ lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("
   .dependsOn(webappCommon)
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.3"),
+    crossScalaVersions := Seq("2.13.8", "3.2.2"),
     name := "admin-data-explorer-api"
   )
   .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
@@ -281,7 +281,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
   .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.3"),
+    crossScalaVersions := Seq("2.13.8", "3.2.2"),
     name := "slinky-utils",
     Test / fork := false // sjs needs this to run tests
   )
@@ -293,7 +293,7 @@ lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .settings(
     scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.1.3"),
+    crossScalaVersions := Seq("2.13.8", "3.2.2"),
     name := "admin-data-explorer-web",
     Test / fork := false, // sjs needs this to run tests
     libraryDependencies ++= Seq(
@@ -331,7 +331,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
       "org.playframework.anorm" %% "anorm" % "2.7.0",
       "com.typesafe.play" %% "play" % "2.8.19",
       "com.typesafe.play" %% "play-json" % "2.9.4",
-      "org.postgresql" % "postgresql" % "42.5.0",
+      "org.postgresql" % "postgresql" % "42.5.4",
       "com.github.jwt-scala" %% "jwt-core" % "9.0.6",
       "de.svenkubiak" % "jBCrypt" % "0.4.3",
       "commons-validator" % "commons-validator" % "1.7",
