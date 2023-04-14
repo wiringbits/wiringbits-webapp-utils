@@ -332,7 +332,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
       "com.typesafe.play" %% "play" % "2.8.19",
       "com.typesafe.play" %% "play-json" % "2.9.4",
       "org.postgresql" % "postgresql" % "42.5.4",
-      "com.github.jwt-scala" %% "jwt-core" % "9.2.0",
+      "com.github.jwt-scala" %% "jwt-core" % "9.0.6",
       "de.svenkubiak" % "jBCrypt" % "0.4.3",
       "commons-validator" % "commons-validator" % "1.7",
       "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.14" % "test",
