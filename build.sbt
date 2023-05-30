@@ -173,7 +173,7 @@ lazy val playSettings: Project => Project = {
       libraryDependencies ++= Seq(
         evolutions,
         "com.typesafe.play" %% "play-jdbc" % "2.8.19",
-        "com.google.inject" % "guice" % "5.1.0"
+        "com.google.inject" % "guice" % "7.0.0"
       ),
       // test
       libraryDependencies ++= Seq(
