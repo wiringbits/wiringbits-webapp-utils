@@ -187,8 +187,7 @@ lazy val playSettings: Project => Project = {
 lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
+    scalaVersion := "3.2.2",
     name := "scalablytyped-facades",
     useYarn := true,
     Test / requireJsDomEnv := true,
@@ -225,8 +224,7 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
 lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-common"))
   .configure(baseLibSettings)
   .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
+    scalaVersion := "3.2.2",
     name := "webapp-common"
   )
   .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
@@ -246,33 +244,6 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
     )
   )
 
-/** Just the API side for the admin-data-explorer modules
-  */
-lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("admin-data-explorer-api"))
-  .configure(baseLibSettings)
-  .dependsOn(webappCommon)
-  .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
-    name := "admin-data-explorer-api"
-  )
-  .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
-  .jvmSettings(
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play-json" % playJson,
-      "com.softwaremill.sttp.client3" %% "core" % sttp
-    )
-  )
-  .jsSettings(
-    stUseScalaJsDom := true,
-    Test / fork := false, // sjs needs this to run tests
-    Compile / stMinimize := Selection.All,
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" %%% "play-json" % playJson,
-      "com.softwaremill.sttp.client3" %%% "core" % sttp
-    )
-  )
-
 /** Utils specific to slinky
   */
 lazy val slinkyUtils = (project in file("slinky-utils"))
@@ -280,66 +251,9 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
   .dependsOn(webappCommon.js, scalablytypedFacades)
   .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
+    scalaVersion := "3.2.2",
     name := "slinky-utils",
     Test / fork := false // sjs needs this to run tests
-  )
-
-// shared on the ui only
-lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
-  .dependsOn(adminDataExplorerApi.js)
-  .configure(bundlerSettings, baseLibSettings)
-  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
-  .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
-    name := "admin-data-explorer-web",
-    Test / fork := false, // sjs needs this to run tests
-    libraryDependencies ++= Seq(
-      "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
-      "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.16.0",
-      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.1"
-    ),
-    Compile / npmDependencies ++= Seq(
-      "react" -> "17.0.0",
-      "react-dom" -> "17.0.0",
-      "react-scripts" -> "5.0.0",
-      "react-admin" -> "4.1.0",
-      "ra-ui-materialui" -> "4.1.0",
-      "ra-data-simple-rest" -> "4.1.0",
-      "ra-i18n-polyglot" -> "4.1.0",
-      "ra-language-english" -> "4.1.0",
-      "ra-core" -> "4.1.0",
-      "@mui/material" -> "5.8.1",
-      "@emotion/styled" -> "11.8.1"
-    )
-  )
-
-/** Includes the specific stuff to run the data explorer server side (play-specific)
-  */
-lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-play-server"))
-  .dependsOn(adminDataExplorerApi.jvm, webappCommon.jvm)
-  .configure(baseServerSettings, playSettings)
-  .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8"),
-    name := "admin-data-explorer-play-server",
-    fork := true,
-    Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
-    libraryDependencies ++= Seq(
-      "org.playframework.anorm" %% "anorm" % "2.7.0",
-      "com.typesafe.play" %% "play" % "2.8.19",
-      "com.typesafe.play" %% "play-json" % "2.9.4",
-      "org.postgresql" % "postgresql" % "42.6.0",
-      "com.github.jwt-scala" %% "jwt-core" % "9.2.0",
-      "de.svenkubiak" % "jBCrypt" % "0.4.3",
-      "commons-validator" % "commons-validator" % "1.7",
-      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.15" % "test",
-      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.40.15" % "test",
-      "com.softwaremill.sttp.client3" %% "core" % sttp % "test",
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-future" % sttp % "test"
-    )
   )
 
 lazy val root = (project in file("."))
@@ -347,11 +261,7 @@ lazy val root = (project in file("."))
     scalablytypedFacades,
     webappCommon.jvm,
     webappCommon.js,
-    adminDataExplorerApi.jvm,
-    adminDataExplorerApi.js,
-    slinkyUtils,
-    adminDataExplorerWeb,
-    adminDataExplorerPlayServer
+    slinkyUtils
   )
   .settings(
     name := "wiringbits-webapp-utils",
