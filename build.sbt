@@ -172,7 +172,7 @@ lazy val playSettings: Project => Project = {
       play.sbt.routes.RoutesKeys.routesImport := Seq.empty,
       libraryDependencies ++= Seq(
         evolutions,
-        "com.typesafe.play" %% "play-jdbc" % "2.8.19",
+        "com.typesafe.play" %% "play-jdbc" % "2.8.20",
         "com.google.inject" % "guice" % "5.1.0"
       ),
       // test
@@ -329,7 +329,7 @@ lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-pla
     Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
     libraryDependencies ++= Seq(
       "org.playframework.anorm" %% "anorm" % "2.7.0",
-      "com.typesafe.play" %% "play" % "2.8.19",
+      "com.typesafe.play" %% "play" % "2.8.20",
       "com.typesafe.play" %% "play-json" % "2.9.4",
       "org.postgresql" % "postgresql" % "42.6.0",
       "com.github.jwt-scala" %% "jwt-core" % "9.2.0",
