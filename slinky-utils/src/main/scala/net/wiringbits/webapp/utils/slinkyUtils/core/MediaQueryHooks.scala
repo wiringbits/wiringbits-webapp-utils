@@ -1,23 +1,25 @@
 package net.wiringbits.webapp.utils.slinkyUtils.core
+import com.olvind.mui.muiMaterial.useMediaQueryMod
+//import com.alexitc.materialui.facade.materialUiCore.useMediaQueryMod.unstableUseMediaQuery
 
-import com.alexitc.materialui.facade.materialUiCore.useMediaQueryMod.unstableUseMediaQuery
+
 
 object MediaQueryHooks {
 
   def useIsLaptop() = {
-    unstableUseMediaQuery("(min-width: 769px)")
+    useMediaQueryMod.default("(min-width: 769px)")
   }
 
   def useIsTablet() = {
-    unstableUseMediaQuery("(min-width: 426px) and (max-width: 768px)")
+    useMediaQueryMod.default("(min-width: 426px) and (max-width: 768px)")
   }
 
   def useIsMobile() = {
-    unstableUseMediaQuery("(max-width: 425px)")
+    useMediaQueryMod.default("(max-width: 425px)")
   }
 
   def useIsMobileOrTablet() = {
-    unstableUseMediaQuery("(max-width: 768px)")
+    useMediaQueryMod.default("(max-width: 768px)")
   }
 
 }

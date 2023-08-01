@@ -1,7 +1,9 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.materialUiCore.mod.PropTypes.Color
-import com.alexitc.materialui.facade.materialUiCore.{typographyTypographyMod, components => mui}
+import com.olvind.mui.muiMaterial.components as mui
+import com.olvind.mui.muiMaterial.typographyTypographyMod
+import com.olvind.mui.muiMaterial
+import com.olvind.mui.muiMaterial.mod.PropTypes.Color
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 object Title {
@@ -16,7 +18,7 @@ object Title {
 
     mui
       .Typography()
-      .color(color)
-      .variant(typographyTypographyMod.Style.h4)(props.text)
+      .variant("h4")
+      .color(color)(props.text)
   }
 }

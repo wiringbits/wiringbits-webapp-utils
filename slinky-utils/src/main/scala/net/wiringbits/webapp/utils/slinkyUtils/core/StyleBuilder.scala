@@ -1,9 +1,11 @@
 package net.wiringbits.webapp.utils.slinkyUtils.core
 
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod._
+import com.olvind.mui
 import org.scalablytyped.runtime.StringDictionary
+import com.olvind.mui.muiMaterial.mod.makeStyles
+import com.olvind.mui.react.mod.CSSProperties
+import com.olvind.mui.muiMaterial.mod.makeStyles
+import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
 
 import scala.scalajs.js
 

@@ -1,17 +1,16 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiCore.{components => mui}
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
-  CSSProperties,
-  StyleRulesCallback,
-  Styles,
-  WithStylesOptions
-}
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.{FunctionalComponent, KeyAddingStage}
+import com.olvind.mui.muiMaterial.components as mui
+//import com.olvind.mui.muiMaterial.mod.{makeStyles,withStyles}
+import com.olvind.mui.react.mod.CSSProperties
+import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
+import com.olvind.mui.muiMaterial.stylesMod.useTheme
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSImport
+import scala.scalajs.js.|
+import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
 
 object CircularLoader {
   case class Props(size: Int = 16)
@@ -20,20 +19,16 @@ object CircularLoader {
     component(Props(size = size))
   }
 
-  private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
-      StringDictionary(
-        "circularLoader" -> CSSProperties()
-          .setDisplay("flex")
-      )
-    makeStyles(stylesCallback, WithStylesOptions())
+  val newStyle = new SystemCssProperties[Theme]{
+      display="flex"
   }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val classes = useStyles(())
     mui
       .CircularProgress()
-      .className(classes("circularLoader"))
+      .className("circularLoader")
+      .sx(newStyle)
       .size(props.size)
+
   }
 }

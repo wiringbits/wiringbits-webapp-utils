@@ -1,24 +1,18 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.csstype.mod.BoxSizingProperty
-import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
-  CSSProperties,
-  StyleRulesCallback,
-  Styles,
-  WithStylesOptions
-}
+import com.olvind.mui.csstype.mod.Property.BoxSizing
 import org.scalablytyped.runtime.StringDictionary
 import slinky.core.facade.ReactElement
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{className, div, style}
+import com.olvind.mui.react.mod.CSSProperties
+import com.olvind.mui.muiMaterial.mod.makeStyles
+import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
+import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
 
 import scala.scalajs.js
 
 object Container {
-
   case class Props(
       child: ReactElement,
       margin: EdgeInsets = EdgeInsets.all(0),
@@ -31,7 +25,7 @@ object Container {
       minWidth: Option[String] = None,
       maxWidth: Option[String] = None
   )
-
+  
   def apply(
       child: ReactElement,
       margin: EdgeInsets = EdgeInsets.all(0),
@@ -92,19 +86,16 @@ object Container {
     def vertical(value: Int): EdgeInsets = EdgeInsets(value, 0, value, 0)
   }
 
-  private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
-      StringDictionary(
-        "container" -> CSSProperties()
-          .setDisplay("flex")
-          .setBoxSizing(BoxSizingProperty.`border-box`)
-          .setWidth("auto")
-      )
-    makeStyles(stylesCallback, WithStylesOptions())
-  }
+
+    val mystyle = new SystemCssProperties[Theme]{
+      color="red"
+      boxSizing=BoxSizing.`border-box`
+      width="auto"
+      
+        }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val classes = useStyles(())
+
 
     val borderRadius = props.borderRadius.getOrElse("0px")
     val minWidth = props.minWidth.getOrElse("0")
@@ -124,7 +115,7 @@ object Container {
       justifyContent = parseAlignment(props.justifyContent)
     )
 
-    div(className := classes("container"), style := containerStyle)(props.child)
+    div(className := "container", style := containerStyle)(props.child)
   }
 
   private def parseAlignment(alignment: Alignment): String = {
