@@ -29,6 +29,7 @@ object ErrorLabel {
         mui
           .Typography(props.text)
           .className("errorLabel")
+          .variant("body2")
           .sx(newStyle)
       )
     } else {

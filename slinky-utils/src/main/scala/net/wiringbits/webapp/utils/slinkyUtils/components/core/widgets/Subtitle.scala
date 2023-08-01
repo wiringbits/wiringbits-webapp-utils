@@ -19,6 +19,7 @@ object Subtitle {
 
     mui
       .Typography()
-      .color(color)(props.text)
+      .color(color)
+    .variant("h6")(props.text)
   }
 }

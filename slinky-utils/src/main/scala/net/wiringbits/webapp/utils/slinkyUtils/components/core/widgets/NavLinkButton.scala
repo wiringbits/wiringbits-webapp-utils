@@ -39,7 +39,7 @@ object NavLinkButton {
     )
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
 
-    val text = mui.Typography()(props.text).color(Color.inherit)
+    val text = mui.Typography()(props.text).variant("h6").color(Color.inherit)
 
     NavLink(className := "navLinkButton",style:=navLinkButtonStyle, onClick := (_ => props.onClick()))(
       to = props.path,
