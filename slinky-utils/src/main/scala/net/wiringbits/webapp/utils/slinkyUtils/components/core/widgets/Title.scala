@@ -1,8 +1,6 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
 import com.olvind.mui.muiMaterial.components as mui
-import com.olvind.mui.muiMaterial.typographyTypographyMod
-import com.olvind.mui.muiMaterial
 import com.olvind.mui.muiMaterial.mod.PropTypes.Color
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 

@@ -1,20 +1,12 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-import com.olvind.mui.StBuildingComponent
-import com.olvind.mui.muiIconsMaterial.components as muiIcons
-import com.olvind.mui.muiMaterial.colorsMod.{deepOrange, deepPurple}
+
 import com.olvind.mui.muiMaterial.components as mui
 import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
 import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
-import com.olvind.mui.react.mod.{DetailedHTMLProps, HTMLAttributes}
 import com.olvind.mui.csstype.mod.Property.FlexDirection
 
-import org.scalablytyped.runtime.StringDictionary
 import slinky.core.facade.Fragment
-import slinky.core.{FunctionalComponent, KeyAddingStage}
-
-
-import org.scalablytyped.runtime.StringDictionary
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
 import slinky.web.html.div
 
@@ -26,30 +18,28 @@ object InfoCard {
     component(Props(message = message, icon = icon, child = child))
   }
 
+
+
+  val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
+    mui.Paper
+      .className("infoCard")
+      .sx(new SystemCssProperties[Theme]{
+           minHeight=200
+           display="flex"
+           flexDirection=FlexDirection.column
+           alignItems="center"
+           justifyContent="center"
+           fontSize="1.5em"
+           borderRadius=8
+           padding=16
+           overflow="hidden"
+           color="#616161"
 //          .set(
 //            "& svg",
 //            CSSProperties()
 //              .setFontSize("2em")
 //              .setMarginBottom(16)
-
-
-
-  val newStyle = new SystemCssProperties[Theme]{
-     minHeight=200
-     display="flex"
-     flexDirection=FlexDirection.column
-     alignItems="center"
-     justifyContent="center"
-     fontSize="1.5em"
-     borderRadius=8
-     padding=16
-     overflow="hidden"
-     color="#616161"
-  }
-  val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    mui.Paper
-      .className("infoCard")
-      .sx(newStyle)
+        })
       .elevation(0)(
         props.icon,
         props.message,

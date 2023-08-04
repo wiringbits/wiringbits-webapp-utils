@@ -1,8 +1,5 @@
 package net.wiringbits.webapp.utils.slinkyUtils.core
 import com.olvind.mui.muiMaterial.useMediaQueryMod
-//import com.alexitc.materialui.facade.materialUiCore.useMediaQueryMod.unstableUseMediaQuery
-
-
 
 object MediaQueryHooks {
 

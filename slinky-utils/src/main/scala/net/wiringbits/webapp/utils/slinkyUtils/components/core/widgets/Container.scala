@@ -1,14 +1,9 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
 import com.olvind.mui.csstype.mod.Property.BoxSizing
-import org.scalablytyped.runtime.StringDictionary
 import slinky.core.facade.ReactElement
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{className, div, style}
-import com.olvind.mui.react.mod.CSSProperties
-import com.olvind.mui.muiMaterial.mod.makeStyles
-import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
-import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
 
 import scala.scalajs.js
 
@@ -87,13 +82,6 @@ object Container {
   }
 
 
-    val mystyle = new SystemCssProperties[Theme]{
-      color="red"
-      boxSizing=BoxSizing.`border-box`
-      width="auto"
-      
-        }
-
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
 
 
@@ -112,7 +100,10 @@ object Container {
       flex = flex.toString,
       flexDirection = props.flexDirection.toString,
       alignItems = parseAlignment(props.alignItems),
-      justifyContent = parseAlignment(props.justifyContent)
+      justifyContent = parseAlignment(props.justifyContent),
+      width="auto",
+      boxSizing=BoxSizing.`border-box`,
+      display="flex"
     )
 
     div(className := "container", style := containerStyle)(props.child)
