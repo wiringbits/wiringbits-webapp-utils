@@ -4,7 +4,7 @@ import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{style,className, div, h1}
 import com.olvind.mui.muiIconsMaterial.components as muiIcons
 import com.olvind.mui.csstype.mod.Property.FlexDirection
-
+import scala.scalajs.js
 
 object ErrorBoundaryInfo {
   case class Props(error: scala.scalajs.js.Error)
@@ -22,7 +22,7 @@ object ErrorBoundaryInfo {
     val contentStyle = js.Dynamic.literal(
      display="flex",
      flexDirection=FlexDirection.column
-    )      
+    )
     val iconStyle = js.Dynamic.literal(
        display="flex",
        justifyContent="center"
