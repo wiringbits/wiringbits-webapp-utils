@@ -3,11 +3,13 @@ package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 import com.olvind.mui.muiMaterial.components as mui
 import com.olvind.mui.muiMaterial.mod.PropTypes.Color
 import slinky.core.{FunctionalComponent, KeyAddingStage}
+import com.olvind.mui.muiMaterial.mod.{makeStyles,withStyles}
 
 object Subtitle {
   case class Props(text: String, color: Option[Color] = None)
 
   def apply(text: String, color: Option[Color] = None): KeyAddingStage = {
+
     component(Props(text = text, color = color))
   }
 

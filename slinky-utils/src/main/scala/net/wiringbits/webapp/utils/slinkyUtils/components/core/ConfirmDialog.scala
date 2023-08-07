@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import com.olvind.mui.muiMaterial.components as mui
-
+import com.olvind.mui.muiMaterial.mod.PropTypes
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 object ConfirmDialog {

@@ -2,7 +2,9 @@ package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
 import slinky.core.facade.{Fragment, ReactElement}
 import slinky.core.{FunctionalComponent, KeyAddingStage}
-import slinky.web.html.{className, div,style}
+import slinky.web.html.{className, div, style}
+import com.olvind.mui.csstype.mod.Property.FlexDirection
+import scala.scalajs.js
 
 object Scaffold {
   case class Props(appbar: Option[ReactElement] = None, body: ReactElement, footer: Option[ReactElement] = None)
@@ -18,14 +20,14 @@ object Scaffold {
     val scaffoldStyle = js.Dynamic.literal(
      flex="auto",
      display="flex",
-     flexDirection=FlexDirectionProperty.column
+     flexDirection=FlexDirection.column
     )
 
     val scaffoldBody = js.Dynamic.literal(
      minHeight="100vh",
      flex="auto",
      display="flex",
-     flexDirection=FlexDirectionProperty.column,
+     flexDirection=FlexDirection.column,
      padding="1em"
     )
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
