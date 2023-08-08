@@ -5,10 +5,11 @@ import com.olvind.mui.muiMaterial.components as mui
 import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
 import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
 import com.olvind.mui.csstype.mod.Property.FlexDirection
+import com.olvind.mui.react.mod.CSSProperties
 
 import slinky.core.facade.Fragment
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
-import slinky.web.html.div
+import slinky.web.html.{div,style}
 
 
 object InfoCard {
@@ -34,16 +35,15 @@ object InfoCard {
            padding=16
            overflow="hidden"
            color="#616161"
-//          .set(
-//            "& svg",
-//            CSSProperties()
-//              .setFontSize("2em")
-//              .setMarginBottom(16)
+
         })
       .elevation(0)(
-        props.icon,
+        div(props.icon,style:=new CSSProperties{
+          fontSize="2em"
+          marginBottom=16
+        }),
         props.message,
-        props.child.getOrElse("")
+        props.child.getOrElse(""),
       )
   }
 }

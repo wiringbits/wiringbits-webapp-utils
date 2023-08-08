@@ -1,5 +1,5 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
-
+import com.olvind.mui.react.mod.CSSProperties
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 import slinky.web.html.{style,className, div, h1}
 import com.olvind.mui.muiIconsMaterial.components as muiIcons
@@ -26,9 +26,6 @@ object ErrorBoundaryInfo {
     val iconStyle = js.Dynamic.literal(
        display="flex",
        justifyContent="center"
-        //"& svg ",
-        //    CSSProperties()
-        //      .setFontSize("4em")
       )
 
 
@@ -40,7 +37,9 @@ object ErrorBoundaryInfo {
       className := "errorBoundaryInfo", style:=errorBoundaryInfoStyle,
       div(
         className := "content",style:=contentStyle,
-        div(className := "icon",style:=iconStyle, muiIcons.Warning()),
+        div(className := "icon",style:=iconStyle, muiIcons.Warning().style(new CSSProperties{
+          fontSize="4em"
+        })),
         h1("You hit an unexpected error"),
         div(e.toString)
       )
