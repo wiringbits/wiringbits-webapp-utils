@@ -20,6 +20,5 @@ object CircularLoader {
         display="flex"
       })
       .size(props.size)
-
   }
 }

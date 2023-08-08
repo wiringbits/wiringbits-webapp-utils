@@ -1,6 +1,5 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-
 import com.olvind.mui.muiMaterial.components as mui
 import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
 import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
@@ -11,15 +10,12 @@ import slinky.core.facade.Fragment
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
 import slinky.web.html.{div,style}
 
-
 object InfoCard {
   case class Props(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None)
 
   def apply(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None): KeyAddingStage = {
     component(Props(message = message, icon = icon, child = child))
   }
-
-
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui.Paper
@@ -35,7 +31,6 @@ object InfoCard {
            padding=16
            overflow="hidden"
            color="#616161"
-
         })
       .elevation(0)(
         div(props.icon,style:=new CSSProperties{

@@ -13,26 +13,25 @@ object ErrorBoundaryInfo {
     component(Props(error))
   }
 
-    val errorBoundaryInfoStyle = js.Dynamic.literal(
+  val errorBoundaryInfoStyle = js.Dynamic.literal(
+   display="flex",
+   flexDirection=FlexDirection.column,
+   alignItems="center",
+   justifyContent="center"
+  )
+  
+  val contentStyle = js.Dynamic.literal(
+   display="flex",
+   flexDirection=FlexDirection.column
+  )
+  
+  val iconStyle = js.Dynamic.literal(
      display="flex",
-     flexDirection=FlexDirection.column,
-     alignItems="center",
      justifyContent="center"
-    )
-    val contentStyle = js.Dynamic.literal(
-     display="flex",
-     flexDirection=FlexDirection.column
-    )
-    val iconStyle = js.Dynamic.literal(
-       display="flex",
-       justifyContent="center"
-      )
-
-
+  )
   
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val e = props.error
-
     div(
       className := "errorBoundaryInfo", style:=errorBoundaryInfoStyle,
       div(

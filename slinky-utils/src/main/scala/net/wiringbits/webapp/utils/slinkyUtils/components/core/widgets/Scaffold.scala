@@ -17,20 +17,20 @@ object Scaffold {
     component(Props(appbar = appbar, body = body, footer = footer))
   }
 
-    val scaffoldStyle = js.Dynamic.literal(
-     flex="auto",
-     display="flex",
-     flexDirection=FlexDirection.column
-    )
+  val scaffoldStyle = js.Dynamic.literal(
+   flex="auto",
+   display="flex",
+   flexDirection=FlexDirection.column
+  )
 
-    val scaffoldBody = js.Dynamic.literal(
-     minHeight="100vh",
-     flex="auto",
-     display="flex",
-     flexDirection=FlexDirection.column,
-     padding="1em"
-    )
-  val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
+  val scaffoldBodyStyle = js.Dynamic.literal(
+   minHeight="100vh",
+   flex="auto",
+   display="flex",
+   flexDirection=FlexDirection.column,
+   padding="1em"
+  )
+val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
 
 
     val appbar = props.appbar match {
@@ -45,7 +45,7 @@ object Scaffold {
 
     div(className := "scaffold",style:=scaffoldStyle)(
       appbar,
-      div(className := "scaffoldBody",style:=scaffoldBody)(props.body),
+      div(className := "scaffoldBody",style:=scaffoldBodyStyle)(props.body),
       footer
     )
   }
