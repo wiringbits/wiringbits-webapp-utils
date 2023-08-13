@@ -5,10 +5,9 @@ import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
 import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
 import com.olvind.mui.csstype.mod.Property.FlexDirection
 import com.olvind.mui.react.mod.CSSProperties
-
 import slinky.core.facade.Fragment
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
-import slinky.web.html.{div,style}
+import slinky.web.html.{div, style}
 
 object InfoCard {
   case class Props(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None)
@@ -33,7 +32,7 @@ object InfoCard {
            color="#616161"
         })
       .elevation(0)(
-        div(props.icon,style:=new CSSProperties{
+        div(props.icon,style := new CSSProperties{
           fontSize="2em"
           marginBottom=16
         }),

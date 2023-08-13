@@ -19,17 +19,17 @@ object ErrorBoundaryInfo {
    alignItems="center",
    justifyContent="center"
   )
-  
+
   val contentStyle = js.Dynamic.literal(
    display="flex",
    flexDirection=FlexDirection.column
   )
-  
+
   val iconStyle = js.Dynamic.literal(
      display="flex",
      justifyContent="center"
   )
-  
+
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     val e = props.error
     div(

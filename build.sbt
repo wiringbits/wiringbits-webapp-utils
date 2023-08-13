@@ -117,7 +117,7 @@ lazy val baseWebSettings: Project => Project =
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
         "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.1",
         "com.olvind.st-material-ui" %%% "st-material-ui-icons-slinky" % "5.11.16",
-        "com.alexitc" %%% "sjs-material-ui-facade" % "0.2.0"
+
 
       )
     )
@@ -204,6 +204,10 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
       "react-router-dom"
     ),
     Compile / npmDependencies ++= Seq(
+      "react" -> "17.0.0",
+      "react-dom" -> "17.0.0",
+      "@types/react" -> "17.0.0",
+      "@types/react-dom" -> "17.0.0",
       "@mui/material"->"5.11.15",
       "@mui/styles" -> "5.11.13", // note: version 4 is not supported yet
       "@mui/icons-material"->"5.11.11",
