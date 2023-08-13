@@ -45,7 +45,7 @@ object ConfirmDialog {
         mui.DialogTitle(props.title),
         mui.DialogContent(mui.DialogContentText(props.message)),
         mui.DialogActions(
-          mui.Button.normal().color(PropTypes.Color.secondary).onClick(_ => props.onCancel())(props.cancelText),
+          mui.Button.normal().color("secondary").onClick(_ => props.onCancel())(props.cancelText),
           mui
             .Button.normal()
             .color(PropTypes.Color.primary)

@@ -24,6 +24,8 @@ object AlertDialog {
         mui.DialogContent(mui.DialogContentText(props.message)),
         mui.DialogActions(
           mui.Button.normal()
+            .variant("contained")
+            .color("primary")
             .onClick(_ => props.onClose())(props.closeText)
         )
       )
