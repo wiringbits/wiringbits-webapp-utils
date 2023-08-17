@@ -1,6 +1,6 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-import com.alexitc.materialui.facade.materialUiCore.{components => mui}
+import com.olvind.mui.muiMaterial.components as mui
 import slinky.core.FunctionalComponent
 import slinky.core.facade.{Hooks, ReactElement}
 import slinky.web.html._
@@ -8,6 +8,7 @@ import slinky.web.html._
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits._
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import com.olvind.mui.muiMaterial.mod.PropTypes.Color
 
 /** A reusable component to renders data from a asynchronous data source, providing:
   *   - A progress indicator when the data is being retrieved.
@@ -104,8 +105,8 @@ object AsyncComponent {
     div(
       mui
         .Typography()
-        .color(com.alexitc.materialui.facade.materialUiCore.mod.PropTypes.Color.secondary)(msg),
-      mui.Button.onClick(_ => reload())(props.retryLabel)
+        .color(Color.secondary)(msg),
+      mui.Button.normal().onClick(_ => reload())(props.retryLabel)
     )
   }
 }

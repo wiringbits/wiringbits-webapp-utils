@@ -1,19 +1,13 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-import com.alexitc.materialui.facade.csstype.mod.FlexDirectionProperty
-import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiCore.{components => mui}
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
-  CSSProperties,
-  StyleRulesCallback,
-  Styles,
-  WithStylesOptions
-}
-import org.scalablytyped.runtime.StringDictionary
+import com.olvind.mui.muiMaterial.components as mui
+import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
+import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
+import com.olvind.mui.csstype.mod.Property.FlexDirection
+import com.olvind.mui.react.mod.CSSProperties
+import slinky.core.facade.Fragment
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
-import slinky.web.html.div
+import slinky.web.html.{div, style}
 
 object InfoCard {
   case class Props(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None)
@@ -22,41 +16,28 @@ object InfoCard {
     component(Props(message = message, icon = icon, child = child))
   }
 
-  private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    /* If you don't need direct access to theme, this could be `StyleRules[Props, String]` */
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
-      StringDictionary(
-        "infoCard" -> CSSProperties()
-          .setMinHeight(200)
-          .setDisplay("flex")
-          .setFlexDirection(FlexDirectionProperty.column)
-          .setAlignItems("center")
-          .setJustifyContent("center")
-          .setFontSize("1.5em")
-          .setBorderRadius(8)
-          .setPadding(16)
-          .setOverflow("hidden")
-          .setColor("#616161")
-          .set(
-            "& svg",
-            CSSProperties()
-              .setFontSize("2em")
-              .setMarginBottom(16)
-          )
-      )
-
-    makeStyles(stylesCallback, WithStylesOptions())
-  }
-
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val classes = useStyles(())
-
     mui.Paper
-      .className(classes("infoCard"))
+      .className("infoCard")
+      .sx(new SystemCssProperties[Theme]{
+           minHeight=200
+           display="flex"
+           flexDirection=FlexDirection.column
+           alignItems="center"
+           justifyContent="center"
+           fontSize="1.5em"
+           borderRadius=8
+           padding=16
+           overflow="hidden"
+           color="#616161"
+        })
       .elevation(0)(
-        props.icon,
+        div(props.icon,style := new CSSProperties{
+          fontSize="2em"
+          marginBottom=16
+        }),
         props.message,
-        props.child.getOrElse("")
+        props.child.getOrElse(""),
       )
   }
 }

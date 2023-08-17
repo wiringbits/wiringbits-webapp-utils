@@ -116,7 +116,9 @@ lazy val baseWebSettings: Project => Project =
       libraryDependencies ++= Seq(
         "io.github.cquiroz" %%% "scala-java-time" % "2.3.0",
         "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.1",
-        "com.alexitc" %%% "sjs-material-ui-facade" % "0.2.0"
+        "com.olvind.st-material-ui" %%% "st-material-ui-icons-slinky" % "5.11.16",
+
+
       )
     )
 
@@ -126,10 +128,10 @@ lazy val reactNpmDeps: Project => Project =
     stTypescriptVersion := "3.9.3",
     stIgnore += "react-proxy",
     Compile / npmDependencies ++= Seq(
-      "react" -> "16.13.1",
-      "react-dom" -> "16.13.1",
-      "@types/react" -> "16.9.42",
-      "@types/react-dom" -> "16.9.8",
+      "react" -> "17.0.0",
+      "react-dom" -> "17.0.0",
+      "@types/react" -> "17.0.0",
+      "@types/react-dom" -> "17.0.0",
       "csstype" -> "2.6.11",
       "@types/prop-types" -> "15.7.3",
       "react-proxy" -> "1.1.8"
@@ -195,16 +197,20 @@ lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
     stOutputPackage := "net.wiringbits.facades",
     // material-ui is provided by a pre-packaged library
     stIgnore ++= List(
-      "@material-ui/core",
-      "@material-ui/styles",
-      "@material-ui/icons",
+      "@mui/material",
+      "@mui/styles",
+      "@mui/icons-material",
       "react-router",
       "react-router-dom"
     ),
     Compile / npmDependencies ++= Seq(
-      "@material-ui/core" -> "3.9.4", // note: version 4 is not supported yet
-      "@material-ui/styles" -> "3.0.0-alpha.10", // note: version 4 is not supported yet
-      "@material-ui/icons" -> "3.0.2",
+      "react" -> "17.0.0",
+      "react-dom" -> "17.0.0",
+      "@types/react" -> "17.0.0",
+      "@types/react-dom" -> "17.0.0",
+      "@mui/material"->"5.11.15",
+      "@mui/styles" -> "5.11.13", // note: version 4 is not supported yet
+      "@mui/icons-material"->"5.11.11",
       "@types/classnames" -> "2.2.10",
       "react-router" -> "5.1.2",
       "react-router-dom" -> "5.1.2"
