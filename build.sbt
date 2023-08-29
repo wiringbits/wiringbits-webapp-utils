@@ -22,36 +22,6 @@ inThisBuild(
 resolvers += Resolver.sonatypeRepo("releases")
 
 val playJson = "2.10.0-RC5"
-val sttp = "3.5.0"
-
-val consoleDisabledOptions = Seq("-Xfatal-warnings", "-Ywarn-unused", "-Ywarn-unused-import")
-
-// Used only by the server
-// TODO: Reuse it in all projects
-lazy val baseServerSettings: Project => Project = {
-  _.settings(
-    scalacOptions ++= Seq(
-      "-Werror",
-      "-unchecked",
-      "-deprecation",
-      "-feature",
-      "-target:jvm-1.8",
-      "-encoding",
-      "UTF-8",
-      "-Xsource:3",
-      "-Wconf:src=src_managed/.*:silent",
-      "-Xlint:missing-interpolator",
-      "-Xlint:adapted-args",
-      "-Ywarn-dead-code",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-value-discard",
-      "-Ywarn-unused"
-    ),
-    Compile / doc / scalacOptions ++= Seq("-no-link-warnings"),
-    // Some options are very noisy when using the console and prevent us using it smoothly, let's disable them
-    Compile / console / scalacOptions ~= (_.filterNot(consoleDisabledOptions.contains))
-  )
-}
 
 // Used only by the lib projects
 lazy val baseLibSettings: Project => Project = _.settings(
@@ -120,70 +90,6 @@ lazy val baseWebSettings: Project => Project =
       )
     )
 
-// specify versions for all of reacts dependencies
-lazy val reactNpmDeps: Project => Project =
-  _.settings(
-    stTypescriptVersion := "3.9.3",
-    stIgnore += "react-proxy",
-    Compile / npmDependencies ++= Seq(
-      "react" -> "16.13.1",
-      "react-dom" -> "16.13.1",
-      "@types/react" -> "16.9.42",
-      "@types/react-dom" -> "16.9.8",
-      "csstype" -> "2.6.11",
-      "@types/prop-types" -> "15.7.3",
-      "react-proxy" -> "1.1.8"
-    )
-  )
-
-lazy val withCssLoading: Project => Project =
-  _.settings(
-    /* custom webpack file to include css */
-    Compile / webpackConfigFile := Some((ThisBuild / baseDirectory).value / "custom.webpack.config.js"),
-    Test / webpackConfigFile := None, // it is important to avoid the custom webpack config in tests to get them passing
-    Compile / npmDevDependencies ++= Seq(
-      "webpack-merge" -> "4.2.2",
-      "css-loader" -> "3.4.2",
-      "style-loader" -> "1.1.3",
-      "file-loader" -> "5.1.0",
-      "url-loader" -> "3.0.0"
-    )
-  )
-
-lazy val bundlerSettings: Project => Project =
-  _.settings(
-    Compile / fastOptJS / webpackExtraArgs += "--mode=development",
-    Compile / fullOptJS / webpackExtraArgs += "--mode=production",
-    Compile / fastOptJS / webpackDevServerExtraArgs += "--mode=development",
-    Compile / fullOptJS / webpackDevServerExtraArgs += "--mode=production"
-  )
-
-// Used only by play-based projects
-lazy val playSettings: Project => Project = {
-  _.enablePlugins(PlayScala)
-    .disablePlugins(PlayLayoutPlugin)
-    .settings(
-      // docs are huge and unnecessary
-      Compile / doc / sources := Nil,
-      Compile / doc / scalacOptions ++= Seq(
-        "-no-link-warnings"
-      ),
-      // remove play noisy warnings
-      play.sbt.routes.RoutesKeys.routesImport := Seq.empty,
-      libraryDependencies ++= Seq(
-        evolutions,
-        "com.typesafe.play" %% "play-jdbc" % "2.8.19",
-        "com.google.inject" % "guice" % "5.1.0"
-      ),
-      // test
-      libraryDependencies ++= Seq(
-        "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-        "org.mockito" %% "mockito-scala" % "1.17.14" % Test,
-        "org.mockito" %% "mockito-scala-scalatest" % "1.17.14" % Test
-      )
-    )
-}
-
 lazy val scalablytypedFacades = (project in file("scalablytyped-facades"))
   .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .settings(
@@ -246,33 +152,6 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
     )
   )
 
-/** Just the API side for the admin-data-explorer modules
-  */
-lazy val adminDataExplorerApi = (crossProject(JSPlatform, JVMPlatform) in file("admin-data-explorer-api"))
-  .configure(baseLibSettings)
-  .dependsOn(webappCommon)
-  .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
-    name := "admin-data-explorer-api"
-  )
-  .jsConfigure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
-  .jvmSettings(
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" %% "play-json" % playJson,
-      "com.softwaremill.sttp.client3" %% "core" % sttp
-    )
-  )
-  .jsSettings(
-    stUseScalaJsDom := true,
-    Test / fork := false, // sjs needs this to run tests
-    Compile / stMinimize := Selection.All,
-    libraryDependencies ++= Seq(
-      "com.typesafe.play" %%% "play-json" % playJson,
-      "com.softwaremill.sttp.client3" %%% "core" % sttp
-    )
-  )
-
 /** Utils specific to slinky
   */
 lazy val slinkyUtils = (project in file("slinky-utils"))
@@ -286,72 +165,12 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
     Test / fork := false // sjs needs this to run tests
   )
 
-// shared on the ui only
-lazy val adminDataExplorerWeb = (project in file("admin-data-explorer-web"))
-  .dependsOn(adminDataExplorerApi.js)
-  .configure(bundlerSettings, baseLibSettings)
-  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
-  .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8", "3.2.2"),
-    name := "admin-data-explorer-web",
-    Test / fork := false, // sjs needs this to run tests
-    libraryDependencies ++= Seq(
-      "com.github.japgolly.scalajs-react" %%% "core" % "2.1.1",
-      "io.github.nafg.scalajs-facades" %%% "simplefacade" % "0.16.0",
-      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.1"
-    ),
-    Compile / npmDependencies ++= Seq(
-      "react" -> "17.0.0",
-      "react-dom" -> "17.0.0",
-      "react-scripts" -> "5.0.0",
-      "react-admin" -> "4.1.0",
-      "ra-ui-materialui" -> "4.1.0",
-      "ra-data-simple-rest" -> "4.1.0",
-      "ra-i18n-polyglot" -> "4.1.0",
-      "ra-language-english" -> "4.1.0",
-      "ra-core" -> "4.1.0",
-      "@mui/material" -> "5.8.1",
-      "@emotion/styled" -> "11.8.1"
-    )
-  )
-
-/** Includes the specific stuff to run the data explorer server side (play-specific)
-  */
-lazy val adminDataExplorerPlayServer = (project in file("admin-data-explorer-play-server"))
-  .dependsOn(adminDataExplorerApi.jvm, webappCommon.jvm)
-  .configure(baseServerSettings, playSettings)
-  .settings(
-    scalaVersion := "2.13.8",
-    crossScalaVersions := Seq("2.13.8"),
-    name := "admin-data-explorer-play-server",
-    fork := true,
-    Test / fork := true, // allows for graceful shutdown of containers once the tests have finished running
-    libraryDependencies ++= Seq(
-      "org.playframework.anorm" %% "anorm" % "2.7.0",
-      "com.typesafe.play" %% "play" % "2.8.19",
-      "com.typesafe.play" %% "play-json" % "2.9.4",
-      "org.postgresql" % "postgresql" % "42.6.0",
-      "com.github.jwt-scala" %% "jwt-core" % "9.2.0",
-      "de.svenkubiak" % "jBCrypt" % "0.4.3",
-      "commons-validator" % "commons-validator" % "1.7",
-      "com.dimafeng" %% "testcontainers-scala-scalatest" % "0.40.15" % "test",
-      "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.40.15" % "test",
-      "com.softwaremill.sttp.client3" %% "core" % sttp % "test",
-      "com.softwaremill.sttp.client3" %% "async-http-client-backend-future" % sttp % "test"
-    )
-  )
-
 lazy val root = (project in file("."))
   .aggregate(
     scalablytypedFacades,
     webappCommon.jvm,
     webappCommon.js,
-    adminDataExplorerApi.jvm,
-    adminDataExplorerApi.js,
-    slinkyUtils,
-    adminDataExplorerWeb,
-    adminDataExplorerPlayServer
+    slinkyUtils
   )
   .settings(
     name := "wiringbits-webapp-utils",
