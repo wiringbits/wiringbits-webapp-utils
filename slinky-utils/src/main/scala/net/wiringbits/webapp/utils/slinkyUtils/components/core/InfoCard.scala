@@ -1,17 +1,9 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-import com.alexitc.materialui.facade.csstype.mod.FlexDirectionProperty
-import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiCore.{components => mui}
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
-  CSSProperties,
-  StyleRulesCallback,
-  Styles,
-  WithStylesOptions
-}
-import org.scalablytyped.runtime.StringDictionary
+import com.olvind.mui.csstype.mod.DataType.{ContentPosition, DisplayInside}
+import com.olvind.mui.csstype.mod.Property.{FlexDirection, OverflowInline}
+import com.olvind.mui.muiMaterial.components as mui
+import net.wiringbits.webapp.utils.slinkyUtils.Utils.CSSPropertiesUtils
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
 import slinky.web.html.div
 
@@ -22,41 +14,32 @@ object InfoCard {
     component(Props(message = message, icon = icon, child = child))
   }
 
-  private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    /* If you don't need direct access to theme, this could be `StyleRules[Props, String]` */
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
-      StringDictionary(
-        "infoCard" -> CSSProperties()
-          .setMinHeight(200)
-          .setDisplay("flex")
-          .setFlexDirection(FlexDirectionProperty.column)
-          .setAlignItems("center")
-          .setJustifyContent("center")
-          .setFontSize("1.5em")
-          .setBorderRadius(8)
-          .setPadding(16)
-          .setOverflow("hidden")
-          .setColor("#616161")
-          .set(
-            "& svg",
-            CSSProperties()
-              .setFontSize("2em")
-              .setMarginBottom(16)
-          )
-      )
-
-    makeStyles(stylesCallback, WithStylesOptions())
-  }
+  private val infoCardCss = new CSSPropertiesUtils {
+    minHeight = 200
+    display = DisplayInside.flex
+    flexDirection = FlexDirection.column
+    alignItems = ContentPosition.center
+    justifyContent = ContentPosition.center
+    fontSize = "1.5em"
+    borderRadius = 8
+    padding = 16
+    overflow = OverflowInline.hidden
+    color = "#616161"
+  }.set(
+    "& svg",
+    new CSSPropertiesUtils {
+      fontSize = "2em"
+      marginBottom = 16
+    }
+  )
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val classes = useStyles(())
-
     mui.Paper
-      .className(classes("infoCard"))
       .elevation(0)(
         props.icon,
         props.message,
         props.child.getOrElse("")
       )
+      .sx(infoCardCss)
   }
 }

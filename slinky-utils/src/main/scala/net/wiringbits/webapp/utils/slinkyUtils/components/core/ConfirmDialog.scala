@@ -1,7 +1,6 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-import com.alexitc.materialui.facade.materialUiCore.mod.PropTypes
-import com.alexitc.materialui.facade.materialUiCore.{components => mui}
+import com.olvind.mui.muiMaterial.components as mui
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 object ConfirmDialog {
@@ -41,14 +40,13 @@ object ConfirmDialog {
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui
       .Dialog(props.visible)
-      .onClose(_ => props.onCancel())(
+      .onClose((_, _) => props.onCancel())(
         mui.DialogTitle(props.title),
         mui.DialogContent(mui.DialogContentText(props.message)),
         mui.DialogActions(
-          mui.Button().color(PropTypes.Color.secondary).onClick(_ => props.onCancel())(props.cancelText),
-          mui
-            .Button()
-            .color(PropTypes.Color.primary)
+          mui.Button.normal.color("secondary").onClick(_ => props.onCancel())(props.cancelText),
+          mui.Button.normal
+            .color("primary")
             .onClick(_ => props.onConfirm())(props.confirmText)
         )
       )

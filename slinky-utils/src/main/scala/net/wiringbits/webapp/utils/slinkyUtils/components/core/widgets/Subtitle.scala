@@ -1,7 +1,8 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.materialUiCore.mod.PropTypes.Color
-import com.alexitc.materialui.facade.materialUiCore.{typographyTypographyMod, components => mui}
+import com.olvind.mui.csstype.mod.Property.Color
+import com.olvind.mui.muiMaterial.components as mui
+import com.olvind.mui.muiMaterial.stylesCreateTypographyMod.Variant
 import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 object Subtitle {
@@ -12,11 +13,11 @@ object Subtitle {
   }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val color = props.color.getOrElse(Color.inherit)
+    val color = props.color.getOrElse("inherit")
 
     mui
       .Typography()
       .color(color)
-      .variant(typographyTypographyMod.Style.h6)(props.text)
+      .variant(Variant.h6)(props.text)
   }
 }

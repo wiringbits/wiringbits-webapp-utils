@@ -1,19 +1,11 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.csstype.mod.BoxSizingProperty
-import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
-  CSSProperties,
-  StyleRulesCallback,
-  Styles,
-  WithStylesOptions
-}
-import org.scalablytyped.runtime.StringDictionary
+import com.olvind.mui.csstype.mod.DataType.DisplayInside
+import com.olvind.mui.csstype.mod.Property.{BoxSizing, FlexDirection}
+import com.olvind.mui.muiMaterial.components as mui
+import net.wiringbits.webapp.utils.slinkyUtils.Utils.CSSPropertiesUtils
 import slinky.core.facade.ReactElement
 import slinky.core.{FunctionalComponent, KeyAddingStage}
-import slinky.web.html.{className, div, style}
 
 import scala.scalajs.js
 
@@ -60,13 +52,6 @@ object Container {
     )
   }
 
-  sealed trait FlexDirection extends Product with Serializable
-
-  object FlexDirection {
-    case object column extends FlexDirection
-    case object row extends FlexDirection
-  }
-
   sealed trait Alignment extends Product with Serializable
 
   object Alignment extends Enumeration {
@@ -92,39 +77,29 @@ object Container {
     def vertical(value: Int): EdgeInsets = EdgeInsets(value, 0, value, 0)
   }
 
-  private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
-      StringDictionary(
-        "container" -> CSSProperties()
-          .setDisplay("flex")
-          .setBoxSizing(BoxSizingProperty.`border-box`)
-          .setWidth("auto")
-      )
-    makeStyles(stylesCallback, WithStylesOptions())
-  }
-
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val classes = useStyles(())
+    val borderRadius_ = props.borderRadius.getOrElse("0px")
+    val minWidth_ = props.minWidth.getOrElse("0")
+    val maxWidth_ = props.maxWidth.getOrElse("auto")
 
-    val borderRadius = props.borderRadius.getOrElse("0px")
-    val minWidth = props.minWidth.getOrElse("0")
-    val maxWidth = props.maxWidth.getOrElse("auto")
+    val flex_ = props.flex.map(_.toString).getOrElse("none")
 
-    val flex = props.flex.getOrElse("none")
-
-    val containerStyle = js.Dynamic.literal(
-      margin = props.margin.value(),
-      padding = props.padding.value(),
-      borderRadius = borderRadius,
-      minWidth = minWidth,
-      maxWidth = maxWidth,
-      flex = flex.toString,
-      flexDirection = props.flexDirection.toString,
-      alignItems = parseAlignment(props.alignItems),
+    val containerCss = new CSSPropertiesUtils {
+      display = DisplayInside.flex
+      boxSizing = BoxSizing.`border-box`
+      width = "auto"
+      margin = props.margin.value()
+      padding = props.padding.value()
+      borderRadius = borderRadius_
+      minWidth = minWidth_
+      maxWidth = maxWidth_
+      flex = flex_
+      flexDirection = props.flexDirection
+      alignItems = parseAlignment(props.alignItems)
       justifyContent = parseAlignment(props.justifyContent)
-    )
+    }
 
-    div(className := classes("container"), style := containerStyle)(props.child)
+    mui.Box(props.child).sx(containerCss)
   }
 
   private def parseAlignment(alignment: Alignment): String = {

@@ -1,19 +1,10 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.csstype.mod.FlexDirectionProperty
-import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
-  CSSProperties,
-  StyleRulesCallback,
-  Styles,
-  WithStylesOptions
-}
-import org.scalablytyped.runtime.StringDictionary
+import com.olvind.mui.csstype.mod.Property.FlexDirection
+import com.olvind.mui.muiMaterial.components as mui
+import net.wiringbits.webapp.utils.slinkyUtils.Utils.CSSPropertiesUtils
 import slinky.core.facade.{Fragment, ReactElement}
 import slinky.core.{FunctionalComponent, KeyAddingStage}
-import slinky.web.html.{className, div}
 
 object Scaffold {
   case class Props(appbar: Option[ReactElement] = None, body: ReactElement, footer: Option[ReactElement] = None)
@@ -26,42 +17,37 @@ object Scaffold {
     component(Props(appbar = appbar, body = body, footer = footer))
   }
 
-  private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
-      StringDictionary(
-        "scaffold" -> CSSProperties()
-          .setFlex("auto")
-          .setDisplay("flex")
-          .setFlexDirection(FlexDirectionProperty.column),
-        "scaffoldAppbar" -> CSSProperties(),
-        "scaffoldBody" -> CSSProperties()
-          .setMinHeight("100vh")
-          .setFlex("auto")
-          .setDisplay("flex")
-          .setFlexDirection(FlexDirectionProperty.column)
-          .setPadding("1em"),
-        "scaffoldFooter" -> CSSProperties()
-      )
-    makeStyles(stylesCallback, WithStylesOptions())
+  private val scaffoldCss = new CSSPropertiesUtils {
+    flex = "auto"
+    display = "flex"
+    flexDirection = FlexDirection.column
+  }
+
+  private val scaffoldBodyCss = new CSSPropertiesUtils {
+    minHeight = "100vh"
+    flex = "auto"
+    display = "flex"
+    flexDirection = FlexDirection.column
+    padding = "1em"
   }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val classes = useStyles(())
-
-    val appbar = props.appbar match {
-      case Some(e) => Fragment(div(className := classes("scaffoldAppbar"))(e))
+    val appbar: ReactElement = props.appbar match {
+      case Some(e) => mui.Box(e)
       case None => Fragment()
     }
 
-    val footer = props.footer match {
-      case Some(e) => Fragment(div(className := classes("scaffoldFooter"))(e))
+    val footer: ReactElement = props.footer match {
+      case Some(e) => mui.Box(e)
       case None => Fragment()
     }
 
-    div(className := classes("scaffold"))(
-      appbar,
-      div(className := classes("scaffoldBody"))(props.body),
-      footer
-    )
+    mui
+      .Box(
+        appbar,
+        mui.Box(props.body).sx(scaffoldBodyCss),
+        footer
+      )
+      .sx(scaffoldCss)
   }
 }
