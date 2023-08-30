@@ -125,7 +125,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
     ),
     Compile / npmDevDependencies ++= Seq(
       "@types/react" -> "18.0.33",
-      "@types/react-dom" -> "18.0.11",
+      "@types/react-dom" -> "18.0.11"
     )
   )
 
