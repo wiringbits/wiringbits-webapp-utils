@@ -1,21 +1,14 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.alexitc.materialui.facade.csstype.mod.TextAlignProperty
-import com.alexitc.materialui.facade.materialUiCore.createMuiThemeMod.Theme
-import com.alexitc.materialui.facade.materialUiCore.mod.PropTypes.Color
-import com.alexitc.materialui.facade.materialUiCore.{components => mui, materialUiCoreStrings => muiStrings}
-import com.alexitc.materialui.facade.materialUiStyles.makeStylesMod.StylesHook
-import com.alexitc.materialui.facade.materialUiStyles.mod.makeStyles
-import com.alexitc.materialui.facade.materialUiStyles.withStylesMod.{
-  CSSProperties,
-  StyleRulesCallback,
-  Styles,
-  WithStylesOptions
-}
+import com.olvind.mui.csstype.mod.Property.{TextAlign, TextDecorationStyle}
+import com.olvind.mui.muiMaterial.components as mui
+import com.olvind.mui.muiMaterial.stylesCreateTypographyMod.Variant
+import com.olvind.mui.react.mod.CSSProperties
 import net.wiringbits.webapp.utils.slinkyUtils.facades.reactrouterdom.NavLink
-import org.scalablytyped.runtime.StringDictionary
 import slinky.core.{FunctionalComponent, KeyAddingStage}
-import slinky.web.html.{className, onClick}
+import slinky.web.html.{onClick, style}
+
+import scala.scalajs.js
 
 object NavLinkButton {
   case class Props(path: String, text: String, onClick: () => Unit)
@@ -24,28 +17,22 @@ object NavLinkButton {
     component(Props(path = path, text = text, onClick = onClick))
   }
 
-  private lazy val useStyles: StylesHook[Styles[Theme, Unit, String]] = {
-    val stylesCallback: StyleRulesCallback[Theme, Unit, String] = theme =>
-      StringDictionary(
-        "navLinkButton" -> CSSProperties()
-          .setMargin("0 8px")
-          .setPadding("2px 4px")
-          .setColor("inherit")
-          .setTextAlign(TextAlignProperty.inherit)
-          .setTextDecoration("none"),
-        "navLinkButtonActive" -> CSSProperties()
-      )
-    makeStyles(stylesCallback, WithStylesOptions())
+  private val navLinkButtonCss = new CSSProperties {
+    margin = "0 8px"
+    padding = "2px 4px"
+    color = "inherit"
+    textAlign = TextAlign.inherit
+    textDecoration = TextDecorationStyle.inherit
   }
 
+  private val navLinkButtonActiveCss = CSSProperties()
+
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val classes = useStyles(())
+    val text = mui.Typography()(props.text).variant(Variant.h6).color("inherit")
 
-    val text = mui.Typography()(props.text).variant(muiStrings.h6).color(Color.inherit)
-
-    NavLink(className := classes("navLinkButton"), onClick := (_ => props.onClick()))(
+    NavLink(onClick := (_ => props.onClick()), style := navLinkButtonCss)(
       to = props.path,
-      activeClassName = s"${classes("navLinkButton")} ${classes("navLinkButtonActive")}",
+      activeStyle = navLinkButtonActiveCss,
       exact = true
     )(text)
   }

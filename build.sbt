@@ -91,11 +91,42 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
   */
 lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings, baseWebSettings)
-  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin))
+  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
   .dependsOn(webappCommon.js)
   .settings(
     name := "slinky-utils",
-    Test / fork := false // sjs needs this to run tests
+    Test / fork := false, // sjs needs this to run tests
+    stTypescriptVersion := "3.9.3",
+    useYarn := true,
+    stFlavour := Flavour.Slinky,
+    Compile / stMinimize := Selection.All,
+    stIgnore ++= List(
+      "react-proxy",
+      "@mui/material",
+      "@mui/icons-material",
+      "@mui/joy",
+      "@emotion/react",
+      "@emotion/styled",
+      "react-router",
+      "react-router-dom"
+    ),
+    Compile / npmDependencies ++= Seq(
+      "react" -> "18.2.0",
+      "react-dom" -> "18.2.0",
+      "csstype" -> "2.6.11",
+      "react-proxy" -> "1.1.8",
+      "@mui/material" -> "5.11.16",
+      "@mui/icons-material" -> "5.11.16",
+      "@mui/joy" -> "5.0.0-alpha.74",
+      "@emotion/react" -> "11.10.6",
+      "@emotion/styled" -> "11.10.6",
+      "react-router" -> "5.1.2",
+      "react-router-dom" -> "5.1.2"
+    ),
+    Compile / npmDevDependencies ++= Seq(
+      "@types/react" -> "18.0.33",
+      "@types/react-dom" -> "18.0.11",
+    )
   )
 
 lazy val root = (project in file("."))

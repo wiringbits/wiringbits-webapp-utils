@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.slinkyUtils.forms
 
 case class StatefulFormData[D <: FormData[_]](data: D, state: StatefulFormData.State = StatefulFormData.State.Filling) {
-  import StatefulFormData._
+  import StatefulFormData.*
 
   def firstValidationError: Option[String] = {
     state.submissionError.orElse(data.formValidationErrors.headOption)
