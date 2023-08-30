@@ -1,7 +1,8 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import slinky.core.{FunctionalComponent, KeyAddingStage}
 import com.olvind.mui.muiMaterial.components as mui
+import net.wiringbits.webapp.utils.slinkyUtils.Utils.CSSPropertiesUtils
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
 import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
 
@@ -11,14 +12,14 @@ object CircularLoader {
   def apply(size: Int = 16): KeyAddingStage = {
     component(Props(size = size))
   }
-  
+
+  private val circularLoaderCss = new CSSPropertiesUtils {
+    display = "flex"
+  }
+
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    mui
-      .CircularProgress()
-      .className("circularLoader")
-      .sx(new SystemCssProperties[Theme]{
-        display="flex"
-      })
+    mui.CircularProgress
+      .sx(circularLoaderCss)
       .size(props.size)
   }
 }

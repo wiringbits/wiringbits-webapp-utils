@@ -1,14 +1,13 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import com.olvind.mui.muiMaterial.components as mui
-import slinky.core.FunctionalComponent
+import com.olvind.mui.muiMaterial.mod.PropTypes.Color
+import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.*
 import slinky.core.facade.{Hooks, ReactElement}
-import slinky.web.html._
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
-import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits._
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import com.olvind.mui.muiMaterial.mod.PropTypes.Color
 
 /** A reusable component to renders data from a asynchronous data source, providing:
   *   - A progress indicator when the data is being retrieved.
@@ -56,6 +55,28 @@ object AsyncComponent {
       watchedObjects: Iterable[Any] = List("")
   )
 
+  def apply[D](
+      fetch: () => Future[D],
+      render: D => ReactElement,
+      onDataLoaded: D => Unit = (_: D) => (),
+      progressIndicator: () => ReactElement = () => loader,
+      progressIndicatorWhileReloadingData: Boolean = false,
+      retryLabel: String = "Retry",
+      watchedObjects: Iterable[Any] = List("")
+  ): KeyAddingStage = {
+    component[D](
+      Props(
+        fetch,
+        render,
+        onDataLoaded,
+        progressIndicator,
+        progressIndicatorWhileReloadingData,
+        retryLabel,
+        watchedObjects
+      )
+    )
+  }
+
   /** @tparam D
     *   The data to fetch and render
     * @return
@@ -96,17 +117,17 @@ object AsyncComponent {
   }
 
   private def loader: ReactElement = {
-    div(
+    mui.Box(
       mui.CircularProgress()
     )
   }
 
   private def error[D](msg: String, props: Props[D], reload: () => Unit): ReactElement = {
-    div(
+    mui.Box(
       mui
         .Typography()
         .color(Color.secondary)(msg),
-      mui.Button.normal().onClick(_ => reload())(props.retryLabel)
+      mui.Button.normal.onClick(_ => reload())(props.retryLabel)
     )
   }
 }

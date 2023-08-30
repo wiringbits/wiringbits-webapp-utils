@@ -1,13 +1,11 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
+import com.olvind.mui.csstype.mod.DataType.{ContentPosition, DisplayInside}
+import com.olvind.mui.csstype.mod.Property.{FlexDirection, OverflowInline}
 import com.olvind.mui.muiMaterial.components as mui
-import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
-import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
-import com.olvind.mui.csstype.mod.Property.FlexDirection
-import com.olvind.mui.react.mod.CSSProperties
-import slinky.core.facade.Fragment
+import net.wiringbits.webapp.utils.slinkyUtils.Utils.CSSPropertiesUtils
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
-import slinky.web.html.{div, style}
+import slinky.web.html.div
 
 object InfoCard {
   case class Props(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None)
@@ -16,28 +14,32 @@ object InfoCard {
     component(Props(message = message, icon = icon, child = child))
   }
 
+  private val infoCardCss = new CSSPropertiesUtils {
+    minHeight = 200
+    display = DisplayInside.flex
+    flexDirection = FlexDirection.column
+    alignItems = ContentPosition.center
+    justifyContent = ContentPosition.center
+    fontSize = "1.5em"
+    borderRadius = 8
+    padding = 16
+    overflow = OverflowInline.hidden
+    color = "#616161"
+  }.set(
+    "& svg",
+    new CSSPropertiesUtils {
+      fontSize = "2em"
+      marginBottom = 16
+    }
+  )
+
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui.Paper
-      .className("infoCard")
-      .sx(new SystemCssProperties[Theme]{
-           minHeight=200
-           display="flex"
-           flexDirection=FlexDirection.column
-           alignItems="center"
-           justifyContent="center"
-           fontSize="1.5em"
-           borderRadius=8
-           padding=16
-           overflow="hidden"
-           color="#616161"
-        })
       .elevation(0)(
-        div(props.icon,style := new CSSProperties{
-          fontSize="2em"
-          marginBottom=16
-        }),
+        props.icon,
         props.message,
-        props.child.getOrElse(""),
+        props.child.getOrElse("")
       )
+      .sx(infoCardCss)
   }
 }

@@ -1,9 +1,10 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
+import com.olvind.mui.csstype.mod.Property.Color
 import com.olvind.mui.muiMaterial.components as mui
-import com.olvind.mui.muiMaterial.mod.PropTypes.Color
+import com.olvind.mui.muiMaterial.stylesCreateTypographyMod.Variant
 import slinky.core.{FunctionalComponent, KeyAddingStage}
-import com.olvind.mui.muiMaterial.mod.{makeStyles,withStyles}
+import com.olvind.mui.muiMaterial.mod.{makeStyles, withStyles}
 
 object Subtitle {
   case class Props(text: String, color: Option[Color] = None)
@@ -14,11 +15,11 @@ object Subtitle {
   }
 
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
-    val color = props.color.getOrElse(Color.inherit)
+    val color = props.color.getOrElse("inherit")
 
     mui
       .Typography()
       .color(color)
-      .variant("h6")(props.text)
+      .variant(Variant.h6)(props.text)
   }
 }

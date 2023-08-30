@@ -1,12 +1,12 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 
-import com.olvind.mui.csstype.mod.Property.TextAlign
+import com.olvind.mui.csstype.mod.Property.{TextAlign, TextDecorationStyle}
+import com.olvind.mui.muiMaterial.components as mui
+import com.olvind.mui.muiMaterial.stylesCreateTypographyMod.Variant
+import com.olvind.mui.react.mod.CSSProperties
 import net.wiringbits.webapp.utils.slinkyUtils.facades.reactrouterdom.NavLink
 import slinky.core.{FunctionalComponent, KeyAddingStage}
-import slinky.web.html.{className, onClick,style}
-import com.olvind.mui.muiMaterial.components as mui
-import com.olvind.mui.muiMaterial.mod.PropTypes.Color
-
+import slinky.web.html.{onClick, style}
 
 import scala.scalajs.js
 
@@ -17,20 +17,22 @@ object NavLinkButton {
     component(Props(path = path, text = text, onClick = onClick))
   }
 
-  val navLinkButtonStyle = js.Dynamic.literal(
-    margin="0 8px",
-    padding="2px 4px",
-    color="inherit",
-    textAlign=TextAlign.inherit,
-    textDecoration="none"
-  )
+  private val navLinkButtonCss = new CSSProperties {
+    margin = "0 8px"
+    padding = "2px 4px"
+    color = "inherit"
+    textAlign = TextAlign.inherit
+    textDecoration = TextDecorationStyle.inherit
+  }
+
+  private val navLinkButtonActiveCss = CSSProperties()
+
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
+    val text = mui.Typography()(props.text).variant(Variant.h6).color("inherit")
 
-    val text = mui.Typography()(props.text).variant("h6").color(Color.inherit)
-
-    NavLink(className := "navLinkButton",style:=navLinkButtonStyle, onClick := (_ => props.onClick()))(
+    NavLink(onClick := (_ => props.onClick()), style := navLinkButtonCss)(
       to = props.path,
-      activeClassName = "navLinkButton navLinkButtonActive",
+      activeStyle = navLinkButtonActiveCss,
       exact = true
     )(text)
   }

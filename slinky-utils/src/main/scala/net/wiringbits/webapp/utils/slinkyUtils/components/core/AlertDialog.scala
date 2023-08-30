@@ -1,7 +1,7 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
-import slinky.core.{FunctionalComponent, KeyAddingStage}
 import com.olvind.mui.muiMaterial.components as mui
+import slinky.core.{FunctionalComponent, KeyAddingStage}
 
 object AlertDialog {
   case class Props(visible: Boolean, title: String, message: String, onClose: () => Unit, closeText: String = "Close")
@@ -19,11 +19,11 @@ object AlertDialog {
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui
       .Dialog(props.visible)
-      .onClose((a,b) => props.onClose())(
+      .onClose((_, _) => props.onClose())(
         mui.DialogTitle(props.title),
         mui.DialogContent(mui.DialogContentText(props.message)),
         mui.DialogActions(
-          mui.Button.normal()
+          mui.Button.normal
             .variant("contained")
             .color("primary")
             .onClick(_ => props.onClose())(props.closeText)
