@@ -22,7 +22,7 @@ object Container {
       minWidth: Option[String] = None,
       maxWidth: Option[String] = None
   )
-  
+
   def apply(
       child: ReactElement,
       margin: EdgeInsets = EdgeInsets.all(0),
