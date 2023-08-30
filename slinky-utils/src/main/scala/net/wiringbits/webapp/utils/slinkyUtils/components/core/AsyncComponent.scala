@@ -1,6 +1,7 @@
 package net.wiringbits.webapp.utils.slinkyUtils.components.core
 
 import com.olvind.mui.muiMaterial.components as mui
+import com.olvind.mui.muiMaterial.mod.PropTypes.Color
 import org.scalajs.macrotaskexecutor.MacrotaskExecutor.Implicits.*
 import slinky.core.facade.{Hooks, ReactElement}
 import slinky.core.{FunctionalComponent, KeyAddingStage}
@@ -125,7 +126,7 @@ object AsyncComponent {
     mui.Box(
       mui
         .Typography()
-        .color("secondary")(msg),
+        .color(Color.secondary)(msg),
       mui.Button.normal.onClick(_ => reload())(props.retryLabel)
     )
   }

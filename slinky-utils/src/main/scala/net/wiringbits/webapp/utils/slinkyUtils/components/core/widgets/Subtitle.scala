@@ -4,11 +4,13 @@ import com.olvind.mui.csstype.mod.Property.Color
 import com.olvind.mui.muiMaterial.components as mui
 import com.olvind.mui.muiMaterial.stylesCreateTypographyMod.Variant
 import slinky.core.{FunctionalComponent, KeyAddingStage}
+import com.olvind.mui.muiMaterial.mod.{makeStyles,withStyles}
 
 object Subtitle {
   case class Props(text: String, color: Option[Color] = None)
 
   def apply(text: String, color: Option[Color] = None): KeyAddingStage = {
+
     component(Props(text = text, color = color))
   }
 

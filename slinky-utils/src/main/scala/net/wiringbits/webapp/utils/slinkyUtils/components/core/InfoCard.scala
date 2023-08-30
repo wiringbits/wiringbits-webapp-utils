@@ -5,7 +5,7 @@ import com.olvind.mui.csstype.mod.Property.{FlexDirection, OverflowInline}
 import com.olvind.mui.muiMaterial.components as mui
 import net.wiringbits.webapp.utils.slinkyUtils.Utils.CSSPropertiesUtils
 import slinky.core.{FunctionalComponent, KeyAddingStage, TagMod}
-import slinky.web.html.div
+import slinky.web.html.{div, style}
 
 object InfoCard {
   case class Props(message: String, icon: TagMod[div.tag.type], child: Option[TagMod[div.tag.type]] = None)
@@ -36,9 +36,12 @@ object InfoCard {
   val component: FunctionalComponent[Props] = FunctionalComponent[Props] { props =>
     mui.Paper
       .elevation(0)(
-        props.icon,
+        div(props.icon,style := new CSSProperties{
+          fontSize="2em"
+          marginBottom=16
+        }),
         props.message,
-        props.child.getOrElse("")
+        props.child.getOrElse(""),
       )
       .sx(infoCardCss)
   }

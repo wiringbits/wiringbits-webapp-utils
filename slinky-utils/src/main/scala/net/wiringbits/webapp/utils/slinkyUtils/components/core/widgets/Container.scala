@@ -10,7 +10,6 @@ import slinky.core.{FunctionalComponent, KeyAddingStage}
 import scala.scalajs.js
 
 object Container {
-
   case class Props(
       child: ReactElement,
       margin: EdgeInsets = EdgeInsets.all(0),
@@ -23,7 +22,7 @@ object Container {
       minWidth: Option[String] = None,
       maxWidth: Option[String] = None
   )
-
+  
   def apply(
       child: ReactElement,
       margin: EdgeInsets = EdgeInsets.all(0),

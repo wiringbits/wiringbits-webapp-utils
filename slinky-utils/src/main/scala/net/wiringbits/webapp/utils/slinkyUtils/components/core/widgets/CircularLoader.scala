@@ -3,6 +3,8 @@ package net.wiringbits.webapp.utils.slinkyUtils.components.core.widgets
 import com.olvind.mui.muiMaterial.components as mui
 import net.wiringbits.webapp.utils.slinkyUtils.Utils.CSSPropertiesUtils
 import slinky.core.{FunctionalComponent, KeyAddingStage}
+import com.olvind.mui.muiMaterial.stylesCreateThemeMod.Theme
+import com.olvind.mui.muiSystem.styleFunctionSxStyleFunctionSxMod.SystemCssProperties
 
 object CircularLoader {
   case class Props(size: Int = 16)
