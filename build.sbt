@@ -91,7 +91,7 @@ lazy val webappCommon = (crossProject(JSPlatform, JVMPlatform) in file("webapp-c
   */
 lazy val slinkyUtils = (project in file("slinky-utils"))
   .configure(baseLibSettings, baseWebSettings)
-  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterPlugin))
+  .configure(_.enablePlugins(ScalaJSPlugin, ScalaJSBundlerPlugin, ScalablyTypedConverterGenSourcePlugin))
   .dependsOn(webappCommon.js)
   .settings(
     name := "slinky-utils",
@@ -100,6 +100,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
     useYarn := true,
     stFlavour := Flavour.Slinky,
     Compile / stMinimize := Selection.All,
+    stOutputPackage := "net.wiringbits.webapp.utils.slinkyUtils",
     stIgnore ++= List(
       "react-proxy",
       "@mui/material",
@@ -125,7 +126,7 @@ lazy val slinkyUtils = (project in file("slinky-utils"))
     ),
     Compile / npmDevDependencies ++= Seq(
       "@types/react" -> "18.0.33",
-      "@types/react-dom" -> "18.0.11",
+      "@types/react-dom" -> "18.0.11"
     )
   )
 
