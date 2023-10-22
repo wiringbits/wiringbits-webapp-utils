@@ -22,7 +22,7 @@ inThisBuild(
 
 resolvers += Resolver.sonatypeRepo("releases")
 
-val playJson = "2.10.0-RC5"
+val playJson = "2.10.2"
 val stMaterialUi = "5.11.16"
 
 // Used only by the lib projects
